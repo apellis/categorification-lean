@@ -2578,6 +2578,42 @@ example := Stendhal.FirstWeight.exists_wordEquivAt_iff (fun _ : Fin 2 => Finsupp
 example := Stendhal.FirstWeight.exists_tensorWordEquiv_iff (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular
 
+/-- Webster, Proposition 4.39, for two level-two labels of `sl₂`. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `Ĩ_λ`, appending the
+second level-two label to the first. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_red
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `F̃_i^*`, same data. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_leftLower
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `Ĩ_λ^*`, same data. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_leftRed
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `F̃_i`, same data. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_lower
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
 open Stendhal.FirstWeight
 private abbrev oneFactor : Fin 1 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
   fun _ => twoTensorFactors 0
@@ -2865,8 +2901,8 @@ open DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
 the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The
 finite-dimensionality of the algebras `T^λ` is discharged (`tensorProductAlgebra_finite`); the
-route hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses` of
-Proposition 6.9) are assumed here, not discharged. -/
+route hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses`,
+the injectivity hypothesis of Lemma 6.8) are assumed here, not discharged. -/
 example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
     (H : ∀ (u : Fin (0 + 2 + 0) → List Unit) (hu : u (rightPos 0 0) = []),
@@ -2879,6 +2915,24 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
         ((List.finRange (0 + 2 + 0)).map (pairSwap 0 0))))ᵐᵒᵖ :=
     fun _ => DG.HasDerivedCategory.standard _
   braidClass_pairSwap D params regular (n := 0) (m := 0) level (factors 2) level_eq hall H
+
+/-- Webster, arXiv:1309.3796v3, §6.1, proof of Lemma 6.8, for two red `sl₂` strands of weight
+`ω` merged into one block: the kernel of `T^λ e(s)` onto its partial standard module is filtered
+by partial standard modules at strictly higher roots, over `T^λ` and over the corner. The route
+hypothesis `AllFiniteDeltaInjective` (Lemma 5.19) is assumed here, not discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν)) (hs : Stendhal.IsRedOrdered s) :=
+  Stendhal.exists_hasFiltration_leftPartialKernel (Λ := level) params.klrSymm params hall
+    (show (0 : Fin 2) < 1 by decide) hs
+
+/-- The same filtration over the corner `e_λ V e_λ`, for the loadings of red order `λ`. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν))
+    (hs : Stendhal.redWord s = List.finRange 2) :=
+  Stendhal.BraidedStendhalAlgebra.exists_hasFiltration_blockLoadingKernelAt (Λ := level)
+    params.klrSymm params hall (show (0 : Fin 2) < 1 by decide) rfl s hs
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open DG.DegreeZero in
@@ -2955,6 +3009,138 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
   isCompact_braidingFunctor_obj D params regular hall H levelThree (factors 3) levelThree_eq ν
     (Equiv.swap 0 1) DG.DerivedCategory.isCompact_Q_self
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, proof of Theorem 6.14 (injectivity of `ι`), for three red `sl₂`
+strands of weight `ω` and the reversed bottom red order `(2, 1, 0)`: `e(t) V e_κ` is isomorphic to
+`y · e(t⁰) V e_κ`, with no injectivity input. The route hypotheses (`BaseCrossing`,
+`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
+noncomputable example (hbase : Stendhal.BaseCrossing (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)))
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit)
+    (t : KLR.Seq (Stendhal.stendhalWeight 3 ν)) (ht : Stendhal.IsRedOrdered t) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ) := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  Stendhal.FirstWeight.halfTwistInclusionEquiv D params regular hbase hall H levelThree
+    (factors 3) levelThree_eq ν (Equiv.swap 0 2) (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
+
+private theorem klParams :
+    KLR.IsRouquierQ D (KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl :
+      KL3.Diagram.CL.CLScalars D ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+section KhovanovLaudaTilting
+
+open KL3.Diagram
+
+/- The Khovanov–Lauda-scalar results are stated with classical decidable equality on the
+colours; this section uses the same instance on `Unit`. -/
+noncomputable local instance (priority := high) unitDecEqClassical : DecidableEq Unit :=
+  Classical.decEq _
+
+local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
+    Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ
+      (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) Ω ν) :=
+  Stendhal.tensorProductAlgebra_finite Ω ν klParams
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Theorem 6.14, first clause, for three red `sl₂` strands of
+weight `ω` at the Khovanov–Lauda scalars and the reversed bottom red order `(2, 1, 0)`: the cut
+`e(t) V e_κ` and its flip dual both have standard filtrations. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit)
+    (t : KLR.Seq (Stendhal.stendhalWeight 3 ν)) (ht : Stendhal.IsRedOrdered t) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ) :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  Stendhal.BraidedStendhalAlgebra.halfTwist_hasFiltration D klParams levelThree ν
+    (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
+
+end KhovanovLaudaTilting
+
+section KhovanovLaudaHalfTwistExt
+
+open KL3.Diagram
+open scoped DG.DegreeZero
+
+noncomputable local instance (priority := high) unitDecEqClassical' : DecidableEq Unit :=
+  Classical.decEq _
+
+local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
+    Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ
+      (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) Ω ν) :=
+  Stendhal.tensorProductAlgebra_finite Ω ν klParams
+
+noncomputable local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)) :
+    DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+      (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ) :=
+  DG.HasDerivedCategory.small _
+
+noncomputable local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)) :
+    DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+      (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
+
+noncomputable local instance : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+set_option quotPrecheck false in
+set_option hygiene false in
+local notation "𝒞" => Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+  (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := levelThree) (ν := ν)
+  ((List.finRange 3).map (Equiv.swap 0 2))
+
+set_option quotPrecheck false in
+set_option hygiene false in
+local notation "𝔅" t => Stendhal.BraidedStendhalAlgebra.violCorner ℚ
+  (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) levelThree ν t
+  ((List.finRange 3).map (Equiv.swap 0 2))
+
+open CategoryTheory in
+/-- Webster, arXiv:1309.3796v3, proof of Theorem 6.15 (vanishing of the higher Ext between the
+tilting modules `𝔅_τ P`), for three red `sl₂` strands of weight `ω` at the Khovanov–Lauda scalars
+and the reversed bottom red order `(2, 1, 0)`. The route hypothesis `RowFigureFiveHypotheses` is
+assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit)
+    {t t' : KLR.Seq (Stendhal.stendhalWeight 3 ν)} (ht : Stendhal.IsRedOrdered t)
+    (ht' : Stendhal.IsRedOrdered t') (n : ℤ) (hn : n ≠ 0)
+    (f : DG.DerivedCategory.Q.obj ((Categorification.degreeZeroModuleFunctor 𝒞ᵐᵒᵖ).obj
+        (ModuleCat.of 𝒞ᵐᵒᵖ (𝔅 t))) ⟶
+      (DG.DerivedCategory.Q.obj ((Categorification.degreeZeroModuleFunctor 𝒞ᵐᵒᵖ).obj
+        (ModuleCat.of 𝒞ᵐᵒᵖ (𝔅 t'))))⟦n⟧) : f = 0 :=
+  Stendhal.BraidedStendhalAlgebra.halfTwist_hom_shift_eq_zero D klParams levelThree ν
+    (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) ht ht' n hn f
+
+end KhovanovLaudaHalfTwistExt
 
 end TwoFundamentalLowerings
 
@@ -5522,6 +5708,41 @@ example := KLR.IsRouquierQ.cyclotomic_frobenius rqHyp coordDatum (fun _ => 2)
   (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
   (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
 
+private theorem zmod2_eq_one_of_isUnit (x : ZMod 2) (hx : IsUnit x) : x = 1 := by
+  fin_cases x
+  · exact absurd hx not_isUnit_zero
+  · rfl
+
+/-- Webster arXiv:1309.3796v3, Theorem 3.18 and Remark 3.19, on the same data: in
+characteristic two the extremal coefficients `t_ij`, `t_ji` are both `1`, so the trace is
+symmetric. -/
+example := KLR.IsRouquierQ.cyclotomic_frobenius_symmetric rqHyp
+  (fun i j h => (zmod2_eq_one_of_isUnit _ (rqHyp.unit_coeff i j h)).trans
+    (zmod2_eq_one_of_isUnit _ (rqHyp.unit_coeff j i (Ne.symm h))).symm)
+  coordDatum (fun _ => 2) (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
+  (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
+
+private noncomputable abbrev klC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem klRouquier : KLR.IsRouquierQ klC
+    (KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars klC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- The coordinate weight datum of `sl₂`. -/
+private def klDatum : WeightDatum klC (Unit → ℤ) ((Unit → ℤ) →+ ℤ) where
+  pair := AddMonoidHom.id _
+  iX j i := A klC i j
+  iY i := { toFun := fun x => x i, map_zero' := rfl, map_add' := fun _ _ => rfl }
+  pair_iY_iX _ _ := rfl
+
+/-- Webster arXiv:1309.3796v3, Theorem 3.18 and Remark 3.19, for the Khovanov–Lauda scalars:
+`sl₂`, the cyclotomic quotient of weight `2` with `a = u²`, two black strands. -/
+example := KLR.CyclotomicAction.cyclotomic_frobenius_symmetric_kl klRouquier klDatum (fun _ => 2)
+  (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
+  (fun _ => by simp [klDatum]) ({(), ()} : Multiset Unit)
+
 /-- Kang–Kashiwara projectivity over the base ring in characteristic two, for the parallel-edge
 Rouquier parameters and `a_i = u²`. -/
 example := KLR.CycKLR.projective_base (fun _ => Polynomial.X ^ 2) rqHyp.klrSymm
@@ -6093,6 +6314,18 @@ weight `ω`, and every black weight. -/
 noncomputable example (ν : Multiset Unit) :=
   redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
+/-- Webster, arXiv:1309.3796v3, proof of Thm. 6.14 (the symmetric pairing on `P⁰`), for `sl₂`,
+two red strands of weight `ω`, and every black weight. -/
+example (ν : Multiset Unit) :=
+  redFirstIdem_symmetricPairing rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v3, proof of Thm. 6.14 (self-duality of `y T^λ`), for `sl₂`, two
+red strands of weight `ω`, every black weight and `y = e⁰`. -/
+noncomputable example (ν : Multiset Unit) :=
+  redFirstSelfDualEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+    (redFirstIdem _ (fun _ : Fin 2 => Finsupp.single () 1) ν) (by
+      rw [(isIdempotentElem_redFirstIdem _ _ ν).eq, (isIdempotentElem_redFirstIdem _ _ ν).eq])
+
 end RedFirstEnd
 
 /-- Webster, arXiv:1309.3796v3, Prop. 5.21 (printed `Φ`-indexed form), for `sl₂`, two red
@@ -6103,6 +6336,13 @@ noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs :
   phiLayerEquiv_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     hs g
+
+/-- Webster, arXiv:1309.3796v3, Lemma 5.25 (filtered form), for `sl₂`, two red strands of
+weight `ω`, every black weight and red-ordered loading, at the standard Khovanov–Lauda scalars:
+the cokernel of `θ_s` is filtered by standard modules. -/
+example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) :=
+  exists_hasFiltration_shuffleCokernel_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+    s hs
 
 end NonVacuity.RedBlackCrossing
 
@@ -6205,6 +6445,94 @@ example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [(()
     exact_mod_cast h'
   rw [h]
   rfl
+
+/-- Webster, arXiv:1309.3796v3, Lemma 7.3: the head of the level-two coevaluation wrap
+projective is simple. -/
+example := Categorification.Stendhal.isSimpleModule_coevaluationHead
+  CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+  CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+  (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced (fun i => by
+    cases i
+    simp [CoxeterSystem.IsLeftDescent])
+
+private theorem coevaluationWeight_split :
+    0 + wordWt (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized)
+      weight [()])) 0 =
+      (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight [()]) :
+        Multiset Unit) := by
+  rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]
+
+private def firstRed : KLR.Seq (stendhalWeight 1 (0 : Multiset Unit)) :=
+  KLR.KLRAlgebra.Seq.ofList [Sum.inr 0] (by decide)
+
+private theorem firstRed_ordered : IsRedOrdered firstRed := by
+  intro a b r r' hab
+  have ha := a.2
+  have hb := b.2
+  simp [stendhalWeight] at ha hb
+  omega
+
+/-- Webster, arXiv:1309.3796v3, Corollary 7.7 (top degree) at the level-two coevaluation word:
+`Ext^{|ν|}(M_λ, L_λ)` is one-dimensional. The route hypothesis `hall` of Proposition 7.6 is
+assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))) CyclotomicHighestWeight.params.klrSymm) :=
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()])))
+      (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))))
+  Categorification.Stendhal.finrank_ext_standard_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+    CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) [()] reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
+    firstRed firstRed_ordered coevaluationWeight_split
+
+/-- The module category of the level-two coevaluation algebra has Ext groups. -/
+example : CategoryTheory.HasExt.{0} (ModuleCat.{0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+    (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+      (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)]))) :=
+  CategoryTheory.hasExt_of_enoughProjectives _
+
+/-- Webster, arXiv:1309.3796v3, Corollary 7.7 (vanishing part) for the divided standard module
+`M_λ` at the level-two coevaluation word, in degree one. The route hypothesis `hall` of
+Proposition 7.6 is assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) CyclotomicHighestWeight.params.klrSymm)
+    [CategoryTheory.HasExt.{0} (ModuleCat.{0} (TensorProductAlgebra ℚ
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)])))] :=
+  Categorification.Stendhal.subsingleton_ext_standard_cycDivProj_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
+    CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered
+    (by rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]) 1 (by decide)
+
+/-- Webster, arXiv:1309.3796v3, Lemma 7.17 (spanning step) at the head `L_μ` of the
+level-two coevaluation projective, inserted into the empty sequence of red strands. -/
+example := Categorification.Stendhal.CupCap.span_canonical_coevaluationHead
+  (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (fun _ => 2)
+  Categorification.QuantumGroup.UDot.sl2RootDatum 2 [((), 2)]
+  (Fin.elim0 : Fin 0 → Unit →₀ ℕ) 0 le_rfl 0 (fun i => by
+    rw [Categorification.Stendhal.CupCap.cupScalar, Finset.prod_eq_one fun x hx =>
+      absurd (Subsingleton.elim x i) (Finset.mem_erase.1 hx).1, mul_one]
+    exact (isUnit_neg_one.pow _))
 
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
@@ -7581,6 +7909,17 @@ example (ν : Multiset Unit) :=
     (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
     (fun w => (TypeA.exists_reduced _ w).choose)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
+/-- Webster, arXiv:1309.3796v3, Corollary 6.8 (`𝔅 P⁰ ≅ P⁰`, ungraded), for `sl₂`, two red strands
+of weight `ω`, the red orders of any two loadings and any list of black labels: a nonzero `r₀`
+exists, and left multiplication by `r_b` is a bijection of red-first projectives. -/
+example (s t : Seq (stendhalWeight 2 (0 : Multiset Unit))) (b : List Unit) : True := by
+  obtain ⟨r₀, hne, hr₀⟩ := BraidedStendhalAlgebra.exists_ne_zero_of_nil (k := ℚ) (Q := bsQ)
+    (Λ := fun _ : Fin 2 => Finsupp.single () 1) bsSymm s t
+  have := BraidedStendhalAlgebra.bijective_redBraid_mul bsSymm
+    (fun _ w => (TypeA.exists_reduced _ w).choose)
+    (fun _ w => (TypeA.exists_reduced _ w).choose_spec) hr₀ hne b
+  trivial
 
 /-- Webster, arXiv:1309.3796v2, §6: the quotient bimodule `B_e` is the tensor product algebra
 `T^λ` (Definitions 4.6 and 4.7) as rings, for `sl₂`, two red strands of weight `ω` and every
@@ -9346,7 +9685,7 @@ private theorem hS : S.ShortExact := by
   exact ⟨fun _ => ⟨x, rfl⟩, fun _ => Subsingleton.elim _ _⟩
 
 example : IsZero ((homologyFunctor ℤ 1).obj ((derivedTensor ℤ ℤ ℤ).obj
-    (Q.obj ((degreeZeroModuleFunctor ℤ).obj S.X₃)))) := by
+    (Q.obj ((Categorification.degreeZeroModuleFunctor ℤ).obj S.X₃)))) := by
   have hf : HasFiltration (fun _ : Unit => X) [] S.X₁ := .zero inferInstance
   refine isZero_derivedTensorHomology_quotient_of_filtered_kernel (k := ℤ) (M := ℤ) S hS hf
     ?_ ?_ ?_ (AddMonoidHom.id _) ?_ Function.injective_id 1 (by decide)
@@ -9355,7 +9694,7 @@ example : IsZero ((homologyFunctor ℤ 1).obj ((derivedTensor ℤ ℤ ℤ).obj
     apply Functor.map_isZero
     apply Functor.map_isZero
     apply Q.map_isZero
-    exact (degreeZeroModuleFunctor ℤ).map_isZero (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
+    exact (Categorification.degreeZeroModuleFunctor ℤ).map_isZero (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
   · intro c m
     change m * c = c * m
     exact mul_comm _ _
@@ -11207,7 +11546,7 @@ private theorem kernel_zero : blockLoadingKernel Q Λ t 0 1 = ⊥ := by
 example :
     IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0])ᵐᵒᵖ) ℤ 1).obj
       ((braidingFunctor ℤ Q Λ ν (redWord t) [1, 0]).obj (DG.DerivedCategory.Q.obj
-        ((degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
+        ((Categorification.degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
           (blockLoadingShortComplex Q Λ t 0 1).X₃)))) :=
   blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 0 1 [1, 0] kernel_zero 1 (by decide)
 
@@ -11249,7 +11588,7 @@ private theorem terminalLoading_black_lt (p : Fin (stendhalWeight 3 ν).card) (i
 example :
     IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0, 2])ᵐᵒᵖ) ℤ 1).obj
       ((braidingFunctor ℤ Q Λ ν (redWord terminalLoading) [1, 0, 2]).obj
-        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (corner (redWord terminalLoading))ᵐᵒᵖ).obj
+        (DG.DerivedCategory.Q.obj ((Categorification.degreeZeroModuleFunctor (corner (redWord terminalLoading))ᵐᵒᵖ).obj
           (blockLoadingShortComplex Q Λ terminalLoading 0 1).X₃)))) :=
   firstPair_terminal_partialStandard_braid_homology_vanish Q Λ terminalLoading (by decide)
     terminalLoading_black_lt [1, 0, 2] 1 (by decide)
@@ -12164,11 +12503,11 @@ private abbrev unitModule : ModuleCat.{0} ℤ := ModuleCat.of ℤ PUnit
 
 private theorem vanish (n : ℤ) (_ : n ≠ 0) :
     IsZero ((homologyFunctor ℤ n).obj ((derivedTensor ℤ ℤ ℤ).obj
-      (Q.obj ((degreeZeroModuleFunctor ℤ).obj unitModule)))) := by
+      (Q.obj ((Categorification.degreeZeroModuleFunctor ℤ).obj unitModule)))) := by
   apply Functor.map_isZero
   apply Functor.map_isZero
   apply Q.map_isZero
-  exact (degreeZeroModuleFunctor ℤ).map_isZero
+  exact (Categorification.degreeZeroModuleFunctor ℤ).map_isZero
     (X := unitModule) (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
 
 example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) unitModule vanish
@@ -12192,3 +12531,52 @@ example (hδ : ∀ (ℓ : ℕ) (Λ : Fin (ℓ + 1) → Bool →₀ ℕ), Stendha
 
 end NonVacuity.WebsterEiFiltration
 end
+
+namespace NonVacuity.WebsterStandardResolution
+
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.KL3.Diagram
+
+private noncomputable abbrev srC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem srRouquier :
+    KLR.IsRouquierQ srC (CL.qCL (CL.CLScalars.kl : CL.CLScalars srC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem srSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars srC ℚ)) :=
+  fun _ _ h => (h (Subsingleton.elim _ _)).elim
+
+private def srEmpty : Seq (stendhalWeight 0 (0 : Multiset Unit)) :=
+  KLRAlgebra.Seq.ofList [] (by decide)
+
+/-- Webster, arXiv:1309.3796v3, Prop. 7.6, for `sl₂`, one red strand of weight `ω` and two
+black strands right of it. -/
+example := exists_projectiveResolution_websterWords_std (Λ := fun _ : Fin 1 => Finsupp.single () 1)
+  srRouquier srSymm srEmpty (by unfold IsRedOrdered; decide) [(), ()] rfl
+
+/-- The terms of degree `1` of that resolution: the two subsets `{0}` and `{1}`. -/
+example : websterWords ([] : List (Unit ⊕ Fin 1)) [(), ()] 1 =
+    {[Sum.inl (), Sum.inr 0, Sum.inl ()], [Sum.inl (), Sum.inr 0, Sum.inl ()]} := by
+  decide
+
+end NonVacuity.WebsterStandardResolution
+
+/-! ### Webster, KIaHRT (arXiv:1309.3796v3), Theorem 4.25 -/
+
+/-- The representation of `𝒯` on the region categories, for `sl₂` with one red line of weight
+`1` and the Khovanov–Lauda parameters. -/
+noncomputable example :=
+  Stendhal.regionTensorPseudofunctor.{0, 0, 0, 0} UDot.sl2RootDatum (fun _ : Fin 1 => (1 : ℤ))
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (fun i j h => absurd (Subsingleton.elim i j) h)
+    (fun _ => Finsupp.single () 1) (fun _ _ => by simp [UDot.sl2RootDatum])
+
+/-- The representation of `𝒯` on the region categories, for `sl₂` with one red line of weight
+`1` and an arbitrary Rouquier polynomial family (here the zero family, for which every condition
+on `i ≠ j` is vacuous). -/
+noncomputable example :=
+  Stendhal.regionTensorPseudofunctorQ.{0, 0, 0, 0} UDot.sl2RootDatum (fun _ : Fin 1 => (1 : ℤ))
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+    ⟨fun i j h => absurd (Subsingleton.elim i j) h, fun i j h => absurd (Subsingleton.elim i j) h,
+      fun i j h => absurd (Subsingleton.elim i j) h⟩
+    (fun _ => Finsupp.single () 1) (fun _ _ => by simp [UDot.sl2RootDatum])

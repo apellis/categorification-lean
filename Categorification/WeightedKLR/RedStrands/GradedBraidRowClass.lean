@@ -19,7 +19,8 @@ the right standard module at the row loading of `u` is the form against the word
 braid functor along the transposition `π` of `λ_{n+1}, λ_{n+2}` sends the word tensor of `u` to
 the form against `v^{-(⟨|u_{n+1}|, λ_{n+2}⟩ - 2)}` times the word tensor of the swapped words
 (`braidClass_wordTensor`). Hypotheses: the route hypothesis `AllFiniteDeltaInjective` of
-Corollary 5.22 and those of Lemma 6.8 at the row of `u` (`RowFigureFiveHypotheses`).
+Corollary 5.22 and the injectivity hypothesis of Lemma 6.8 at the row of `u`
+(`RowFigureFiveHypotheses`).
 -/
 
 noncomputable section
@@ -145,12 +146,12 @@ theorem braidClass_wordTensor
           (Λ (rightPos n m) i : ℤ)) (u (leftPos n m) : Multiset I)) - 2)) •
         TensorPairing.orderedForm hR (wt ∘ pairSwap n m)
           (wordTensor C (wt ∘ pairSwap n m) (u ∘ pairSwap n m))) := by
-  have hB := braidConcentrated_rightRowStandard.{w} C hQ Λ u hu H
+  have hB := braidConcentrated_rightRowStandard.{w} C hQ Λ hall u hu H
   obtain ⟨Ps, ⟨r⟩⟩ := exists_resolution_rightRowStandard C hQ Λ hall u
   have hX := braidClass_resolution_of_braidConcentrated C hQ hR Λ wt hwt (pairSwap n m) _ r hB
   rw [← eta_altSum_rightRowStandard C hQ hR Λ wt hwt u r,
     braidClass_resolution_of_braidConcentrated C hQ hR Λ wt hwt (pairSwap n m) _ r
-      (braidConcentrated_rightRowStandard.{w} C hQ Λ u hu H)]
+      (braidConcentrated_rightRowStandard.{w} C hQ Λ hall u hu H)]
   congr 1
   have h2 := classFunctional_congr C hQ hR (Λ ∘ pairSwap n m) (wt ∘ pairSwap n m)
     (fun r i => hwt (pairSwap n m r) i) _ (rightRowStandardBraidIso C hQ Λ u hu)

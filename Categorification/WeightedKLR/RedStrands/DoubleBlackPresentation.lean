@@ -145,7 +145,7 @@ def addBlackKLRelations (P : Presentation.{w, max u v} T k) : Presentation.{w, m
 
 local notation "M" => blackMirror RD Λ
 
-private theorem freeLift_mirror_map (P : Presentation.{w, v₁} T k)
+theorem freeLift_mirror_map (P : Presentation.{w, v₁} T k)
     {a b : Obj S} (f : LinDiagram k a b) :
     (freeLift k ((M).toLayerMap.toPresented P (fun _ => 1))).map f =
       P.lin (blackMirrorLinear RD Λ f) := by
@@ -211,19 +211,19 @@ section Context
 
 variable (μ : X) (u : List (DoubleStrand I ℓ))
 
-private theorem mirror_whisker_ok (s : List (Letter I)) :
+theorem mirror_whisker_ok (s : List (Letter I)) :
     ((M).obj (ob RD (endWeight RD Λ μ u) s)).WhiskerOK (obj RD Λ μ u) [] := by
   rw [blackMirror_obj_ob]
   exact ⟨colours_ok RD Λ μ u, colours_endR RD Λ μ u, trivial⟩
 
-private theorem mirror_whisker_obj (s : List (Letter I)) :
+theorem mirror_whisker_obj (s : List (Letter I)) :
     ((M).obj (ob RD (endWeight RD Λ μ u) s)).whisker (obj RD Λ μ u) [] =
       obj RD Λ μ (u ++ blackWord s ++ []) := by
   rw [blackMirror_obj_ob]
   refine Obj.ext rfl ?_
   simp [Obj.whisker, obj, colours_append]
 
-private theorem mirror_whisker_diagram {s t : List (Letter I)}
+theorem mirror_whisker_diagram {s t : List (Letter I)}
     (d : ob RD (endWeight RD Λ μ u) s ⟶ ob RD (endWeight RD Λ μ u) t) :
     Diagram.cast (Diagram.whisker ((M).toLayerMap.map d) (obj RD Λ μ u) [] (mirror_whisker_ok RD Λ μ u s))
       (mirror_whisker_obj RD Λ μ u s) (mirror_whisker_obj RD Λ μ u t) = blackDiagram RD Λ μ u [] d := by
@@ -241,7 +241,7 @@ private theorem mirror_whisker_diagram {s t : List (Letter I)}
   · simp [Layer.whisker, layer, endWeight_append]
   · simp [Layer.whisker, layer, endWeight_append]
 
-private theorem mirror_whisker_linear {s t : List (Letter I)}
+theorem mirror_whisker_linear {s t : List (Letter I)}
     (f : LinDiagram k (ob RD (endWeight RD Λ μ u) s) (ob RD (endWeight RD Λ μ u) t)) :
     LinDiagram.cast (LinDiagram.whisker (blackMirrorLinear RD Λ f) (obj RD Λ μ u) []
       (mirror_whisker_ok RD Λ μ u s)) (mirror_whisker_obj RD Λ μ u s) (mirror_whisker_obj RD Λ μ u t) =

@@ -565,6 +565,31 @@ To remove this restriction, either extend the black-relation comparison
 the result along the crossing rescaling `tensorRescale` combined with a
 rescaling of the cover action.
 
+**Theorem 4.25 for general black parameters.** Done for every Rouquier
+polynomial family `Q` (`Stendhal.regionTensorPseudofunctorQ`). The region
+categories carry the action of `U_Sc(g)` with the Kang–Kashiwara scalars
+`Sc = cyclotomicScalars` of `Q`. The reflection with inverted orientations maps
+the relations of `U_Sc(g)` (`r = 1`) to those of `U_{Sc^θ}(g)`, with
+`t^θ_{ij} = t_{ji}^{-1}` and `s^θ = (t_{ij} t_{ji})^{-1} s`
+(`CLQ.lin_thetaLin_eq_zero`, via `ψ̃` for all scalars, `CLQ.psiUQ`, and the
+rotation of every diagram of `U_Q(g)`, `CL.rotC_dgCL`). So `𝒯` is presented
+with the reflected relations of `U_{Sc^θ}(g)`, the mixed black relations (2.3c),
+(2.4a) at `t^θ` and the cup pitchforks at `t^θ_{ji}` (`j` the through colour,
+`i` the cup colour) (`DoubleDiagram.tensorTwoCatPresentationQ`), and every
+Rouquier family with red lines acts on it
+(`DoubleDiagram.tensorTwoCatPseudofunctorQ`). With `r = 1`, `Sc ↦ Sc^θ` is an
+involution (`CLQ.thetaScalars_thetaScalars`), and at `t = 1` it fixes `Sc`.
+Comparison with Webster's §2.1. Webster's `t_ij = Q_ij(1,0)` is the
+Kang–Kashiwara `t_ij` of `Q` (`kkScalars`). In `U_W(g)` the downward strands
+carry `Q'_ij = (t_ij t_ji)^{-1} Q^W_ij`; for `W = Sc^θ` this is
+`(t_ij t_ji) · (t_ij t_ji)^{-1} Q_ij = Q_ij`, so the reflected black part of
+`𝒯` puts `Q` on downward strands, as in Webster's (2.6e) and in the downward
+KLR relations of `𝒯`. Moreover `Sc^θ = λ · Sc` with `λ_ij = (t_ij t_ji)^{-1}`
+(`t`, `s` scaled by the same symmetric factor). Open: whether Webster's printed
+scalars in (2.5) and the pitchforks (2.2a) are those of `Sc^θ` or of `Sc`
+(they agree at `t = 1`); if the latter, record an erratum with the corrected
+scalars `t^θ`.
+
 ## The rest of arXiv:1309.3796v2
 
 Plan for formalizing the paper in full. Numbers are those of v2, the target version; where v3
@@ -580,12 +605,12 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | v3 Thm 4.28 (no numbered counterpart in v2) | `𝒰` acts on the double tensor product algebras `DT^λ` | done: strict pseudofunctor from the 1-cell dual of the KL 2-category to `Cat` (`blackActionPseudofunctor`), built from right whiskering (`violatingWhiskerRight`) and the functorial action of KL 2-morphisms (`blackMap_id`, `blackMap_comp`) |
 | Thm 4.29 (v3: Thm 4.30) | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
 | Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | done at the standard KL black parameters over a field: the action of Thm 4.28 on the additive idempotent completions (`StrictPseudofunctor.completion`) for the presentation of Thm 4.30 (`clBlackAction`); its value at `λ - ν` is identified with the completion of the all-down boundaries, with endomorphism ring `T^λ_ν` (`clBlackAction_tensorProduct`). Graded modules and the formula `βᵤ = e₋ β′ᵤ e₋` on algebras are not separately stated |
-| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | in progress: region categories (`regionFamily`) with the black action (`regionPresCL`); red/up iso, red/down quotient and dot crossings with both bigons (`regionRedUpIso`, `regionRedDownQuotient`, `regionRedDownDot`); the opposite counit on interior blocks is the Kang–Kashiwara leftward cap (`globalLoc_capL_app`, `blockLoc_capL`) and slides along red pullback (`redPullback_capL_tmul`). Remaining: the red cup, cap and pitchfork relations and the assembly with `presPseudofunctor`. The action on `T^λ`-modules used in §5 is Thm 4.31, which does not depend on this |
+| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | done at the standard KL black parameters (`Stendhal.regionTensorPseudofunctor`; general parameters of Webster's form: roadmap item below): for the Khovanov–Lauda black parameters over a nontrivial commutative ring and the cyclotomic polynomials `X ^ ⟨α_i^∨, λ_r⟩` of dominant weights, the pseudofunctor out of the presented 2-category `𝒯` (`tensorTwoCatPresentation`) on the region categories (`regionFamily`), with red lines acting by pullback along the cyclotomic quotients. The relations are checked in the double model (`tensorTwoCatPseudofunctor`): red/up crossings natural for dots and crossings (`regionUpIsoDotNatural`, `regionUpIsoCrossNatural`, from (4.4d) on cyclotomic blocks), both down bigons (`regionDownBigon`), and the red strand between two downward strands of the same colour (`regionDownMidSame`, through the epimorphic quotient crossing). The presentation `downwardBlockPresentation` used for Lemma 4.29 also imposes KLR relations between two red strands; this representation is for `tensorTwoCatPresentation`, in which red strands do not cross. The action on `T^λ`-modules used in §5 is Thm 4.31, which does not depend on this |
 | Prop 4.18 (v3: Prop 4.19) | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (`appendRedEquiv`) |
 | Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | done (`SplitRed.splitRedEquiv`): with `λ'` splitting `λ_c = λ'_c + λ'_{c+1}`, `T^λ ≅ e T^{λ'} e` for `e` the sum of the idempotents of the loadings with red strands `c`, `c + 1` adjacent, for the crossing parameters of §2.2 (`IsRouquierQ`) |
 | Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | done: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules (`lastRedBlackEquiv`); `IR^μ I^μ = id` is Prop 4.18 (`appendRedEquiv`); `IR^μ Eᵢ I^μ ≅ Eᵢ` over a field by reflection (`lastRedBlackMirrorEquiv`); both raise degrees by `degΨ(λ_ℓ, i)` (`lastRedBlackMap_mem_grade`, `lastRedBlackMirror_mem_grade`) |
 | Prop 4.33 | uniqueness of the sesquilinear forms | done (`TensorPairing.orderedForm_unique`, `orderedForm_nondegenerate`): a system of forms that is `τ`-Hermitian and isometric along `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ₋₁} ⊗ v_{λₙ}` is `orderedForm`, which is nondegenerate in both arguments. Webster's conditions do not fix the form on the empty tensor product; the theorem takes the scalar form `x̄ y` there as a normalization |
-| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open; taken up after the standard filtrations of Prop 5.20 and Cor 5.21, which its proof uses |
+| Prop 4.39 | `K₀(T̃^λ) ≅ U_q^{-,ℤ} ⊗ V^ℤ_λ` | done, with all four compatibilities (4.40): `exists_negIntegralTensorEquiv` gives a `q ↦ q⁻¹`-semilinear isomorphism from `⊕_β K₀(T̃^λ_β)` onto `U_q^{-,ℤ} ⊗ V^ℤ_λ` sending `[P̃_w]` to `p̃_w`, by Webster's route (the functors `𝔯_N`, `prependRedK0_bijective`; the maps `𝔮_N`, `negTensorMap_injective_below`; Theorem 4.38 for `(Nλ₁, λ)`), with the operators `F̃_i` corrected as in ERRATA entry 11. `negTensorLattice_eq_negIntegralTensor` identifies the span of the `p̃_w` with `U_q^{-,ℤ} ⊗ V^ℤ_λ`. Hypothesis from the printed proof: a dominant `λ₁` with `⟨α_i^∨, λ₁⟩ ≥ 1` for all `i`, which holds for Webster's weight lattice but not for every root datum (for example affine `sl₂` with `α₀^∨ + α₁^∨ = 0`). `tildeLower_tildeClass` shows that the induction functor `F̃_i` of `T̃^λ`-modules (`tildeLower`, along the right black strand map `appendBlackStendhal`) sends `[P̃_w]` to `[P̃_{w i}]`, and `exists_negIntegralTensorEquiv_lower` that the isomorphism intertwines it with `F̃_i`. `totalTildeRedInd_tildeClass` and `exists_negIntegralTensorEquiv_red` do the same for the red induction `Ĩ_λ` (along `appendRedStendhalValue`) and `u ⊗ w ↦ u ⊗ w ⊗ v_λ`. For the reflected functor `F̃_i^*` (along `prependBlackStendhal`, which adds the black strand on the left), `tildeLeftLower_tildeClass` gives `F̃_i^* [P̃_w] = [P̃_{i w}]` and `exists_negIntegralTensorEquiv_leftLower` the compatibility with `u ⊗ w ↦ u F_i ⊗ w`: in the left-action convention of ERRATA entry 11 Webster's `F_i · (u ⊗ w)` becomes right multiplication. For `Ĩ_λ^*` (along `prependRedStendhal`, which adds the red strand on the left), `totalTildeLeftRedInd_tildeClass` gives `Ĩ_{λ₀}^* [P̃_w] = [P̃_{λ₀ w}]` and `exists_negIntegralTensorEquiv_leftRed` the compatibility with `negTensorPrepend`, `u ⊗ w ↦ u_{(1)} ⊗ (u_{(2)} v_{λ₀} ⊗ w)`, where `U⁻` is identified with the Verma module `M(0)` and `u_{(1)} ⊗ u_{(2)} v_{λ₀}` is `Δ(u)` applied to `m₀ ⊗ v_{λ₀}` (`negCoprod`) |
 
 ### Phase B: §3, cyclotomic quotients
 
@@ -974,9 +999,14 @@ through (6.21), well-founded on `adjacentBlockRoot`. Two inputs of the printed p
 explicit hypotheses (maintainer decision), each a roadmap item to remove:
 
 - **(6.8-filt)** the kernel of each loading projective onto its partial standard is filtered by
-  partial standards at strictly higher loadings. The printed proof uses this without proof; §5
-  proves the analogue for full standardization (Prop 5.20). Route: adapt the dimension argument
-  of Prop 5.20 to partial standardization, then apply `blockLoadingKernel_hasFiltration`.
+  partial standards at strictly higher loadings. The printed proof uses this without proof.
+  **Proved in the red order `λ`** under the route hypothesis `AllFiniteDeltaInjective` of
+  Lemma 5.19 (`exists_hasFiltration_blockLoadingKernelAt`, `RedStrands/BlockPartialStandardFiltration.lean`,
+  from the left form `exists_hasFiltration_leftPartialKernel`, `RedStrands/CoarsePhiCount.lean`):
+  the dimension count of Prop 5.20 (v3: Prop 5.21) for the coarse block assignments
+  (`RedStrands/CoarseAssignment.lean`, `RedStrands/CoarsePhiLayers.lean`,
+  `Algebra/FinrankCountingFiltration.lean`). This covers Cor 6.10, whose Figure 5 rows are in the
+  red order `λ`; the theorem for an arbitrary red order `κ` remains open.
 - **(6.8-inj)** injectivity of the balanced tensor of the kernel inclusion with the braiding
   bimodule (`blockKernelTensorInclusion`). The printed cut argument after (6.21) does not handle
   the dotted relations in general; special cases are proved (first black weight, consecutive
@@ -1377,6 +1407,17 @@ Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); t
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).
 
+In v3 numbering: Cor 6.8 (`𝔅 P⁰ ≅ P⁰`) is proved for all red orders with no extra hypothesis
+(`bijective_redBraid_mul`, `RedFirstBraiding.lean`); Lemma 6.12 (composites,
+`braidingFunctorCompIsoOfLengthAdd`) and Lemma 6.13 (compactness, `isCompact_braidingFunctor_obj`)
+are proved under the hypotheses of Lemma 6.11. For Thm 6.15 the generic inputs are proved: a
+coproduct-preserving triangulated functor which is bijective on the shifted Homs of a compact
+generating family and sends it to a compact generating family is an equivalence
+(`isEquivalence_of_compactlyGenerates`), and the vanishing form of Ext–Tor duality over a field
+(`hom_dualModule_shift_eq_zero`). Remaining, in Webster's order: self-duality of `𝔅_τ P` through
+the trace on `P⁰`, `ι`, `π` and Cor 6.8 (Thm 6.14), hence vanishing of the higher Ext between the
+`𝔅_τ P`; the dimension count from Cor 6.11 with injectivity from Lemma 5.25; generation.
+
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric
 parameters (`intervalConcat_injective`). Its image is the span of shifted
@@ -1393,6 +1434,11 @@ reduced Weyl expression and a dominant integral starting weight in a Cartan
 realization. Thus `coevaluationWord_multiplicities_eq_of_reduced` compares
 reduced expressions of the same Weyl element.
 
+Lemma 7.3 (v3) is proved: the coevaluation wrap projective has the unique simple
+head `Stendhal.coevaluationHead`, with kernel the trace of the projectives with
+`κ(2) < 2ρ∨(λ)` (`CycKLR.coevaluationTrace_eq_iff_isSimpleModule`). The proof does
+not use crystals: it erases the red strands onto the cyclotomic quotient, using the
+second red strand's cyclotomic relation at the lowest weight from Kang–Kashiwara.
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,

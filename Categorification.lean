@@ -2529,3 +2529,4 @@ import Categorification.WeightedKLR.RedStrands.EiInitLayer
 import Categorification.WeightedKLR.RedStrands.EiLastLayer
 import Categorification.WeightedKLR.RedStrands.EiRightTerm
 import Categorification.WeightedKLR.RedStrands.EiStepBoth
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastOneBlockNatural

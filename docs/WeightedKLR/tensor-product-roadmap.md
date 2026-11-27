@@ -741,8 +741,10 @@ from which the full one is obtained by iterating):
   `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). The
   intermediate lemmas take a base presentation with `CoverRelsNegligible` and well-founded
   domain; the presentation with no relations (`noRelations`) satisfies both vacuously, so the
-  headline results carry no presentation hypothesis. **Roadmap item:** extend the count to
-  general scalars `Q`.
+  headline results carry no presentation hypothesis. **Done for general `Q`:** the count holds
+  for every Rouquier `Q` with symmetric parameters (`RedStrands/Prop55Dimension*Q.lean`, from
+  Thm 4.31 at general `Q`; `finrank_firstIndF_eq_addQ`, `firstIndDeltaInjective_of_rouquier`,
+  `allFiniteDeltaInjective_of_rouquier`, `hasFiltration_loadingProj_of_rouquier`).
 
 * Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
   factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along
@@ -865,14 +867,14 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   induction hypothesis (`fiSubEquiv`, `fiInitLayerStandardEquiv`). Route hypothesis:
   `AllDeltaInjective` for every sequence of highest weights (injectivity of the first map),
   tracked for removal below. For finite-dimensional `M` (Webster's setting) and Rouquier `Q`,
-  `fiFiltration_finite` needs only `AllFiniteDeltaInjective`, and at the standard Khovanov–Lauda
-  parameters `fiFiltration_finite_std` holds with no route hypothesis
-  (`allFiniteDeltaInjective_std`).
+  `fiFiltration_finite` needs only `AllFiniteDeltaInjective`, which is Webster's dimension count
+  (`allFiniteDeltaInjective_of_rouquier`), so `fiFiltration_finite_of_rouquier` holds with no
+  route hypothesis (at the standard Khovanov–Lauda parameters, `fiFiltration_finite_std`).
 
-Open: injectivity in the `Fᵢ`-part of Prop 5.5 for general `Q` (the dimension count at general
-`Q`, which needs Thm 4.31 at general `Q`; removes the route hypothesis `AllFiniteDeltaInjective`
-of `fiFiltration_finite` and of Props 5.20/5.21), the passage from finite-dimensional to
-arbitrary modules (removes `AllDeltaInjective` of `fiFiltration`), Prop 5.6,
+Open: substituting `allFiniteDeltaInjective_of_rouquier` for the route hypothesis
+`AllFiniteDeltaInjective` in the downstream results at general `Q` (Props 5.20/5.21, Cor 5.22,
+Lemma 5.25, §6), the passage from finite-dimensional to arbitrary modules (removes
+`AllDeltaInjective` of `fiFiltration`; not needed for Webster's statement), Prop 5.6,
 and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:

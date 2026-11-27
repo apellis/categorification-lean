@@ -158,7 +158,7 @@ include hQ in
 /-- The partial standardization contains an isomorphic copy of its input module. -/
 theorem cutStandardUnit_injective : Function.Injective (cutStandardUnit Q Λ θ β N) := by
   intro u v he
-  exact indShuffleUnit_injective (ν := α) (ν' := δ) (stendhalQ_symm Q Λ hQ) N₀
+  exact indShuffleUnit_injective (ν := α) (ν' := δ) (cutStendhalQ_symm Q Λ hQ) N₀
     (orderedShuffle_mkQ_injOn ρ F (indUnit_ordered Q Λ θ β N u) (indUnit_ordered Q Λ θ β N v)
       he)
 
@@ -217,7 +217,7 @@ theorem cutStandardAction_concat_mem_range (hr : 0 < r) (t : TensorKLR S α δ) 
       (hu : u ≠ shufOne) : ∀ n : N₀, concatIdem (Q := S) (u.1 • s) • n = 0 := by
     by_contra hn
     exact hu (own_concat_one Q Λ θ β N hr s h u hn)
-  obtain ⟨n, hn⟩ := indShuffle_eSum_mem_unit (stendhalQ_symm Q Λ hQ) N₀ (concatSet α δ) ho
+  obtain ⟨n, hn⟩ := indShuffle_eSum_mem_unit (cutStendhalQ_symm Q Λ hQ) N₀ (concatSet α δ) ho
     ((concat S α δ t) • m)
   change (oneConcat S α δ) • ((concat S α δ t) • m) = unitI n at hn
   rw [← mul_smul, oneConcat_mul_concat] at hn

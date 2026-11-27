@@ -108,7 +108,7 @@ middle. -/
 theorem cutStandardMap_exact (f : N →ₗ[D] N') (g : N' →ₗ[D] N'') (h : Function.Exact f g) :
     Function.Exact (cutStandardMap Q Λ θ β f) (cutStandardMap Q Λ θ β g) :=
   kerQuotientMap_exact ((eSum_idem (Q := S) F).map (cutShuffleAction Q Λ θ β N')) _ _ _ _
-    (indMapRight_exact (stendhalQ_symm Q Λ hQ) (cutInputHom Q Λ θ β f)
+    (indMapRight_exact (cutStendhalQ_symm Q Λ hQ) (cutInputHom Q Λ θ β f)
       (cutInputHom Q Λ θ β g) h)
 
 include hQ in
@@ -116,13 +116,13 @@ include hQ in
 theorem cutStandardMap_injective (f : N →ₗ[D] N') (hf : Function.Injective f) :
     Function.Injective (cutStandardMap Q Λ θ β f) :=
   kerQuotientMap_injective _ _
-    (indMapRight_injective (stendhalQ_symm Q Λ hQ) (cutInputHom Q Λ θ β f) hf)
+    (indMapRight_injective (cutStendhalQ_symm Q Λ hQ) (cutInputHom Q Λ θ β f) hf)
 
 include hQ in
 /-- Partial standardization preserves surjections. -/
 theorem cutStandardMap_surjective (f : N →ₗ[D] N') (hf : Function.Surjective f) :
     Function.Surjective (cutStandardMap Q Λ θ β f) :=
   kerQuotientMap_surjective _ _
-    (indMapRight_surjective (stendhalQ_symm Q Λ hQ) (cutInputHom Q Λ θ β f) hf)
+    (indMapRight_surjective (cutStendhalQ_symm Q Λ hQ) (cutInputHom Q Λ θ β f) hf)
 
 end Categorification.Stendhal

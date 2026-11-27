@@ -148,8 +148,9 @@ theorem strictMono_natAdd' : StrictMono (Fin.natAdd a : Fin r → Fin (a + r)) :
   simp only [Fin.lt_def, Fin.val_natAdd] at h ⊢; omega
 
 omit [DecidableEq I] in
-/-- The Stendhal parameters of symmetric `Q` are symmetric, for any number of red strands. -/
-theorem stendhalQ_symm (hQ : KLRSymm Q) : KLRSymm S := by
+/-- The Stendhal parameters of symmetric `Q` are symmetric, for any number of red strands (the
+form of `stendhalQ_symm` used with the cut factor algebras). -/
+theorem cutStendhalQ_symm (hQ : KLRSymm Q) : KLRSymm S := by
   rintro (i | u) (j | t) h
   · exact hQ i j (fun he => h (congrArg Sum.inl he))
   · simp [stendhalQ]
@@ -180,7 +181,7 @@ private theorem cutInputMap_tmul (t : KLRAlgebra k S α) (u : KLRAlgebra k S δ)
 theorem cutShuffle_violated (hQ : KLRSymm Q) (s : Seq (α + δ)) (hv : IsViolated s) :
     cutShuffleAction Q Λ θ β N (e s) = 0 := by
   apply LinearMap.ext; intro z
-  apply (indDecomp (stendhalQ_symm Q Λ hQ) N₀).injective
+  apply (indDecomp (cutStendhalQ_symm Q Λ hQ) N₀).injective
   funext u
   change indDecomp _ N₀ ((e s : A) • z) u = _
   rw [indDecomp_e_smul]
@@ -245,7 +246,7 @@ theorem cutShuffle_returns (hQ : KLRSymm Q) :
       · change ncEval _ (0 : MvPolynomial (Fin 2) k) * _ = 0
         simp [ncEval]
     apply LinearMap.ext; intro z
-    apply indShuffle_crossing_eq_zero (stendhalQ_symm Q Λ hQ) N₀ s j hquad _ z
+    apply indShuffle_crossing_eq_zero (cutStendhalQ_symm Q Λ hQ) N₀ s j hquad _ z
     intro u
     by_cases hz : ∀ n : N₀, concatIdem (Q := S) (u.1 • s) • n = 0
     · exact ⟨shufWord u, (shufWord_spec u).1, (shufWord_spec u).2, Or.inl hz⟩
@@ -344,7 +345,7 @@ theorem cutShuffle_red_dot (hQ : KLRSymm Q) (s : Seq (α + δ)) (p : Fin (α + �
   | inl i => simp [he] at hr
   | inr u =>
     apply LinearMap.ext; intro z
-    apply indShuffle_dot_eq_zero (stendhalQ_symm Q Λ hQ) N₀ (Sum.inr u)
+    apply indShuffle_dot_eq_zero (cutStendhalQ_symm Q Λ hQ) N₀ (Sum.inr u)
       (fun t b c => cutShuffle_red_label_unique θ β t b c) _ s p he z
     intro t b hb n
     exact dot_zero_unit Q Λ θ β N t b (by simp [hb]) n

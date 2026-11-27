@@ -717,6 +717,7 @@ import Categorification.KLR.Restriction
 import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminalProjective
+import Categorification.TypeA.BlockSwapShuffle
 import Categorification.WeightedKLR.RedStrands.BlackCommutationQ
 import Categorification.WeightedKLR.RedStrands.BlackModuleAdjunctionQ
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutationQ
@@ -1227,7 +1228,9 @@ import Categorification.WeightedKLR.RedStrands.WindowBlackBlock
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFlip
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFree
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockRight
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockSwap
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockTrace
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockTraceRight
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockWords
 import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel
@@ -1252,6 +1255,11 @@ import Categorification.WeightedKLR.Rigidity.CupCapLemma719KSrcMid
 import Categorification.WeightedKLR.Rigidity.CupCapLemma719KSrcUnit
 import Categorification.WeightedKLR.Rigidity.CupCapLemma719KSrcWindow
 import Categorification.WeightedKLR.Rigidity.CupCapProp721Adjoint
+import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendStendhal
+import Categorification.WeightedKLR.Rigidity.CupCapProp721Induced
+import Categorification.WeightedKLR.Rigidity.CupCapProp721Window
+import Categorification.WeightedKLR.Rigidity.CupCapProp721WindowIdem
+import Categorification.WeightedKLR.Rigidity.CupCapProp721WindowMid
 import Categorification.WeightedKLR.Segment
 import Categorification.WeightedKLR.Segment.Blocks
 import Categorification.WeightedKLR.Segment.Chain

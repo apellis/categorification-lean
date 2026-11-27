@@ -84,7 +84,8 @@ variable {θ β ν : Multiset I} (h : θ + β = ν)
   {Y Y' Y'' : ModuleCat.{0} (CycKLR k Q (fun j => Polynomial.X ^ Λ (Fin.last ℓ) j) β)}
 
 /-- `S(X ⊠ g)` is the standardization of `X ⊠ g`. -/
-theorem tensorStdMapRight_apply (g : Y →ₗ[CycKLR k Q (fun j => Polynomial.X ^ Λ (Fin.last ℓ) j) β] Y')
+theorem tensorStdMapRight_apply
+    (g : Y →ₗ[CycKLR k Q (fun j => Polynomial.X ^ Λ (Fin.last ℓ) j) β] Y')
     (x : tensorStd Q Λ hQ h X Y) :
     tensorStdMapRight Q Λ hQ h X g x =
       parabolicStandardMap Q Λ θ β (N := (tensorFactor Q Λ X Y).carrier)

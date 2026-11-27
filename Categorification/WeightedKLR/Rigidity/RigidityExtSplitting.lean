@@ -230,8 +230,8 @@ theorem exists_isSplitting_e {t : Seq ν} :
       Graded.IsSplitting.refl (isIdempotentElem_iff.mpr (e_mul_self t)), rfl⟩
   | c :: bs, h => by
     obtain ⟨ι, _, _, a, b, hS, hc⟩ := exists_isSplitting_e h.tail
-    obtain ⟨κ, _, _, a', b', hS', hc'⟩ := exists_isSplitting_block (k := k) (Q := Q) (p := c.1) (N := c.2)
-      h.tail h
+    obtain ⟨κ, _, _, a', b', hS', hc'⟩ :=
+      exists_isSplitting_block (k := k) (Q := Q) (p := c.1) (N := c.2) h.tail h
     refine ⟨ι × κ, inferInstance, inferInstance, _, _,
       hS.trans hS' (isIdempotentElem_divIdem h) (isIdempotentElem_iff.mpr (e_mul_self t)), ?_⟩
     rw [Fintype.card_prod, hc, hc', List.map_cons, List.prod_cons, mul_comm]

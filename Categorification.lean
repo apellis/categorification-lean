@@ -189,6 +189,7 @@ import Categorification.Diagrams.CL.RescaleBasic
 import Categorification.Diagrams.CL.RescaleBicat
 import Categorification.Diagrams.CL.RescaleR
 import Categorification.Diagrams.CL.Rotate
+import Categorification.Diagrams.CL.RotateAll
 import Categorification.Diagrams.CL.Scalars
 import Categorification.Diagrams.CL.Sigma
 import Categorification.Diagrams.CLQ.BubbleSlidesAll

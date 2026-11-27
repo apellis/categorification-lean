@@ -43,6 +43,7 @@ import Categorification.Algebra.DerivedTensorProjectiveHom
 import Categorification.Algebra.ExtShortExact
 import Categorification.Algebra.DerivedTensorTwoFiltrations
 import Categorification.Algebra.DerivedTensorRingEquiv
+import Categorification.Algebra.DerivedTensorTwist
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -2751,3 +2752,5 @@ import Categorification.Algebra.LocalizingFiltration
 import Categorification.WeightedKLR.RedStrands.RightProjectiveStandardFiltration
 import Categorification.WeightedKLR.RedStrands.BraidColumnStayIndex
 import Categorification.WeightedKLR.RedStrands.HalfTwistEquivalence
+import Categorification.WeightedKLR.RedStrands.BraidingFunctorRelabel
+import Categorification.WeightedKLR.RedStrands.BraidingEquivalence

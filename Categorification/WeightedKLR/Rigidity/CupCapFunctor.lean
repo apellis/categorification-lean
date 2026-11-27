@@ -26,8 +26,8 @@ functor goes from right `T^λ`-modules to right `T^{λ⁺}`-modules, which is We
 `𝒱^λ → 𝒱^{λ⁺}`; Webster writes the tensor product over the algebra of the other end because he
 reads diagrams in the opposite order. As for the braiding functors (Definition 6.6), the functor
 is defined on the unbounded derived category of ungraded dg modules; the grading shifts are not
-tracked. The quantum trace `𝕋^{λ⁺}_λ = RHom(K^{λ⁺}_λ, -)` of the same definition is not
-formalized here.
+tracked. The quantum trace `𝕋^{λ⁺}_λ = RHom(K^{λ⁺}_λ, -)` of the same definition is in
+`Rigidity/CupCapTrace.lean`.
 -/
 
 noncomputable section

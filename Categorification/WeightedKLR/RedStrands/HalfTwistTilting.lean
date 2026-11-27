@@ -167,9 +167,6 @@ variable {I : Type} {k : Type} [Field k] (C : CartanDatum I)
     DG.HasDerivedCategory.{0, 0} (ViolOrderCorner (k := k)
       (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) (Λ := Ω) (ν := ν) κ₀)ᵐᵒᵖ]
   [DG.HasDerivedCategory.{0, 0} ℤ]
-  (hbase : BaseCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ),
-    AllFiniteDeltaInjective (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ' hQ.klrSymm)
   (H : ∀ (n m : ℕ), n + 2 + m = ℓ + 1 → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
     (u : Fin (n + 2 + m) → List I) (hu : u (FirstWeight.rightPos n m) = []),
     FirstWeight.RowFigureFiveHypotheses C hQ Ω u hu)
@@ -184,14 +181,14 @@ local notation "𝕃" => fun s : {s : Seq (stendhalWeight (ℓ + 1) ν) // redWo
   ¬ IsViolated s} => ModuleCat.of 𝒞ᵐᵒᵖ
     (ViolLoadingStandard (k := k) (Q := QL) (Λ := Λ) s.1 κ)
 
-include hQ hR hbase hall H hwt hw in
+include hQ hR H hwt hw in
 /-- **`𝔅_τ P^κ` and its dual have standard filtrations** (Webster, arXiv:1309.3796v3,
 Theorem 6.14, first clause), at the Khovanov–Lauda scalars: for a red-ordered loading `t` and a
 red order `κ = w(1, …, ℓ)` reversing every pair of red strands, the cut `e(t) V e_κ` and its flip
 dual both have finite filtrations by the loading standards of red order `κ`. Standards are
 standardizations of projectives, so `e(t) V e_κ` is tilting in Webster's sense. Route
-hypotheses: those of Corollary 6.10 (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) and
-`BaseCrossing`. -/
+hypothesis: the injectivity of Lemma 6.8 (`RowFigureFiveHypotheses`);
+`AllFiniteDeltaInjective` and `BaseCrossing` are proved at these scalars. -/
 theorem halfTwist_hasFiltration
     (hκ : ∀ t' : Seq (stendhalWeight (ℓ + 1) ν),
       redWord t' = (List.finRange (ℓ + 1)).map w → IsRedReversed t')
@@ -200,8 +197,9 @@ theorem halfTwist_hasFiltration
       ∃ m, HasFiltration 𝕃 m (ModuleCat.of 𝒞ᵐᵒᵖ (FlipDual k QL Λ t κ)) := by
   obtain ⟨m, hm⟩ := exists_hasFiltration_violCorner_of_braidFunctor
     (FirstWeight.isReducedChoice_canChoice ν) hQ.klrSymm hQ w t ht
-    (FirstWeight.hasCornerStandardFiltration_braidF.{0} C hQ hR hall H w hw Λ wt hwt t ht)
-  obtain ⟨Φ, hΦ⟩ := exists_halfTwistSelfDual C hQ Λ ν w hR hbase hall H wt hwt hw hκ t ht
+    (FirstWeight.hasCornerStandardFiltration_braidF.{0} C hQ hR
+      (fun _ _ => allFiniteDeltaInjective_std hQ hQ.klrSymm) H w hw Λ wt hwt t ht)
+  obtain ⟨Φ, hΦ⟩ := exists_halfTwistSelfDual C hQ Λ ν w hR H wt hwt hw hκ t ht
   exact ⟨⟨m, hm⟩, m, hm.of_equiv (Y' := ModuleCat.of 𝒞ᵐᵒᵖ (FlipDual k QL Λ t κ)) (flipDualEquiv Φ hΦ)⟩
 
 end KhovanovLauda

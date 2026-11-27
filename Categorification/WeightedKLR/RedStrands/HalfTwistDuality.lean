@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.HalfTwistSelfDual
 import Categorification.WeightedKLR.RedStrands.HalfTwistInjective
 import Categorification.WeightedKLR.RedStrands.HalfTwistDots
+import Categorification.WeightedKLR.RedStrands.Prop55DimensionCount
+import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -151,9 +153,6 @@ variable {Y : Type*} [AddCommGroup Y] [Finite I]
     DG.HasDerivedCategory.{0, 0} (ViolOrderCorner (k := k)
       (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) (Λ := Ω) (ν := ν) κ₀)ᵐᵒᵖ]
   [DG.HasDerivedCategory.{0, 0} ℤ]
-  (hbase : BaseCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ),
-    AllFiniteDeltaInjective (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ' hQ.klrSymm)
   (H : ∀ (n m : ℕ), n + 2 + m = ℓ + 1 → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
     (u : Fin (n + 2 + m) → List I) (hu : u (FirstWeight.rightPos n m) = []),
     FirstWeight.RowFigureFiveHypotheses C hQ Ω u hu)
@@ -166,7 +165,8 @@ variable {Y : Type*} [AddCommGroup Y] [Finite I]
 /-- The chain `𝔅_τ P^κ = e(t) V e_κ ≅ y · e(t⁰) V e_κ = g(x) e⁰_{(1,…,ℓ),b} · P⁰_{(1,…,ℓ),b}
 ≅ g(x) e⁰_{κ,b} · P⁰_{κ,b}` of left multiplications. -/
 def halfTwistCutEquiv : M ≃ₗ[k] dotCut QL Λ κ κ b (halfTwistPol C Λ b (t := t)) :=
-  (FirstWeight.halfTwistInclusionEquiv C hQ hR hbase hall H Λ wt hwt (blackWeight b) w hw hκ
+  (FirstWeight.halfTwistInclusionEquiv C hQ hR (baseCrossing_std hQ hQ.klrSymm)
+      (fun _ _ => allFiniteDeltaInjective_std hQ hQ.klrSymm) H Λ wt hwt (blackWeight b) w hw hκ
       t ht).trans
     ((LinearEquiv.ofEq _ _ (map_halfTwistY_eq_dotCut hs₁ ht₀ κ
       (halfTwistY_eq_halfTwistPol C Λ b))).trans
@@ -180,7 +180,7 @@ local notation "S" => fun c : ViolQuotient k QL Λ (blackWeight b) =>
 include hs₁ in
 theorem commutesRight_halfTwistCutEquiv :
     CornerSelfDual.CommutesRight S
-      (halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR hbase hall H wt hwt hw hκ ht) := by
+      (halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR H wt hwt hw hκ ht) := by
   refine CornerSelfDual.CommutesRight.trans (fun m c _ h => ?_)
     (CornerSelfDual.CommutesRight.trans (CornerSelfDual.commutesRight_ofEq _)
       (CornerSelfDual.CommutesRight.symm (fun z c _ h => ?_) ?_))
@@ -198,23 +198,24 @@ theorem commutesRight_halfTwistCutEquiv :
 Khovanov–Lauda scalars: for a red-ordered loading `t` with black strands `b` and a red order
 `κ = w(1, …, ℓ)` reversing every pair of red strands, the form pulled back along
 `e(t) V e_κ ≅ g(x) e⁰_{κ,b} · P⁰_{κ,b}` identifies `e(t) V e_κ` with its dual. Route
-hypotheses: those of `FirstWeight.halfTwistInclusionEquiv` (Corollary 6.10 and `BaseCrossing`). -/
+hypothesis: the injectivity of Lemma 6.8 (`RowFigureFiveHypotheses`);
+`AllFiniteDeltaInjective` and `BaseCrossing` are proved at these scalars. -/
 def halfTwistSelfDualEquiv : M ≃ₗ[k] Module.Dual k M :=
-  (halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR hbase hall H wt hwt hw hκ ht).trans
+  (halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR H wt hwt hw hκ ht).trans
     ((dotCutSelfDualEquiv hQ hQ.klrSymm Λ w b
       (FirstWeight.isReducedChoice_canChoice (blackWeight b))
       (redWord_redPerm_redFirst w hs₁) _).trans
-      (halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR hbase hall H wt hwt hw hκ ht).dualMap)
+      (halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR H wt hwt hw hκ ht).dualMap)
 
 /-- The form of `halfTwistSelfDualEquiv` is contravariant for the right action of
 `e_κ V e_κ` through the flip: `⟨m c, m'⟩ = ⟨m, m' ċ⟩`. -/
 theorem isContravariant_halfTwistSelfDualEquiv :
     CornerSelfDual.IsContravariant S violFlip
-      (halfTwistSelfDualEquiv C hQ Λ b w hs₁ ht₀ hR hbase hall H wt hwt hw hκ ht).toLinearMap :=
+      (halfTwistSelfDualEquiv C hQ Λ b w hs₁ ht₀ hR H wt hwt hw hκ ht).toLinearMap :=
   (isContravariant_dotCutSelfDualEquiv hQ hQ.klrSymm Λ w b
       (FirstWeight.isReducedChoice_canChoice (blackWeight b))
       (redWord_redPerm_redFirst w hs₁) _).transport
-    (commutesRight_halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR hbase hall H wt hwt hw hκ ht)
+    (commutesRight_halfTwistCutEquiv C hQ Λ b w hs₁ ht₀ hR H wt hwt hw hκ ht)
     (fun _ hc => redProj_violFlip_redProj Λ w b hc)
 
 end KhovanovLauda

@@ -2550,3 +2550,4 @@ import Categorification.Algebra.InductionAlongBalancedTensor
 import Categorification.WeightedKLR.RedStrands.FiLastInduction
 import Categorification.Algebra.InductionAlongTensorFactorNatural
 import Categorification.WeightedKLR.RedStrands.FiLastInput
+import Categorification.WeightedKLR.RedStrands.FiQuotTerm

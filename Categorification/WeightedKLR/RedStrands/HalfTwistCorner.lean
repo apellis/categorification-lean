@@ -17,14 +17,14 @@ algebra `T^{λ∘σ}` (`violCornerRedPermTensorEquiv`). We read this isomorphism
 multiplicative, `k`-linear map `ψ : T^{λ∘σ} → V` with image `e_κ V e_κ` (`cornerEmbed`), which
 sends the idempotent of a red-ordered loading `s` to the idempotent of the relabelled loading
 `σ • s` (`cornerEmbed_seqIdem`), and we transport the flip of `V` to an anti-involution of
-`T^{λ∘σ}` (`cornerFlip`).
+`T^{λ∘σ}` (`tensorCornerFlip`).
 
 ## Main results
 
 * `cornerEmbed`: `ψ : T^{λ∘σ} → V`, with `cornerEmbed_mul`, `cornerEmbed_injective`,
   `exists_cornerEmbed_eq`.
 * `cornerEmbed_seqIdem`: `ψ (e(s)) = e(σ • s)`.
-* `cornerFlip`: the anti-involution of `T^{λ∘σ}` with `ψ (cornerFlip t) = flip (ψ t)`.
+* `tensorCornerFlip`: the anti-involution of `T^{λ∘σ}` with `ψ (tensorCornerFlip t) = flip (ψ t)`.
 -/
 
 noncomputable section
@@ -133,7 +133,7 @@ private theorem violFlip_smul' (c : k) (a : V) : violFlip (c • a) = c • viol
   congrArg unop (map_smul (violFlipHom k Q Λ ν) c a)
 
 /-- The flip of `V`, transported to `T^{λ∘σ}` along `ψ`. -/
-def cornerFlip : T →ₗ[k] T where
+def tensorCornerFlip : T →ₗ[k] T where
   toFun t := φ ⟨violFlip (cornerEmbed (Λ := Λ) hρ hQ σ t), _, violFlip_cornerEmbed_mem hρ hQ σ t⟩
   map_add' a b := by
     apply cornerEmbed_injective hρ hQ σ
@@ -148,19 +148,19 @@ def cornerFlip : T →ₗ[k] T where
       LinearMap.map_smul (cornerEmbed (Λ := Λ) hρ hQ σ) c t, violFlip_smul']
     all_goals exact violFlip_cornerEmbed_mem hρ hQ σ _
 
-theorem cornerEmbed_cornerFlip (t : T) :
-    cornerEmbed (Λ := Λ) hρ hQ σ (cornerFlip (Λ := Λ) hρ hQ σ t) = violFlip (cornerEmbed (Λ := Λ) hρ hQ σ t) := by
+theorem cornerEmbed_tensorCornerFlip (t : T) :
+    cornerEmbed (Λ := Λ) hρ hQ σ (tensorCornerFlip (Λ := Λ) hρ hQ σ t) = violFlip (cornerEmbed (Λ := Λ) hρ hQ σ t) := by
   change cornerEmbed (Λ := Λ) hρ hQ σ (φ _) = _
   rw [cornerEmbed_apply, RingEquiv.symm_apply_apply]
 
-theorem cornerFlip_mul (a b : T) :
-    cornerFlip (Λ := Λ) hρ hQ σ (a * b) = cornerFlip (Λ := Λ) hρ hQ σ b * cornerFlip (Λ := Λ) hρ hQ σ a := by
+theorem tensorCornerFlip_mul (a b : T) :
+    tensorCornerFlip (Λ := Λ) hρ hQ σ (a * b) = tensorCornerFlip (Λ := Λ) hρ hQ σ b * tensorCornerFlip (Λ := Λ) hρ hQ σ a := by
   apply cornerEmbed_injective hρ hQ σ
-  rw [cornerEmbed_mul, cornerEmbed_cornerFlip, cornerEmbed_cornerFlip, cornerEmbed_cornerFlip,
+  rw [cornerEmbed_mul, cornerEmbed_tensorCornerFlip, cornerEmbed_tensorCornerFlip, cornerEmbed_tensorCornerFlip,
     cornerEmbed_mul, violFlip_mul']
 
-theorem cornerFlip_cornerFlip (t : T) : cornerFlip (Λ := Λ) hρ hQ σ (cornerFlip (Λ := Λ) hρ hQ σ t) = t := by
+theorem tensorCornerFlip_tensorCornerFlip (t : T) : tensorCornerFlip (Λ := Λ) hρ hQ σ (tensorCornerFlip (Λ := Λ) hρ hQ σ t) = t := by
   apply cornerEmbed_injective hρ hQ σ
-  rw [cornerEmbed_cornerFlip, cornerEmbed_cornerFlip, violFlip_violFlip]
+  rw [cornerEmbed_tensorCornerFlip, cornerEmbed_tensorCornerFlip, violFlip_violFlip]
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

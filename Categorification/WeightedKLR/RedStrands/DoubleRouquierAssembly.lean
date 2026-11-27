@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRelations
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierDownAll
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownMid
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedContext
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUpSlideContext
@@ -28,7 +29,10 @@ red/upward crossings: the black part is a 2-representation of the Khovanov–Lau
 (`BrundanUpKLR`, `BrundanMixedInversion`, the scalar conditions, `BlackOn`), the downward
 strands satisfy the KLR relations for the downward polynomials (`RouqUpKLR`), and the red/upward
 crossings satisfy the naturality and bigon conditions of `DoubleRouquierDownAll` and
-`DoubleRouquierRedUpSlide`. They are to be discharged for the cyclotomic region model.
+`DoubleRouquierRedUpSlide`. The naturality of the red/down crossings for downward crossings
+follows from that of the red/up crossings for upward crossings by mates
+(`DoubleRouquierRedDownMates`, `DoubleRouquierRedDownMid`). The remaining conditions are to be
+discharged for the cyclotomic region model.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -178,10 +182,12 @@ theorem admRelsZero_downwardBlockPresentation (hP : AdmRelsZero (genImg S red up
       C.dot i i * p + C.dot j j * q ≠ -2 * C.dot i j → Sc.s i j p q = 0)
     (hSc : CL.presCL RD k Sc = pres RD k) (HQ : RouqUpKLR S Q)
     (hB : DownBigon S red upIso fun r i => exponents r i) (hdot : UpIsoDotNatural S red upIso)
-    (hcross : UpIsoCrossNatural S red upIso Sc) (hrbb : DownDotCrossNatural S red upIso)
-    (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
+    (hcross : UpIsoCrossNatural S red upIso Sc)
     (hmid : DownMidSame S red upIso fun r i => exponents r i) (hrep : RepeatedRedZero S red) :
     AdmRelsZero (genImg S red upIso Sc) (downwardBlockPresentation Q exponents P Sc) := by
+  have hrbb := (upIsoCrossNatural_iff_downDotCrossNatural S Sc red upIso).1 hcross
+  have hbbr := (upIsoCrossNatural_iff_downQuotCrossNatural S Sc red upIso H M).1 hcross
+  have hbrb := downMidCrossNatural_of_upIsoCrossNatural S Sc red upIso H M hcross
   have hQb : ∀ i j : I, affineCoverQ Q exponents (.inl i) (.inl j) = Q i j := fun _ _ => rfl
   have hQir : ∀ (i : I) (r : Fin ℓ), affineCoverQ Q exponents (.inl i) (.inr r) =
       MvPolynomial.X 0 ^ exponents r i := fun _ _ => rfl
@@ -218,13 +224,12 @@ def downwardBlockPseudofunctor [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Add
       C.dot i i * p + C.dot j j * q ≠ -2 * C.dot i j → Sc.s i j p q = 0)
     (hSc : CL.presCL RD k Sc = pres RD k) (HQ : RouqUpKLR S Q)
     (hB : DownBigon S red upIso fun r i => exponents r i) (hdot : UpIsoDotNatural S red upIso)
-    (hcross : UpIsoCrossNatural S red upIso Sc) (hrbb : DownDotCrossNatural S red upIso)
-    (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
+    (hcross : UpIsoCrossNatural S red upIso Sc)
     (hmid : DownMidSame S red upIso fun r i => exponents r i) (hrep : RepeatedRedZero S red) :
     Pseudofunctor (RevBicat (downwardBlockPresentation Q exponents P Sc).Bicat) B :=
   admissiblePseudofunctor (genImg S red upIso Sc)
-    (admRelsZero_downwardBlockPresentation Q exponents hP H M hr hq hSc HQ hB hdot hcross hrbb
-      hbbr hbrb hmid hrep)
+    (admRelsZero_downwardBlockPresentation Q exponents hP H M hr hq hSc HQ hB hdot hcross hmid
+      hrep)
 
 end Block
 

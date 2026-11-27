@@ -79,6 +79,22 @@ def indResolution [Module.Projective Aᵐᵒᵖ (Corner φ)] {N : ModuleCat.{u} 
     (P : ProjectiveResolution N) (n : ℕ) :
     (indResolution φ P).complex.X n = (functor.{u, u} φ).obj (P.complex.X n) := rfl
 
+/-- `indResolution`, with its target written as the module `Ind N φ`. -/
+def indResolutionOf [Module.Projective Aᵐᵒᵖ (Corner φ)] {N : ModuleCat.{u} A}
+    (P : ProjectiveResolution N) : ProjectiveResolution (ModuleCat.of B (Ind N φ)) :=
+  indResolution φ P
+
+theorem indResolutionOf_X [Module.Projective Aᵐᵒᵖ (Corner φ)] {N : ModuleCat.{u} A}
+    (P : ProjectiveResolution N) (n : ℕ) :
+    (indResolutionOf φ P).complex.X n = ModuleCat.of B (Ind (P.complex.X n) φ) := rfl
+
+/-- Induction commutes with finite products: `Ind (∏ P a) ≅ ∏ Ind (P a)`. -/
+def indPiIso {ι : Type} [Fintype ι] (P : ι → ModuleCat.{u} A) :
+    (functor.{u, u} φ).obj (ModuleCat.of A (∀ a, P a)) ≅
+      ModuleCat.of B (∀ a, (functor.{u, u} φ).obj (P a)) :=
+  (functor.{u, u} φ).mapIso (ModuleCat.biproductIsoPi P).symm ≪≫
+    (functor.{u, u} φ).mapBiproduct P ≪≫ ModuleCat.biproductIsoPi _
+
 end InductionAlong
 
 end

@@ -1387,6 +1387,11 @@ reduced Weyl expression and a dominant integral starting weight in a Cartan
 realization. Thus `coevaluationWord_multiplicities_eq_of_reduced` compares
 reduced expressions of the same Weyl element.
 
+Lemma 7.3 (v3) is proved: the coevaluation wrap projective has the unique simple
+head `Stendhal.coevaluationHead`, with kernel the trace of the projectives with
+`κ(2) < 2ρ∨(λ)` (`CycKLR.coevaluationTrace_eq_iff_isSimpleModule`). The proof does
+not use crystals: it erases the red strands onto the cyclotomic quotient, using the
+second red strand's cyclotomic relation at the lowest weight from Kang–Kashiwara.
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,

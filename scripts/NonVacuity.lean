@@ -6086,6 +6086,20 @@ example : True := by
   exact (Stendhal.fgString_isPerfectBasis (k := ℚ) (Λ := pbΛ) () 0 pbRouquier
     (Multiset.notMem_zero ())).elim fun _ _ => trivial
 
+private theorem pbRouquierZero :
+    KLR.IsRouquierQ pbC (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- Webster, arXiv:1309.3796v2, Thm. 5.14, with `U_Q(g)` acting, for parameters `Q` given
+directly rather than by the Khovanov–Lauda scalars. -/
+example : True := by
+  have := fun m => Stendhal.isNoetherianRing_stringAlg pbΛ pbRouquierZero () 0 m
+  have := fun m => Stendhal.isArtinianRing_stringAlg pbΛ pbRouquierZero () 0 m
+  exact (Stendhal.fgString_isPerfectBasisQ (k := ℚ) (Λ := pbΛ) () 0 pbRouquierZero
+    (Multiset.notMem_zero ())).elim fun _ _ => trivial
+
 namespace NonVacuity.WebsterOrderedResolution
 
 open Categorification.ModuleFiltration

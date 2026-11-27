@@ -1423,7 +1423,9 @@ coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,
 Props 7.20, 7.21, 7.22). Defs 7.14, 7.15 and 7.18 are done. Lemma 7.17 is proved for the
 cap at the right end (`j = ℓ`, `CupCap.capBasis`) for symmetric `Q`, under the route
 hypotheses that the (max1) scalars are units and `PullOffLeft` (the mirror of Lemma 7.16);
-removal items: prove Lemma 7.16 and its mirror for `L_μ`, and the case of general `j`.
+at Webster's `L_μ` (`CupCap.capBasis_coevaluationHead`, over a field) the support
+hypothesis is proved, leaving these two; removal items: prove Lemma 7.16 and its mirror
+for `L_μ`, and the case of general `j`.
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants

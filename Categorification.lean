@@ -2571,6 +2571,7 @@ import Categorification.WeightedKLR.Rigidity.GradedMiddleCupCap
 import Categorification.WeightedKLR.Rigidity.GradedMiddleResolution
 import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
 import Categorification.WeightedKLR.Rigidity.CupCapCoevaluation
+import Categorification.WeightedKLR.Rigidity.CupCapCoevaluationBasis
 import Categorification.WeightedKLR.Rigidity.CupCapDiagrams
 import Categorification.WeightedKLR.Rigidity.CupCapEndBlock
 import Categorification.WeightedKLR.Rigidity.CupCapEndDescent

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.Rigidity.RigidityExtWrapHom
 import Categorification.WeightedKLR.Rigidity.RigidityExtStandardSum
 import Categorification.WeightedKLR.Rigidity.RigidityExtRankOne
+import Categorification.WeightedKLR.Rigidity.RigidityExtHead
 
 /-!
 # Corollary 7.7, top degree
@@ -16,6 +17,23 @@ Corollary 7.7, top degree.
 * `ProjectiveResolution.extLinearEquivHomZero`: `Ext⁰(X, Y) ≅ Hom(P₀, Y)` when `P₁ = 0`.
 * `Stendhal.exists_extLinearEquiv_standard`: the `k`-linear form of
   `exists_extAddEquiv_standard`, in every degree `|u|` including `0`.
+* `Stendhal.exists_bicone_cycWord_cycDivProj`: `R^{λ_ℓ} e(d̂)` is a sum of `∏ nₐ!` copies of the
+  divided-power projective `R^{λ_ℓ} 1_{d̄}` (`cycDivProj d`, of the reversed divided word).
+* `Stendhal.exists_isSplitting_wrap`: `e(wrap d̂)` splits through the reflected wrap idempotent.
+* `Stendhal.finrank_ext_standard_cycDivProj_wrapHead`: for two red strands,
+  `Ext^{|ν|}(S(T^{λ₁} ⊠ R^{λ₂} 1_{d̄}), L) = k` for the head `L` of the wrap projective, given
+  the three properties of `R^{λ₁}(ν)` used in Lemma 7.3 and `z₀ R z₀ = k z₀`.
+* `Stendhal.finrank_ext_standard_coevaluationHead`: **Corollary 7.7, top degree**, for the
+  coevaluation word of the longest element: `Ext^{2ρ^∨(λ)}(M_λ, L_λ) = k`.
+
+## Proof
+
+Let `M' = S(T^{λ₁} ⊠ R^{λ₂} e(d̂))` be the standard module of the expanded word. It is a sum of
+`∏ nₐ!` copies of `M = S(T^{λ₁} ⊠ R^{λ₂} 1_{d̄})`, so `Ext^{|ν|}(M', L) ≅ Ext^{|ν|}(M, L)^{∏ nₐ!}`.
+By Proposition 7.6, `Ext^{|ν|}(M', L) ≅ Hom(T e(wrap d̂), L)`, since the lower terms of the
+resolution are cut projectives, which `L` kills. The idempotent `e(wrap d̂)` splits into `∏ nₐ!`
+copies of the (reflected) wrap idempotent of `1_d`, and the maps from its projective to `L` form a
+line (`finrank_fixedSubspace_flipLeft_wrapHead`). Comparing dimensions gives `dim = 1`.
 -/
 
 universe v
@@ -183,7 +201,8 @@ theorem exists_isSplitting_cyc_hflip (a' : I → Polynomial k) {β : Multiset I}
 of the last red strand. Its standardization with `T^{λ'} e(t)` has `T^λ e(t, d̂, λ_ℓ)` in the top
 degree of its resolution. -/
 noncomputable abbrev cycDivProj (d : List (I × ℕ)) :
-    ModuleCat.{0} (CycKLR k Q (fun j => Polynomial.X ^ Λ (Fin.last ℓ) j) (wordWt (expandDiv d) 0)) :=
+    ModuleCat.{0}
+      (CycKLR k Q (fun j => Polynomial.X ^ Λ (Fin.last ℓ) j) (wordWt (expandDiv d) 0)) :=
   ModuleCat.of _ (lIdeal (CycKLR.mk k Q (fun j => Polynomial.X ^ Λ (Fin.last ℓ) j) _
     (KLRAlgebra.hflip (KLRAlgebra.divIdem
     (KLRAlgebra.Seq.ofList (expandDiv d.reverse) (coe_expandDiv_reverse d))
@@ -353,3 +372,139 @@ theorem finrank_ext_standard_cycDivProj_wrapHead (hQ : KLRSymm Q) {C : QuantumGr
 end Coevaluation
 
 end Categorification.Stendhal
+
+/-! ### Corollary 7.7, top degree, for the coevaluation word -/
+
+noncomputable section
+
+namespace Categorification.KLR.CycKLR
+
+open KLRAlgebra Categorification.Graded QuantumGroup QuantumGroup.UDot _root_.Module KL2
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {I : Type} {k : Type} [Fintype I] [DecidableEq I] [Field k] {C : CartanDatum I}
+    {Q : I → I → MvPolynomial (Fin 2) k} (hP : IsRouquierQ C Q) (Λ : I → ℕ)
+    {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
+    (highest : X) (hΛ : ∀ i, (Λ i : ℤ) = RD.pair (RD.iY i) highest)
+    (hR : (projectiveRootDatum RD).IsXRegular)
+
+local notation "aΛ" => (fun j => (Polynomial.X : Polynomial k) ^ Λ j)
+local notation "G" => hP.gradingDatum
+local notation "dp" =>
+  dividedProjective hP.gradingDatum (fun i j => congrArg Neg.neg (C.symm i j)) C Λ
+
+omit [Fintype I] in
+private local instance finiteBlockTop (ν : Multiset I) : HasGdim (grade G Λ ν) := by
+  let := module_finite (Q := Q) (ν := ν) (fun i j hij => by
+    obtain ⟨c, hc, h⟩ := hP.polyInY_leading i j hij
+    rw [h]
+    exact hc.map Polynomial.C) (fun i => Polynomial.monic_X_pow (R := k) (Λ i))
+  exact HasGdim.of_finiteDimensional _
+
+attribute [local instance] ModuleCat.moduleOfAlgebraModule
+  ModuleCat.isScalarTower_of_algebra_moduleCat
+
+include hP hΛ hR in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (top degree)**, ungraded. Let `w` be a
+reduced expression of the longest element, `d` the divided coevaluation word of Definition 7.1
+and `ν` its black weight, `|ν| = 2ρ^∨(λ)`. For the red labels `(λ, λ*)`, the standard module
+`M_λ = S(T^{λ} ⊠ R^{λ*} 1_{d̄})` of the divided coevaluation word (read backwards on the second red
+strand, as `cycWord` reads words) has `Ext^{|ν|}(M_λ, L_λ)` one-dimensional, where `L_λ` is the
+simple head `coevaluationHead d` of Lemma 7.3. Ext of left modules, with `L_λ` a left module
+through the horizontal reflection. Under the route hypothesis `hall` of Proposition 7.6. -/
+theorem _root_.Categorification.Stendhal.finrank_ext_standard_coevaluationHead
+    {K H : Type*} [Field K] [ConditionallyCompleteLinearOrder K] [IsStrictOrderedRing K]
+    [AddCommGroup H] [Module K H] [FiniteDimensional K H]
+    (P : Matrix.Realization C.toLusztig.cartanMatrix K H) (weight : P.integralWeights)
+    (hweight : P.IsDominantIntegral (weight : Module.Dual K H))
+    (match_weight : ∀ i, (weight : Module.Dual K H) (P.coroot i) =
+      (RD.pair.flip highest ((projectiveRootDatum RD).coroot i) : K))
+    (w : List I)
+    (hw : (P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsReduced w.reverse)
+    (hlong : ∀ i, (P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsLeftDescent
+      ((P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).wordProd w.reverse) i)
+    (hQ : KLRSymm Q)
+    (hall : Stendhal.AllFiniteDeltaInjective Q (coevaluationLabels Λ RD highest
+      (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hQ)
+    (t : Seq (Stendhal.stendhalWeight 1 (0 : Multiset I))) (ht : Stendhal.IsRedOrdered t)
+    (h : 0 + Stendhal.wordWt (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)) 0 =
+      expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))
+    [HasExt.{v} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k Q
+      (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))))] :
+    Module.finrank k (Ext (Stendhal.tensorStd Q (coevaluationLabels Λ RD highest
+        (expandDiv (Stendhal.coevaluationDividedWord
+          (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hQ h
+        (Stendhal.oldProj Q _ 0 t ht) (Stendhal.cycDivProj Q _ (Stendhal.coevaluationDividedWord
+          (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))
+      (Stendhal.flipLeft Q _ _ (Stendhal.coevaluationHead Q Λ RD highest
+        (Stendhal.coevaluationDividedWord
+          (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)).length) = 1 := by
+  let d := Stendhal.coevaluationDividedWord
+    (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w
+  let ν : Multiset I := expandDiv d
+  let z₀ := dividedIdem Λ (Q := Q) d
+  have hz₀ : IsIdempotentElem z₀ := isIdempotentElem_dividedIdem Λ d
+  have hz₀0 : z₀ ∈ grade G Λ ν 0 :=
+    Graded.mem_map_of_mem _ (mk k Q aΛ ν).toLinearMap
+      (hP.gradingDatum.hflip_mem_grade (fun i j => congrArg Neg.neg (C.symm i j))
+        (divIdem_mem_grade G (isBlocks_ofList d rfl)))
+  have hdp : dp ν d rfl = (GProj.ofIdempotent z₀ hz₀ hz₀0).shift (-divAngle2 C d) := rfl
+  have hrank : finrank (LaurentPolynomial ℤ) (K0 (grade G Λ ν)) = 1 := by
+    change finrank (LaurentPolynomial ℤ) (K0 (grade G Λ (expandDiv d : Multiset I))) = 1
+    dsimp only [d]
+    rw [Stendhal.expand_coevaluationDividedWord]
+    exact finrank_coevaluation_projectiveBlock hP Λ RD highest hΛ hR P weight hweight
+      match_weight w hw
+  have hn : GProj.homGdim (dp ν d rfl) (dp ν d rfl) = 1 :=
+    homGdim_dividedWord_of_websterNorm hP Λ RD highest hΛ hR d
+      (Stendhal.websterForm_coevaluationDividedWord P (dominantWeight Λ RD highest hΛ) hR weight
+        hweight match_weight w hw)
+  have hsimple := isSimple_coevaluationProjective hP Λ RD highest hΛ hR P weight hweight
+    match_weight w hw
+  have hne : z₀ ≠ 0 := by
+    intro h0
+    have := IsSimpleModule.nontrivial (CycKLR k Q aΛ ν) (dp ν d rfl).carrier
+    obtain ⟨y, hy⟩ := exists_ne (0 : (dp ν d rfl).carrier)
+    let y' : leftIdeal z₀ := y
+    have hy' : (y' : CycKLR k Q aΛ ν) * z₀ = y' := y'.2
+    apply hy
+    change y' = 0
+    apply Subtype.ext
+    have hz : ∀ a : CycKLR k Q aΛ ν, a * z₀ = a → a = 0 := fun a ha => by
+      rw [← ha, h0, mul_zero]
+    exact hz _ hy'
+  have hnt : Nontrivial (CycKLR k Q aΛ ν) := ⟨⟨z₀, 0, hne⟩⟩
+  have hcen : ∀ z : CycKLR k Q aΛ ν, (∀ y, z * y = y * z) → ∃ c : k, z = algebraMap k _ c :=
+    fun z hz => GProj.exists_algebraMap_of_commute (dp ν d rfl) hrank hn z hz
+  have hgen : ∀ y : CycKLR k Q aΛ ν, z₀ * y = y → y ≠ 0 → ∃ c, y * c = z₀ :=
+    fun y hy hy0 => GProj.exists_mul_eq_of_homGdim_eq_one hz₀ hz₀0 _ hrank (hdp ▸ hn) y hy hy0
+  have hscalar : ∀ x : CycKLR k Q aΛ ν, z₀ * x * z₀ = x → ∃ c : k, x = c • z₀ :=
+    fun x hx => GProj.exists_smul_eq_of_homGdim_eq_one hz₀ hz₀0 _ (hdp ▸ hn) x hx
+  have hvan : ∀ i, Subsingleton (CycKLR k Q aΛ ({i} + ν)) := by
+    intro i
+    have h := subsingleton_of_isLeftDescent_coevaluationWord hP Λ RD highest hΛ hR P weight
+      hweight match_weight w hw i (hlong i)
+    change Subsingleton (CycKLR k Q aΛ ({i} + (expandDiv d : Multiset I)))
+    dsimp only [d]
+    rw [Stendhal.expand_coevaluationDividedWord]
+    exact h
+  refine Stendhal.finrank_ext_standard_cycDivProj_wrapHead Q (coevaluationLabels Λ RD highest ν)
+    d hQ hP hall t ht h ?_ ?_ ?_ ?_
+  · intro t h
+    exact dot_pow_mul_e_eq_zero_of_lowest hP Λ RD highest hΛ ν hvan hcen t h
+  · exact hne
+  · exact hgen
+  · exact hscalar
+
+end Categorification.KLR.CycKLR
+
+end

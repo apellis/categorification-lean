@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.Diagrams.BicatInterpAdmissible
+import Categorification.Diagrams.BicatInterpMate
 
 /-!
 # Chains of layer images in canonical form
@@ -41,6 +41,16 @@ theorem layer_canon {a₀ a₁ b c n m : FB S} {p' : a₀ ⟶ b} {q' : c ⟶ a�
   obtain rfl := eq_of_heq hp; obtain rfl := eq_of_heq hq; obtain rfl := eq_of_heq hd
   obtain rfl := eq_of_heq he; obtain rfl := eq_of_heq hg
   exact ⟨A, B, rfl⟩
+
+/-- **The image of a chain of layers with a first layer** `L`: the transport to the boundary word
+of `L`, the image of `L`, and the image of the remaining chain. -/
+theorem admissibleChain_cons (G : GenImg M) {s t : S.Region} {a b : Obj S} (L : Layer S)
+    (ls : List (Layer S)) (h : Chain a (L :: ls) b) (ha : Cond s t a) (hb : Cond s t b) :
+    admissibleChain G a (L :: ls) b h ha hb =
+      M.lift.map₂ (eqToHom (fw_eq (congrArg Obj.word h.2.1.symm) ha.1 ha.2.1
+          (h.2.1 ▸ ha).1 (h.2.1 ▸ ha).2.1)) ≫
+        coreC G h.1 (h.2.1 ▸ ha) ≫ admissibleChain G L.cod ls b h.2.2 ((h.2.1 ▸ ha).cod h.1) hb := by
+  rw [admissibleChain, eqToHom_lift _ _]
 
 variable {a₀ a₁ : FB S}
 
@@ -178,6 +188,148 @@ theorem chain₃_heq (γ₁ : M.lift.map x₁ ⟶ M.lift.map y₁) (γ₂ : M.li
   exact chain₃_eq M γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ _  _  _  _  _  _  _  _  h _  _  _  _  _  _  _  _ 
 
 end Three
+
+/-- **Two chains of 2 layers** with pieces equal to canonical ones up to equality of regions and
+heterogeneous equality have the same image as soon as the canonical composites agree after free
+isomorphisms from a common source `W` and to a common target `W'`. -/
+theorem admissibleChain₂_heq (G : GenImg M) {s t : S.Region} {a b : Obj S}
+    {L₁ L₂ L₃ L₄ : Layer S}
+    (h : Chain a [L₁, L₂] b) (h' : Chain a [L₃, L₄] b) (ha : Cond s t a) (hb : Cond s t b)
+    (ht : fo (S := S) t = a₀) (hs : fo (S := S) s = a₁)
+    {b₁ c₁ : FB S} {p₁ : a₀ ⟶ b₁} {q₁ : c₁ ⟶ a₁} {x₁ y₁ : b₁ ⟶ c₁} {b₂ c₂ : FB S} {p₂ : a₀ ⟶ b₂} {q₂ : c₂ ⟶ a₁} {x₂ y₂ : b₂ ⟶ c₂} {b₃ c₃ : FB S} {p₃ : a₀ ⟶ b₃} {q₃ : c₃ ⟶ a₁} {x₃ y₃ : b₃ ⟶ c₃} {b₄ c₄ : FB S} {p₄ : a₀ ⟶ b₄} {q₄ : c₄ ⟶ a₁} {x₄ y₄ : b₄ ⟶ c₄}
+    (γ₁ : M.lift.map x₁ ⟶ M.lift.map y₁) (γ₂ : M.lift.map x₂ ⟶ M.lift.map y₂) (γ₃ : M.lift.map x₃ ⟶ M.lift.map y₃) (γ₄ : M.lift.map x₄ ⟶ M.lift.map y₄)
+    {W W' : a₀ ⟶ a₁}
+    (N0 : W ≅ p₁ ≫ (x₁ ≫ q₁))
+    (N1 : p₁ ≫ (y₁ ≫ q₁) ⟶ p₂ ≫ (x₂ ≫ q₂))
+    (N2 : p₂ ≫ (y₂ ≫ q₂) ≅ W')
+    (N'0 : W ≅ p₃ ≫ (x₃ ≫ q₃))
+    (N'1 : p₃ ≫ (y₃ ≫ q₃) ⟶ p₄ ≫ (x₄ ≫ q₄))
+    (N'2 : p₄ ≫ (y₄ ≫ q₄) ≅ W')
+    (hmain : M.lift.map₂ N0.hom ≫
+        midK M p₁ q₁ γ₁ ≫
+        M.lift.map₂ N1 ≫
+        midK M p₂ q₂ γ₂ ≫
+        M.lift.map₂ N2.hom =
+      M.lift.map₂ N'0.hom ≫
+        midK M p₃ q₃ γ₃ ≫
+        M.lift.map₂ N'1 ≫
+        midK M p₄ q₄ γ₄ ≫
+        M.lift.map₂ N'2.hom)
+    (hn1 : fo (S := S) (S.right L₁.gen) = b₁) (hm1 : fo (S := S) (S.left L₁.gen) = c₁)
+    (hr1 : ∀ h e, fw (S.right L₁.gen) L₁.right t h e ≍ p₁)
+    (hl1 : ∀ h e, fw s L₁.left (S.left L₁.gen) h e ≍ q₁)
+    (hd1 : ∀ h e, fw (S.left L₁.gen) (S.dom L₁.gen) (S.right L₁.gen) h e ≍ x₁)
+    (he1 : ∀ h e, fw (S.left L₁.gen) (S.cod L₁.gen) (S.right L₁.gen) h e ≍ y₁)
+    (hg1 : ∀ hd hde hc hce, G.gen L₁.gen (S.left L₁.gen) (S.right L₁.gen) rfl rfl hd hde hc hce ≍
+      γ₁)
+    (hn2 : fo (S := S) (S.right L₂.gen) = b₂) (hm2 : fo (S := S) (S.left L₂.gen) = c₂)
+    (hr2 : ∀ h e, fw (S.right L₂.gen) L₂.right t h e ≍ p₂)
+    (hl2 : ∀ h e, fw s L₂.left (S.left L₂.gen) h e ≍ q₂)
+    (hd2 : ∀ h e, fw (S.left L₂.gen) (S.dom L₂.gen) (S.right L₂.gen) h e ≍ x₂)
+    (he2 : ∀ h e, fw (S.left L₂.gen) (S.cod L₂.gen) (S.right L₂.gen) h e ≍ y₂)
+    (hg2 : ∀ hd hde hc hce, G.gen L₂.gen (S.left L₂.gen) (S.right L₂.gen) rfl rfl hd hde hc hce ≍
+      γ₂)
+    (hn3 : fo (S := S) (S.right L₃.gen) = b₃) (hm3 : fo (S := S) (S.left L₃.gen) = c₃)
+    (hr3 : ∀ h e, fw (S.right L₃.gen) L₃.right t h e ≍ p₃)
+    (hl3 : ∀ h e, fw s L₃.left (S.left L₃.gen) h e ≍ q₃)
+    (hd3 : ∀ h e, fw (S.left L₃.gen) (S.dom L₃.gen) (S.right L₃.gen) h e ≍ x₃)
+    (he3 : ∀ h e, fw (S.left L₃.gen) (S.cod L₃.gen) (S.right L₃.gen) h e ≍ y₃)
+    (hg3 : ∀ hd hde hc hce, G.gen L₃.gen (S.left L₃.gen) (S.right L₃.gen) rfl rfl hd hde hc hce ≍
+      γ₃)
+    (hn4 : fo (S := S) (S.right L₄.gen) = b₄) (hm4 : fo (S := S) (S.left L₄.gen) = c₄)
+    (hr4 : ∀ h e, fw (S.right L₄.gen) L₄.right t h e ≍ p₄)
+    (hl4 : ∀ h e, fw s L₄.left (S.left L₄.gen) h e ≍ q₄)
+    (hd4 : ∀ h e, fw (S.left L₄.gen) (S.dom L₄.gen) (S.right L₄.gen) h e ≍ x₄)
+    (he4 : ∀ h e, fw (S.left L₄.gen) (S.cod L₄.gen) (S.right L₄.gen) h e ≍ y₄)
+    (hg4 : ∀ hd hde hc hce, G.gen L₄.gen (S.left L₄.gen) (S.right L₄.gen) rfl rfl hd hde hc hce ≍
+      γ₄) :
+    admissibleChain G a [L₁, L₂] b h ha hb = admissibleChain G a [L₃, L₄] b h' ha hb := by
+  subst ht hs
+  rw [admissibleChain_pair, admissibleChain_pair]
+  simp only [coreC_eq]
+  unfold core
+  exact chain₂_heq M γ₁ γ₂ γ₃ γ₄ N0 N1 N2 N'0 N'1 N'2 hmain (hn1) (hm1) (hr1 _ _) (hl1 _ _) (hd1 _ _) (he1 _ _) _ (hg1 _ _ _ _) _ _ (hn2) (hm2) (hr2 _ _) (hl2 _ _) (hd2 _ _) (he2 _ _) _ (hg2 _ _ _ _) _ _ (hn3) (hm3) (hr3 _ _) (hl3 _ _) (hd3 _ _) (he3 _ _) _ (hg3 _ _ _ _) _ _ (hn4) (hm4) (hr4 _ _) (hl4 _ _) (hd4 _ _) (he4 _ _) _ (hg4 _ _ _ _) _ _ _ _ _ _ _ _
+
+/-- **Two chains of 3 layers** with pieces equal to canonical ones up to equality of regions and
+heterogeneous equality have the same image as soon as the canonical composites agree after free
+isomorphisms from a common source `W` and to a common target `W'`. -/
+theorem admissibleChain₃_heq (G : GenImg M) {s t : S.Region} {a b : Obj S}
+    {L₁ L₂ L₃ L₄ L₅ L₆ : Layer S}
+    (h : Chain a [L₁, L₂, L₃] b) (h' : Chain a [L₄, L₅, L₆] b) (ha : Cond s t a) (hb : Cond s t b)
+    (ht : fo (S := S) t = a₀) (hs : fo (S := S) s = a₁)
+    {b₁ c₁ : FB S} {p₁ : a₀ ⟶ b₁} {q₁ : c₁ ⟶ a₁} {x₁ y₁ : b₁ ⟶ c₁} {b₂ c₂ : FB S} {p₂ : a₀ ⟶ b₂} {q₂ : c₂ ⟶ a₁} {x₂ y₂ : b₂ ⟶ c₂} {b₃ c₃ : FB S} {p₃ : a₀ ⟶ b₃} {q₃ : c₃ ⟶ a₁} {x₃ y₃ : b₃ ⟶ c₃} {b₄ c₄ : FB S} {p₄ : a₀ ⟶ b₄} {q₄ : c₄ ⟶ a₁} {x₄ y₄ : b₄ ⟶ c₄} {b₅ c₅ : FB S} {p₅ : a₀ ⟶ b₅} {q₅ : c₅ ⟶ a₁} {x₅ y₅ : b₅ ⟶ c₅} {b₆ c₆ : FB S} {p₆ : a₀ ⟶ b₆} {q₆ : c₆ ⟶ a₁} {x₆ y₆ : b₆ ⟶ c₆}
+    (γ₁ : M.lift.map x₁ ⟶ M.lift.map y₁) (γ₂ : M.lift.map x₂ ⟶ M.lift.map y₂) (γ₃ : M.lift.map x₃ ⟶ M.lift.map y₃) (γ₄ : M.lift.map x₄ ⟶ M.lift.map y₄) (γ₅ : M.lift.map x₅ ⟶ M.lift.map y₅) (γ₆ : M.lift.map x₆ ⟶ M.lift.map y₆)
+    {W W' : a₀ ⟶ a₁}
+    (N0 : W ≅ p₁ ≫ (x₁ ≫ q₁))
+    (N1 : p₁ ≫ (y₁ ≫ q₁) ⟶ p₂ ≫ (x₂ ≫ q₂))
+    (N2 : p₂ ≫ (y₂ ≫ q₂) ⟶ p₃ ≫ (x₃ ≫ q₃))
+    (N3 : p₃ ≫ (y₃ ≫ q₃) ≅ W')
+    (N'0 : W ≅ p₄ ≫ (x₄ ≫ q₄))
+    (N'1 : p₄ ≫ (y₄ ≫ q₄) ⟶ p₅ ≫ (x₅ ≫ q₅))
+    (N'2 : p₅ ≫ (y₅ ≫ q₅) ⟶ p₆ ≫ (x₆ ≫ q₆))
+    (N'3 : p₆ ≫ (y₆ ≫ q₆) ≅ W')
+    (hmain : M.lift.map₂ N0.hom ≫
+        midK M p₁ q₁ γ₁ ≫
+        M.lift.map₂ N1 ≫
+        midK M p₂ q₂ γ₂ ≫
+        M.lift.map₂ N2 ≫
+        midK M p₃ q₃ γ₃ ≫
+        M.lift.map₂ N3.hom =
+      M.lift.map₂ N'0.hom ≫
+        midK M p₄ q₄ γ₄ ≫
+        M.lift.map₂ N'1 ≫
+        midK M p₅ q₅ γ₅ ≫
+        M.lift.map₂ N'2 ≫
+        midK M p₆ q₆ γ₆ ≫
+        M.lift.map₂ N'3.hom)
+    (hn1 : fo (S := S) (S.right L₁.gen) = b₁) (hm1 : fo (S := S) (S.left L₁.gen) = c₁)
+    (hr1 : ∀ h e, fw (S.right L₁.gen) L₁.right t h e ≍ p₁)
+    (hl1 : ∀ h e, fw s L₁.left (S.left L₁.gen) h e ≍ q₁)
+    (hd1 : ∀ h e, fw (S.left L₁.gen) (S.dom L₁.gen) (S.right L₁.gen) h e ≍ x₁)
+    (he1 : ∀ h e, fw (S.left L₁.gen) (S.cod L₁.gen) (S.right L₁.gen) h e ≍ y₁)
+    (hg1 : ∀ hd hde hc hce, G.gen L₁.gen (S.left L₁.gen) (S.right L₁.gen) rfl rfl hd hde hc hce ≍
+      γ₁)
+    (hn2 : fo (S := S) (S.right L₂.gen) = b₂) (hm2 : fo (S := S) (S.left L₂.gen) = c₂)
+    (hr2 : ∀ h e, fw (S.right L₂.gen) L₂.right t h e ≍ p₂)
+    (hl2 : ∀ h e, fw s L₂.left (S.left L₂.gen) h e ≍ q₂)
+    (hd2 : ∀ h e, fw (S.left L₂.gen) (S.dom L₂.gen) (S.right L₂.gen) h e ≍ x₂)
+    (he2 : ∀ h e, fw (S.left L₂.gen) (S.cod L₂.gen) (S.right L₂.gen) h e ≍ y₂)
+    (hg2 : ∀ hd hde hc hce, G.gen L₂.gen (S.left L₂.gen) (S.right L₂.gen) rfl rfl hd hde hc hce ≍
+      γ₂)
+    (hn3 : fo (S := S) (S.right L₃.gen) = b₃) (hm3 : fo (S := S) (S.left L₃.gen) = c₃)
+    (hr3 : ∀ h e, fw (S.right L₃.gen) L₃.right t h e ≍ p₃)
+    (hl3 : ∀ h e, fw s L₃.left (S.left L₃.gen) h e ≍ q₃)
+    (hd3 : ∀ h e, fw (S.left L₃.gen) (S.dom L₃.gen) (S.right L₃.gen) h e ≍ x₃)
+    (he3 : ∀ h e, fw (S.left L₃.gen) (S.cod L₃.gen) (S.right L₃.gen) h e ≍ y₃)
+    (hg3 : ∀ hd hde hc hce, G.gen L₃.gen (S.left L₃.gen) (S.right L₃.gen) rfl rfl hd hde hc hce ≍
+      γ₃)
+    (hn4 : fo (S := S) (S.right L₄.gen) = b₄) (hm4 : fo (S := S) (S.left L₄.gen) = c₄)
+    (hr4 : ∀ h e, fw (S.right L₄.gen) L₄.right t h e ≍ p₄)
+    (hl4 : ∀ h e, fw s L₄.left (S.left L₄.gen) h e ≍ q₄)
+    (hd4 : ∀ h e, fw (S.left L₄.gen) (S.dom L₄.gen) (S.right L₄.gen) h e ≍ x₄)
+    (he4 : ∀ h e, fw (S.left L₄.gen) (S.cod L₄.gen) (S.right L₄.gen) h e ≍ y₄)
+    (hg4 : ∀ hd hde hc hce, G.gen L₄.gen (S.left L₄.gen) (S.right L₄.gen) rfl rfl hd hde hc hce ≍
+      γ₄)
+    (hn5 : fo (S := S) (S.right L₅.gen) = b₅) (hm5 : fo (S := S) (S.left L₅.gen) = c₅)
+    (hr5 : ∀ h e, fw (S.right L₅.gen) L₅.right t h e ≍ p₅)
+    (hl5 : ∀ h e, fw s L₅.left (S.left L₅.gen) h e ≍ q₅)
+    (hd5 : ∀ h e, fw (S.left L₅.gen) (S.dom L₅.gen) (S.right L₅.gen) h e ≍ x₅)
+    (he5 : ∀ h e, fw (S.left L₅.gen) (S.cod L₅.gen) (S.right L₅.gen) h e ≍ y₅)
+    (hg5 : ∀ hd hde hc hce, G.gen L₅.gen (S.left L₅.gen) (S.right L₅.gen) rfl rfl hd hde hc hce ≍
+      γ₅)
+    (hn6 : fo (S := S) (S.right L₆.gen) = b₆) (hm6 : fo (S := S) (S.left L₆.gen) = c₆)
+    (hr6 : ∀ h e, fw (S.right L₆.gen) L₆.right t h e ≍ p₆)
+    (hl6 : ∀ h e, fw s L₆.left (S.left L₆.gen) h e ≍ q₆)
+    (hd6 : ∀ h e, fw (S.left L₆.gen) (S.dom L₆.gen) (S.right L₆.gen) h e ≍ x₆)
+    (he6 : ∀ h e, fw (S.left L₆.gen) (S.cod L₆.gen) (S.right L₆.gen) h e ≍ y₆)
+    (hg6 : ∀ hd hde hc hce, G.gen L₆.gen (S.left L₆.gen) (S.right L₆.gen) rfl rfl hd hde hc hce ≍
+      γ₆) :
+    admissibleChain G a [L₁, L₂, L₃] b h ha hb = admissibleChain G a [L₄, L₅, L₆] b h' ha hb := by
+  subst ht hs
+  rw [admissibleChain_cons, admissibleChain_pair, admissibleChain_cons, admissibleChain_pair]
+  simp only [coreC_eq]
+  unfold core
+  exact chain₃_heq M γ₁ γ₂ γ₃ γ₄ γ₅ γ₆ N0 N1 N2 N3 N'0 N'1 N'2 N'3 hmain (hn1) (hm1) (hr1 _ _) (hl1 _ _) (hd1 _ _) (he1 _ _) _ (hg1 _ _ _ _) _ _ (hn2) (hm2) (hr2 _ _) (hl2 _ _) (hd2 _ _) (he2 _ _) _ (hg2 _ _ _ _) _ _ (hn3) (hm3) (hr3 _ _) (hl3 _ _) (hd3 _ _) (he3 _ _) _ (hg3 _ _ _ _) _ _ (hn4) (hm4) (hr4 _ _) (hl4 _ _) (hd4 _ _) (he4 _ _) _ (hg4 _ _ _ _) _ _ (hn5) (hm5) (hr5 _ _) (hl5 _ _) (hd5 _ _) (he5 _ _) _ (hg5 _ _ _ _) _ _ (hn6) (hm6) (hr6 _ _) (hl6 _ _) (hd6 _ _) (he6 _ _) _ (hg6 _ _ _ _) _ _ _ _ _ _ _ _ _ _
 
 section Slides
 

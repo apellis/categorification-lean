@@ -437,9 +437,11 @@ include hP hΛ hR in
 /-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (top degree)**, ungraded. Let `w` be a
 reduced expression of the longest element, `d` the divided coevaluation word of Definition 7.1
 and `ν` its black weight, `|ν| = 2ρ^∨(λ)`. For the red labels `(λ, λ*)`, the standard module
-`M_λ = S(T^{λ} ⊠ R^{λ*} 1_{d̄})` of the divided coevaluation word (read backwards on the second red
-strand, as `cycWord` reads words) has `Ext^{|ν|}(M_λ, L_λ)` one-dimensional, where `L_λ` is the
-simple head `coevaluationHead d` of Lemma 7.3. Ext of left modules, with `L_λ` a left module
+`M_λ = S(T^{λ} ⊠ R^{λ*} 1_{d̄})`, `d̄ = d.reverse`, has `Ext^{|ν|}(M_λ, L_λ)` one-dimensional,
+where `L_λ` is the simple head `coevaluationHead d` of Lemma 7.3. Webster's `M_λ` is the standard
+`S^{κ₀}_{i_{λ*}}` of the divided word of `λ*` for a reduced expression of `w₀`; `d̄` is that word
+for the reversed expression (its `j`-th exponent `⟨α^∨, w'_j λ*⟩` equals the `(k - j)`-th
+exponent of `d`, since `w'_j w₀ = w_{k-j}`). Ext of left modules, with `L_λ` a left module
 through the horizontal reflection. Under the route hypothesis `hall` of Proposition 7.6. -/
 theorem _root_.Categorification.Stendhal.finrank_ext_standard_coevaluationHead
     {K H : Type*} [Field K] [ConditionallyCompleteLinearOrder K] [IsStrictOrderedRing K]

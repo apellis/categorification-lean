@@ -6351,6 +6351,64 @@ example := Categorification.Stendhal.isSimpleModule_coevaluationHead
     cases i
     simp [CoxeterSystem.IsLeftDescent])
 
+private theorem coevaluationWeight_split :
+    0 + wordWt (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized)
+      weight [()])) 0 =
+      (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight [()]) :
+        Multiset Unit) := by
+  rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]
+
+private def firstRed : KLR.Seq (stendhalWeight 1 (0 : Multiset Unit)) :=
+  KLR.KLRAlgebra.Seq.ofList [Sum.inr 0] (by decide)
+
+private theorem firstRed_ordered : IsRedOrdered firstRed := by
+  intro a b r r' hab
+  have ha := a.2
+  have hb := b.2
+  simp [stendhalWeight] at ha hb
+  omega
+
+/-- Webster, arXiv:1309.3796v3, Corollary 7.7 (top degree) at the level-two coevaluation word:
+`Ext^{|ν|}(M_λ, L_λ)` is one-dimensional. The route hypothesis `hall` of Proposition 7.6 is
+assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))) CyclotomicHighestWeight.params.klrSymm) :=
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()])))
+      (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))))
+  Categorification.Stendhal.finrank_ext_standard_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+    CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) [()] reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
+    firstRed firstRed_ordered coevaluationWeight_split
+
+/-- Webster, arXiv:1309.3796v3, Corollary 7.7 (vanishing part) for the divided standard module
+`M_λ` at the level-two coevaluation word, in degree one. The route hypothesis `hall` of
+Proposition 7.6 is assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) CyclotomicHighestWeight.params.klrSymm) :=
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)])))
+  Categorification.Stendhal.subsingleton_ext_standard_cycDivProj_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
+    CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered
+    (by rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]) 1 (by decide)
+
 /-- Webster, arXiv:1309.3796v3, Lemma 7.17 (spanning step) at the head `L_μ` of the
 level-two coevaluation projective, inserted into the empty sequence of red strands. -/
 example := Categorification.Stendhal.CupCap.span_canonical_coevaluationHead

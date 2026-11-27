@@ -2585,6 +2585,14 @@ example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv
   (fun _ : Fin 2 => Finsupp.single () 2)
   (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
 
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `Ĩ_λ`, appending the
+second level-two label to the first. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_red
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
 /-- Webster, Proposition 4.39 with the compatibility (4.40) for `F̃_i`, same data. -/
 example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_lower
   (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular

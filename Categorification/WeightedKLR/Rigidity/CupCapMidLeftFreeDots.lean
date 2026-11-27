@@ -149,7 +149,9 @@ theorem midTheta_midDotElt [DecidableEq (MidShuffle j hj ν ν₀)]
 local notation "N" => Multiset.card (stendhalWeight 2 ν₀)
 local notation "M" => Multiset.card (stendhalWeight (ℓ + 2) (ν + ν₀))
 
-/-- **Step 3: `Θ` is surjective** (for symmetric `Q`, through the basis of the model). -/
+/-- **Step 3: `Θ` over all generators without dots is surjective** (for symmetric `Q`, through
+the basis of the model). This source is too large for injectivity; the surjectivity of the
+restriction `midThetaBlock` to the block shuffles is open. -/
 theorem midTheta_surjective [DecidableEq (MidGen j hj ν ν₀)] [DecidableEq (MidShuffle j hj ν ν₀)]
     (hQ : KLRSymm Q) {ρ₂ : Perm (Fin N) → List ℕ}
     (hρ₂ : ∀ b, IsReduced N (ρ₂ b) ∧ wordProd N (ρ₂ b) = b)

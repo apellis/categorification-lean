@@ -56,6 +56,7 @@ import Categorification.Algebra.DerivedTensorTriangulated
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
 import Categorification.Algebra.ExactDerivedTensor
+import Categorification.Algebra.OrderedStandardExt
 import Categorification.Algebra.ProjectiveKProjective
 import Categorification.Algebra.ResolutionAdjunction
 import Categorification.Algebra.ProjectiveFlat
@@ -748,6 +749,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCapPresentationQ
 import Categorification.WeightedKLR.RedStrands.DoubleFarLeftBlackCutQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedBubbleSweepQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBubbleExitQ
+import Categorification.WeightedKLR.RedStrands.HalfTwistTiltingSummand
 import Categorification.WeightedKLR.RedStrands.LabelTwoEndpointTor
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorDiagramCut
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorSlide
@@ -786,6 +788,7 @@ import Categorification.WeightedKLR.RedStrands.LoadingCutPBW
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutParabolic
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutParabolicNatural
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutTransfer
+import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicTerminalSymmetric

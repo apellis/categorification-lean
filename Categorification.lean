@@ -1,6 +1,7 @@
 import Categorification.Algebra.AmbidextrousTrace
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
+import Categorification.Algebra.BalancedTensorScalar
 import Categorification.Algebra.BalancedTensorEndAction
 import Categorification.Algebra.BalancedTensorCyclic
 import Categorification.Algebra.BalancedTensorAssoc
@@ -2019,6 +2020,7 @@ import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeCoe
+import Categorification.WeightedKLR.Rigidity.CupCapLemma719KFlip
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeProjective
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeViolated
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
@@ -2819,6 +2821,8 @@ import Categorification.WeightedKLR.RedStrands.PartialStandardizationDescent
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationExact
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationLift
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationPlusStaged
+import Categorification.WeightedKLR.RedStrands.PartialStandardizationStagedBlocks
+import Categorification.WeightedKLR.RedStrands.PartialStandardizationStagedZero
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationSingletons
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationSpectator
 import Categorification.Algebra.InductionAlongEndAlg

@@ -83,6 +83,22 @@ theorem sum_le_of_rel {α β : Type*} {E : List α} {M : List β} (hE : E.Nodup)
   rw [h1, ← (hp.map H).sum_eq]
   exact (hs.map H).sum_le_sum fun _ _ => Nat.zero_le _
 
+/-- The values of a list of labels selected along the reversed indices of `L`. -/
+theorem map_val_flatMap_pmap_range {α β : Type*} (L : List α) (d : α) (g : α → β)
+    {p : β → Prop} (sel : {i // i < L.length} → {b // p b})
+    (hsel : ∀ i, (sel i).1 = g (L.getD i.1 d))
+    (hp : ∀ i ∈ (List.range L.length).reverse, i < L.length) :
+    (((List.range L.length).reverse.pmap Subtype.mk hp).flatMap fun i => [sel i]).map
+      Subtype.val = L.reverse.map g := by
+  rw [List.map_flatMap]
+  simp only [List.map_cons, List.map_nil, hsel]
+  rw [← List.map_eq_flatMap, List.map_pmap]
+  change List.pmap (fun a _ => g (L.getD a d)) _ hp = _
+  rw [List.pmap_eq_map, List.map_reverse, List.map_reverse]
+  congr 1
+  refine List.ext_getElem (by simp) fun i h1 h2 => ?_
+  rw [List.getElem_map, List.getElem_map, List.getElem_range, List.getD_eq_getElem]
+
 end Categorification.ModuleFiltration
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
@@ -214,21 +230,37 @@ theorem finiteDimensional_loadingStandard_of_eq {ν : Multiset I}
   subst h
   assumption
 
+omit [Finite I] [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I),
+  Module.Finite k (TensorProductAlgebra k Q Ω ν)] in
+/-- The cut `e(t) V e_{wλ}` of a braided sequence projective, as a module over the corner of
+`V^{λ ∘ w}` at `(1, …, ℓ)`, has a filtration by loading standards with the labels `labels`. -/
+def HasLabelledCutFiltration (w : Equiv.Perm (Fin ℓ)) {ν : Multiset I}
+    (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t)
+    (labels : List (Seq (stendhalWeight ℓ ν))) : Prop :=
+  ∃ m : List {s : Seq (stendhalWeight ℓ ν) // redWord s = List.finRange ℓ ∧ ¬ IsViolated s},
+    m.map Subtype.val = labels ∧
+    HasFiltration (fun s => ModuleCat.of (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w)
+        (ν := ν) (List.finRange ℓ))ᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ ∘ w) s.1
+          (List.finRange ℓ))) m
+      (ModuleCat.of (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν)
+        (List.finRange ℓ))ᵐᵒᵖ (braidRightSequenceCut (k := k) (Q := Q) (Λ := Λ) (ν := ν)
+          (isReducedChoice_canChoice ν) hQ.klrSymm hQ w t ht))
+
 /-- **`f_n` from the class map** (Webster, arXiv:1309.3796v2, proof of Lemma 6.11, step
 `p_n → f_n`): if the class map of `𝔅_w` is `x ↦ B(f x, -)` with `f` congruent at `v = 1` to the
 permutation of the tensor factors by `w`, then `𝔅_w (e(t) T^λ)` has a standard filtration. The
 images of the eligible diagrams filter the cut `e(t) V e_{wλ}` (`hasFiltration_braidColumn`),
 each piece a quotient of a loading standard; the class map gives the dimension of the braid
 (`finrank_braidF_rightSequence`), which bounds the total dimension of these standards
-(`sum_finrank_braidColumn_le`), so every quotient map is an isomorphism. -/
-theorem hasCornerStandardFiltration_braidF_rightSequence (w : Equiv.Perm (Fin ℓ))
+(`sum_finrank_braidColumn_le`), so every quotient map is an isomorphism. The labels are the
+relabelled bottoms `w⁻¹ (W⁻¹ t)` of the eligible indices `W`, in reverse order. -/
+theorem exists_hasFiltration_braidRightSequenceCut (w : Equiv.Perm (Fin ℓ))
     (f : TensorSpace wt →ₗ[𝕂] TensorSpace (wt ∘ w))
     (hf : VOneCongr f (tensorPermute wt w).toLinearMap)
     (hcls : braidClass C hQ hR Λ wt hwt w = (formDual hR (wt ∘ w)).comp f)
     {ν : Multiset I} (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t) :
-    HasCornerStandardFiltration (Λ ∘ w) ν (isReducedChoice_canChoice ν) hQ.klrSymm hQ
-      (braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
-        (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin) := by
+    HasLabelledCutFiltration C hQ Λ w t ht
+      ((braidColumnIndexList t w).reverse.map (fun W => Seq.redPerm w⁻¹ (W⁻¹ • t))) := by
   set N := braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
     (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin
   set L := braidColumnIndexList t w
@@ -324,6 +356,20 @@ theorem hasCornerStandardFiltration_braidF_rightSequence (w : Equiv.Perm (Fin �
       (((List.range L.length).reverse.pmap Subtype.mk hp).flatMap fun i => [sel i]) X :=
     HasFiltration.bind (M := fun i => [sel i])
       (fun i => HasFiltration.single (c := sel i) (LinearEquiv.refl _ (S i))) h2
-  exact ⟨_, h3⟩
+  exact ⟨_, map_val_flatMap_pmap_range L 1 (fun W => Seq.redPerm w⁻¹ (W⁻¹ • t)) sel
+    (fun _ => rfl) hp, h3⟩
+
+/-- **`f_n` from the class map** (Webster, arXiv:1309.3796v2, proof of Lemma 6.11, step
+`p_n → f_n`), in the form of `HasCornerStandardFiltration`. -/
+theorem hasCornerStandardFiltration_braidF_rightSequence (w : Equiv.Perm (Fin ℓ))
+    (f : TensorSpace wt →ₗ[𝕂] TensorSpace (wt ∘ w))
+    (hf : VOneCongr f (tensorPermute wt w).toLinearMap)
+    (hcls : braidClass C hQ hR Λ wt hwt w = (formDual hR (wt ∘ w)).comp f)
+    {ν : Multiset I} (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t) :
+    HasCornerStandardFiltration (Λ ∘ w) ν (isReducedChoice_canChoice ν) hQ.klrSymm hQ
+      (braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
+        (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin) := by
+  obtain ⟨m, -, h⟩ := exists_hasFiltration_braidRightSequenceCut C hQ hR Λ wt hwt w f hf hcls t ht
+  exact ⟨m, h⟩
 
 end Categorification.Stendhal.FirstWeight

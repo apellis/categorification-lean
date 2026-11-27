@@ -26,8 +26,8 @@ crossing).
 
 * The inversion of orientations maps `U_Q(g)` to `U_{Q^θ}(g)` (`omegaHom`, from
   `CLQ.lin_omegaSLin_eq_zero`); relations for downward strands are transported from
-  `U_{Q^θ}(g)` (`omega_transport`), which needs `r = 1` so that `Q^{θθ} = Q`. The statements
-  proved this way carry the hypothesis `hr : ∀ i, sc.r i = 1`.
+  `U_{Q^θ}(g)` (`omega_transport`); `Q^{θθ}` is `Q` with `r = 1`, which has the same
+  presentation (`CLQ.thetaScalars_thetaScalars_withRone`), so no hypothesis on `r` is needed.
 * The rotation of a downward crossing is a sideways crossing up to the unit `t_{ij}^{-1}`
   (`dg_wls_crosslL`, `dg_wls_crossrL`). In Reidemeister 3 both sides contain the same two
   sideways crossings, so the units cancel and `r3` holds with coefficient `1`; the pitchfork
@@ -301,8 +301,8 @@ In `U_Q(g)` the inversion of orientations `ω̃` maps `U_Q(g)` to `U_{Q^θ}(g)` 
 `Categorification.Diagrams.CLQ.SymmetryOmega`). On 2-morphisms it is the `k`-linear map
 `omegaHom`, obtained from `omegaSLin` on linear combinations of diagrams, which descends to
 `U_Q(g)` by `lin_omegaSLin_eq_zero`. A relation modulo lower terms in `U_Q(g)` is transported to
-`U_{Q^θ}(g)` (`omega_transport_theta`); for scalars with `r = 1`, `Q^{θθ} = Q`, so a relation in
-`U_{Q^θ}(g)` gives the orientation-reversed relation in `U_Q(g)` (`omega_transport`). -/
+`U_{Q^θ}(g)` (`omega_transport_theta`); `Q^{θθ}` presents the same 2-category as `Q`, so a
+relation in `U_{Q^θ}(g)` gives the orientation-reversed relation in `U_Q(g)` (`omega_transport`). -/
 
 section Omega
 
@@ -411,10 +411,10 @@ theorem omega_transport_single_theta {ν : X} {s t : List (Letter I)} {c : ℕ}
   have := Submodule.smul_mem _ ((Sig.sgnS L : ℤ) : k) h'
   rwa [smul_smul, ← Int.cast_mul, sgnS_sq, Int.cast_one, one_smul, TRQ_mem_map_iff] at this
 
-/-- **Transport of a relation modulo lower terms by `ω̃`, into `U_Q(g)`** (`r = 1`, so
-`Q^{θθ} = Q`): a relation modulo lower terms in `U_{Q^θ}(g)` gives the orientation-reversed
+/-- **Transport of a relation modulo lower terms by `ω̃`, into `U_Q(g)`** (`Q^{θθ}` is `Q` with
+`r = 1`): a relation modulo lower terms in `U_{Q^θ}(g)` gives the orientation-reversed
 relation in `U_Q(g)`. -/
-theorem omega_transport (hr : ∀ i, sc.r i = 1) {ν : X} {s t : List (Letter I)} {c : ℕ}
+theorem omega_transport {ν : X} {s t : List (Letter I)} {c : ℕ}
     {L₁ L₂ : List (LayerData I)} (h₁ : SChain s L₁ t) (h₂ : SChain s L₂ t)
     (hs : Sig.sgnS L₁ = Sig.sgnS L₂)
     (h : NF.dg (pres RD k (CLQ.thetaScalars RD sc)) ν s t L₁ -
@@ -424,16 +424,35 @@ theorem omega_transport (hr : ∀ i, sc.r i = 1) {ν : X} {s t : List (Letter I)
       NF.dg (pres RD k sc) (-ν) (s.map Letter.dual) (t.map Letter.dual) (Omega.wls L₂) ∈
       LeL RD k sc (-ν) (s.map Letter.dual) (t.map Letter.dual) c := by
   have h' := omega_transport_theta h₁ h₂ hs h
-  rwa [CLQ.thetaScalars_thetaScalars sc hr] at h'
+  rw [CLQ.thetaScalars_thetaScalars_withRone] at h'
+  exact h'
 
-theorem omega_transport_single (hr : ∀ i, sc.r i = 1) {ν : X} {s t : List (Letter I)} {c : ℕ}
+theorem omega_transport_single {ν : X} {s t : List (Letter I)} {c : ℕ}
     {L : List (LayerData I)} (hL : SChain s L t)
     (h : NF.dg (pres RD k (CLQ.thetaScalars RD sc)) ν s t L ∈
       LeL RD k (CLQ.thetaScalars RD sc) ν s t c) :
     NF.dg (pres RD k sc) (-ν) (s.map Letter.dual) (t.map Letter.dual) (Omega.wls L) ∈
       LeL RD k sc (-ν) (s.map Letter.dual) (t.map Letter.dual) c := by
   have h' := omega_transport_single_theta hL h
-  rwa [CLQ.thetaScalars_thetaScalars sc hr] at h'
+  rw [CLQ.thetaScalars_thetaScalars_withRone] at h'
+  exact h'
+
+/-- **Transport of an equation by `ω̃`, into `U_Q(g)`**: an equation between normal-form
+diagrams in `U_{Q^θ}(g)` with the same sign gives the orientation-reversed equation in
+`U_Q(g)`. -/
+theorem omega_eq_transport {ν : X} {s t : List (Letter I)} {L₁ L₂ : List (LayerData I)}
+    (h₁ : SChain s L₁ t) (h₂ : SChain s L₂ t) (hs : Sig.sgnS L₁ = Sig.sgnS L₂)
+    (h : NF.dg (pres RD k (CLQ.thetaScalars RD sc)) ν s t L₁ =
+      NF.dg (pres RD k (CLQ.thetaScalars RD sc)) ν s t L₂) :
+    NF.dg (pres RD k sc) (-ν) (s.map Letter.dual) (t.map Letter.dual) (Omega.wls L₁) =
+      NF.dg (pres RD k sc) (-ν) (s.map Letter.dual) (t.map Letter.dual) (Omega.wls L₂) := by
+  have e := congrArg (omegaHom (CLQ.thetaScalars RD sc) (ob_wf RD ν s)) h
+  rw [omegaHom_dg ν L₁ h₁, omegaHom_dg ν L₂ h₂, hs, CLQ.thetaScalars_thetaScalars_withRone] at e
+  have e' := congrArg (fun x => ((Sig.sgnS L₂ : ℤ) : k) • x) e
+  simp only [smul_smul, ← Int.cast_mul, sgnS_sq, Int.cast_one, one_smul] at e'
+  refine sub_eq_zero.mp ((TRQ_eq_zero (sc := sc.withRone) (Omega.trO ν s) (Omega.trO ν t)).mp ?_)
+  rw [map_sub]
+  exact sub_eq_zero.mpr e'
 
 end Omega
 
@@ -491,44 +510,44 @@ section DnDn
 
 variable [DecidableEq I]
 
-theorem dsDn0 (hr : ∀ i, sc.r i = 1) (ν : X) (i j : I) :
+theorem dsDn0 (ν : X) (i j : I) :
     NF.dg (pres RD k sc) ν [dn i, dn j] [dn j, dn i] (xLay (dn i) (dn j) ++ [([], .dot (dn j), [dn i])]) -
       NF.dg (pres RD k sc) ν [dn i, dn j] [dn j, dn i] ([([dn i], .dot (dn j), [])] ++ xLay (dn i) (dn j)) ∈
         LeL RD k sc ν [dn i, dn j] [dn j, dn i] 0 := by
-  have h := omega_transport hr (ν := -ν) (by schain) (by schain)
+  have h := omega_transport (ν := -ν) (by schain) (by schain)
     (by simp [Sig.sgnS, Sig.sgnSh, mul_comm]) (dsUp0 (sc := CLQ.thetaScalars RD sc) (-ν) i j)
   rw [neg_neg] at h
   exact h
 
-theorem dsDn1 (hr : ∀ i, sc.r i = 1) (ν : X) (i j : I) :
+theorem dsDn1 (ν : X) (i j : I) :
     NF.dg (pres RD k sc) ν [dn i, dn j] [dn j, dn i] (xLay (dn i) (dn j) ++ [([dn j], .dot (dn i), [])]) -
       NF.dg (pres RD k sc) ν [dn i, dn j] [dn j, dn i] ([([], .dot (dn i), [dn j])] ++ xLay (dn i) (dn j)) ∈
         LeL RD k sc ν [dn i, dn j] [dn j, dn i] 0 := by
-  have h := omega_transport hr (ν := -ν) (by schain) (by schain)
+  have h := omega_transport (ν := -ν) (by schain) (by schain)
     (by simp [Sig.sgnS, Sig.sgnSh, mul_comm]) (dsUp1 (sc := CLQ.thetaScalars RD sc) (-ν) i j)
   rw [neg_neg] at h
   exact h
 
 /-- **Dots slide through every crossing modulo diagrams without crossings** (a dot on the left
 upper strand). -/
-theorem ds0 (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) :
+theorem ds0 (ν : X) (l₁ l₂ : Letter I) :
     NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] (xLay l₁ l₂ ++ [([], .dot l₂, [l₁])]) -
       NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] ([([l₁], .dot l₂, [])] ++ xLay l₁ l₂) ∈
         LeL RD k sc ν [l₁, l₂] [l₂, l₁] 0 := by
   obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂
-  · exact dsDn0 hr ν i j
+  · exact dsDn0 ν i j
   · exact dsDnUp0 ν j i
   · exact dsUpDn0 ν i j
   · exact dsUp0 ν i j
 
 /-- **Dots slide through every crossing modulo diagrams without crossings** (a dot on the right
 upper strand). -/
-theorem ds1 (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) :
+theorem ds1 (ν : X) (l₁ l₂ : Letter I) :
     NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] (xLay l₁ l₂ ++ [([l₂], .dot l₁, [])]) -
       NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] ([([], .dot l₁, [l₂])] ++ xLay l₁ l₂) ∈
         LeL RD k sc ν [l₁, l₂] [l₂, l₁] 0 := by
   obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂
-  · exact dsDn1 hr ν i j
+  · exact dsDn1 ν i j
   · exact dsDnUp1 ν j i
   · exact dsUpDn1 ν i j
   · exact dsUp1 ν i j
@@ -801,20 +820,20 @@ section R3Omega
 
 variable [DecidableEq I]
 
-theorem r3_FFF (hr : ∀ i, sc.r i = 1) (ν : X) (c d e : I) :
+theorem r3_FFF (ν : X) (c d e : I) :
     NF.dg (pres RD k sc) ν [dn c, dn d, dn e] [dn e, dn d, dn c] (r3L (dn c) (dn d) (dn e)) -
       NF.dg (pres RD k sc) ν [dn c, dn d, dn e] [dn e, dn d, dn c] (r3R (dn c) (dn d) (dn e)) ∈
         LeL RD k sc ν [dn c, dn d, dn e] [dn e, dn d, dn c] 2 := by
-  have h := omega_transport hr (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
+  have h := omega_transport (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
     (r3_EEE (sc := CLQ.thetaScalars RD sc) (-ν) c d e)
   rw [neg_neg] at h
   exact h
 
-theorem r3_FEF (hr : ∀ i, sc.r i = 1) (ν : X) (i j k' : I) :
+theorem r3_FEF (ν : X) (i j k' : I) :
     NF.dg (pres RD k sc) ν [dn i, up j, dn k'] [dn k', up j, dn i] (r3L (dn i) (up j) (dn k')) -
       NF.dg (pres RD k sc) ν [dn i, up j, dn k'] [dn k', up j, dn i] (r3R (dn i) (up j) (dn k')) ∈
         LeL RD k sc ν [dn i, up j, dn k'] [dn k', up j, dn i] 2 := by
-  have h := omega_transport hr (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
+  have h := omega_transport (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
     (r3_EFE (sc := CLQ.thetaScalars RD sc) (-ν) i j k')
   rw [neg_neg] at h
   simp only [r3L, r3R]
@@ -826,11 +845,11 @@ theorem r3_FEF (hr : ∀ i, sc.r i = 1) (ν : X) (i j k' : I) :
     datSQ 0 [dn i] [] (dg_crosslL_eq_smul_wls k' j _)
     datSQ 4 [dn k'] [] (dg_crossrL_eq_smul_wls i j _)
 
-theorem r3_FFE (hr : ∀ i, sc.r i = 1) (ν : X) (i k' j : I) :
+theorem r3_FFE (ν : X) (i k' j : I) :
     NF.dg (pres RD k sc) ν [dn i, dn k', up j] [up j, dn k', dn i] (r3L (dn i) (dn k') (up j)) -
       NF.dg (pres RD k sc) ν [dn i, dn k', up j] [up j, dn k', dn i] (r3R (dn i) (dn k') (up j)) ∈
         LeL RD k sc ν [dn i, dn k', up j] [up j, dn k', dn i] 2 := by
-  have h := omega_transport hr (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
+  have h := omega_transport (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
     (r3_EEF (sc := CLQ.thetaScalars RD sc) (-ν) i k' j)
   rw [neg_neg] at h
   simp only [r3L, r3R]
@@ -842,11 +861,11 @@ theorem r3_FFE (hr : ∀ i, sc.r i = 1) (ν : X) (i k' j : I) :
     datSQ 0 [dn i] [] (dg_crossrL_eq_smul_wls k' j _)
     datSQ 3 [] [dn k'] (dg_crossrL_eq_smul_wls i j _)
 
-theorem r3_EFF (hr : ∀ i, sc.r i = 1) (ν : X) (j i k' : I) :
+theorem r3_EFF (ν : X) (j i k' : I) :
     NF.dg (pres RD k sc) ν [up j, dn i, dn k'] [dn k', dn i, up j] (r3L (up j) (dn i) (dn k')) -
       NF.dg (pres RD k sc) ν [up j, dn i, dn k'] [dn k', dn i, up j] (r3R (up j) (dn i) (dn k')) ∈
         LeL RD k sc ν [up j, dn i, dn k'] [dn k', dn i, up j] 2 := by
-  have h := omega_transport hr (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
+  have h := omega_transport (ν := -ν) (sChain_r3L _ _ _) (sChain_r3R _ _ _) (sgnS_r3 _ _ _)
     (r3_FEE (sc := CLQ.thetaScalars RD sc) (-ν) j i k')
   rw [neg_neg] at h
   simp only [r3L, r3R]
@@ -861,33 +880,33 @@ theorem r3_EFF (hr : ∀ i, sc.r i = 1) (ν : X) (j i k' : I) :
 /-- **Reidemeister 3 modulo lower terms, for all orientations and labels**: the two composites
 of three crossings `[l₁, l₂, l₃] → [l₃, l₂, l₁]` agree modulo diagrams with at most two
 crossings. -/
-theorem r3 (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ l₃ : Letter I) :
+theorem r3 (ν : X) (l₁ l₂ l₃ : Letter I) :
     NF.dg (pres RD k sc) ν [l₁, l₂, l₃] [l₃, l₂, l₁] (r3L l₁ l₂ l₃) -
       NF.dg (pres RD k sc) ν [l₁, l₂, l₃] [l₃, l₂, l₁] (r3R l₁ l₂ l₃) ∈
         LeL RD k sc ν [l₁, l₂, l₃] [l₃, l₂, l₁] 2 := by
   obtain ⟨_ | _, a⟩ := l₁ <;> obtain ⟨_ | _, b⟩ := l₂ <;> obtain ⟨_ | _, c⟩ := l₃
-  · exact r3_FFF hr ν a b c
-  · exact r3_FFE hr ν a b c
-  · exact r3_FEF hr ν a b c
+  · exact r3_FFF ν a b c
+  · exact r3_FFE ν a b c
+  · exact r3_FEF ν a b c
   · exact r3_FEE ν a b c
-  · exact r3_EFF hr ν a b c
+  · exact r3_EFF ν a b c
   · exact r3_EFE ν a b c
   · exact r3_EEF ν a b c
   · exact r3_EEE ν a b c
 
-theorem r2Dn (hr : ∀ i, sc.r i = 1) (ν : X) (i j : I) :
+theorem r2Dn (ν : X) (i j : I) :
     NF.dg (pres RD k sc) ν [dn i, dn j] [dn i, dn j] (xLay (dn i) (dn j) ++ xLay (dn j) (dn i)) ∈
       LeL RD k sc ν [dn i, dn j] [dn i, dn j] 1 := by
-  have h := omega_transport_single hr (ν := -ν) ((sChain_xLay _ _).append (sChain_xLay _ _))
+  have h := omega_transport_single (ν := -ν) ((sChain_xLay _ _).append (sChain_xLay _ _))
     (r2Up (sc := CLQ.thetaScalars RD sc) (-ν) i j)
   rw [neg_neg] at h
   exact h
 
 /-- **Reidemeister 2 modulo lower terms, for all orientations and labels.** -/
-theorem r2 (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) :
+theorem r2 (ν : X) (l₁ l₂ : Letter I) :
     NF.dg (pres RD k sc) ν [l₁, l₂] [l₁, l₂] (xLay l₁ l₂ ++ xLay l₂ l₁) ∈ LeL RD k sc ν [l₁, l₂] [l₁, l₂] 1 := by
   obtain ⟨_ | _, a⟩ := l₁ <;> obtain ⟨_ | _, b⟩ := l₂
-  · exact r2Dn hr ν a b
+  · exact r2Dn ν a b
   · exact r2DnUp ν b a
   · exact r2UpDn ν a b
   · exact r2Up ν a b
@@ -989,38 +1008,38 @@ section PFOmega
 
 variable [DecidableEq I]
 
-theorem capPF_dn_dn (hr : ∀ i, sc.r i = 1) (ν : X) (j i : I) :
+theorem capPF_dn_dn (ν : X) (j i : I) :
     NF.dg (pres RD k sc) ν [up j, dn i, dn j] [dn i] ((xLay (up j) (dn i)).map (whL [] [dn j]) ++
         [([dn i], .cap (dn j), [])]) -
       (sc.t i j : k) • NF.dg (pres RD k sc) ν [up j, dn i, dn j] [dn i]
         ((xLay (dn i) (dn j)).map (whL [up j] []) ++ [([], .cap (dn j), [dn i])]) ∈
         LeL RD k sc ν [up j, dn i, dn j] [dn i] 0 := by
-  have h := omega_transport hr (ν := -ν) (by simp only [xLay_dn_up, crossrL]; schain) (by schain)
+  have h := omega_transport (ν := -ν) (by simp only [xLay_dn_up, crossrL]; schain) (by schain)
     (by simp [xLay, crossrL, Sig.sgnS, Sig.sgnSh]) (capPF_up_up (sc := CLQ.thetaScalars RD sc) (-ν) j i)
   rw [neg_neg] at h
   xnormQ
   refine sub_smul_mem_of_left _ ?_ h
   datSQ 0 [] [dn j] (dg_crosslL_eq_smul_wls i j _)
 
-theorem capPF_up_dn (hr : ∀ i, sc.r i = 1) (ν : X) (j i : I) :
+theorem capPF_up_dn (ν : X) (j i : I) :
     NF.dg (pres RD k sc) ν [dn j, dn i, up j] [dn i] ((xLay (dn j) (dn i)).map (whL [] [up j]) ++
         [([dn i], .cap (up j), [])]) -
       (((sc.t i j)⁻¹ : kˣ) : k) • NF.dg (pres RD k sc) ν [dn j, dn i, up j] [dn i]
         ((xLay (dn i) (up j)).map (whL [dn j] []) ++ [([], .cap (up j), [dn i])]) ∈
         LeL RD k sc ν [dn j, dn i, up j] [dn i] 0 := by
-  have h := omega_transport hr (ν := -ν) (by schain) (by simp only [xLay_up_dn, crosslL]; schain)
+  have h := omega_transport (ν := -ν) (by schain) (by simp only [xLay_up_dn, crosslL]; schain)
     (by simp [xLay, crosslL, Sig.sgnS, Sig.sgnSh]) (capPF_dn_up (sc := CLQ.thetaScalars RD sc) (-ν) j i)
   rw [neg_neg] at h
   xnormQ
   refine sub_smul_mem_of_right (sc.t i j) ?_ h
   datSQ 0 [dn j] [] (dg_crossrL_eq_smul_wls i j _)
 
-theorem cupPF_dn_dn (hr : ∀ i, sc.r i = 1) (ν : X) (j i : I) :
+theorem cupPF_dn_dn (ν : X) (j i : I) :
     NF.dg (pres RD k sc) ν [dn i] [dn j, dn i, up j] ([([], .cup (dn j), [dn i])] ++
         (xLay (up j) (dn i)).map (whL [dn j] [])) -
       (sc.t i j : k) • NF.dg (pres RD k sc) ν [dn i] [dn j, dn i, up j] ([([dn i], .cup (dn j), [])] ++
         (xLay (dn i) (dn j)).map (whL [] [up j])) ∈ LeL RD k sc ν [dn i] [dn j, dn i, up j] 0 := by
-  have h := omega_transport hr (ν := -ν) (by simp only [xLay_dn_up, crossrL]; schain) (by schain)
+  have h := omega_transport (ν := -ν) (by simp only [xLay_dn_up, crossrL]; schain) (by schain)
     (by simp [xLay, crossrL, Sig.sgnS, Sig.sgnSh]) (cupPF_up_up (sc := CLQ.thetaScalars RD sc) (-ν) j i)
   rw [neg_neg] at h
   xnormQ
@@ -1031,28 +1050,28 @@ theorem cupPF_dn_dn (hr : ∀ i, sc.r i = 1) (ν : X) (j i : I) :
 strand crossing the right leg, up to a unit (modulo lower terms; in fact exactly). In `U_Q(g)`
 the unit is `1` unless `m` is downward and the crossings are the sideways ones and a downward
 crossing, when it is `t_{ij}^{±1}` (cyclicity of the downward crossing). -/
-theorem capPF (hr : ∀ i, sc.r i = 1) (ν : X) (l m : Letter I) :
+theorem capPF (ν : X) (l m : Letter I) :
     ∃ c : kˣ,
       NF.dg (pres RD k sc) ν [l.dual, m, l] [m] ((xLay l.dual m).map (whL [] [l]) ++ [([m], .cap l, [])]) -
         (c : k) • NF.dg (pres RD k sc) ν [l.dual, m, l] [m]
           ((xLay m l).map (whL [l.dual] []) ++ [([], .cap l, [m])]) ∈
         LeL RD k sc ν [l.dual, m, l] [m] 0 := by
   obtain ⟨_ | _, j⟩ := l <;> obtain ⟨_ | _, i⟩ := m
-  · exact ⟨sc.t i j, capPF_dn_dn hr ν j i⟩
+  · exact ⟨sc.t i j, capPF_dn_dn ν j i⟩
   · exact ⟨1, by rw [Units.val_one, one_smul]; exact capPF_dn_up ν j i⟩
-  · exact ⟨(sc.t i j)⁻¹, capPF_up_dn hr ν j i⟩
+  · exact ⟨(sc.t i j)⁻¹, capPF_up_dn ν j i⟩
   · exact ⟨1, by rw [Units.val_one, one_smul]; exact capPF_up_up ν j i⟩
 
 /-- **Pitchfork through a cup**: a strand crossing the right leg of a cup to its left equals the
 strand crossing the left leg of the cup to its right, up to a unit (as for `capPF`). -/
-theorem cupPF (hr : ∀ i, sc.r i = 1) (ν : X) (l m : Letter I) :
+theorem cupPF (ν : X) (l m : Letter I) :
     ∃ c : kˣ,
       NF.dg (pres RD k sc) ν [m] [l, m, l.dual] ([([], .cup l, [m])] ++ (xLay l.dual m).map (whL [l] [])) -
         (c : k) • NF.dg (pres RD k sc) ν [m] [l, m, l.dual]
           ([([m], .cup l, [])] ++ (xLay m l).map (whL [] [l.dual])) ∈
         LeL RD k sc ν [m] [l, m, l.dual] 0 := by
   obtain ⟨_ | _, j⟩ := l <;> obtain ⟨_ | _, i⟩ := m
-  · exact ⟨sc.t i j, cupPF_dn_dn hr ν j i⟩
+  · exact ⟨sc.t i j, cupPF_dn_dn ν j i⟩
   · exact ⟨1, by rw [Units.val_one, one_smul]; exact cupPF_dn_up ν j i⟩
   · exact ⟨(sc.t i j)⁻¹, cupPF_up_dn ν j i⟩
   · exact ⟨1, by rw [Units.val_one, one_smul]; exact cupPF_up_up ν j i⟩

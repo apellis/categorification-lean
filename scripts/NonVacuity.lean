@@ -12636,3 +12636,34 @@ example : StendhalAlgebra.FiFiltrationFor (k := ℚ)
   StendhalAlgebra.fiFiltration_finite_std () fsRouquier fsSymm 2
 
 end NonVacuity.WebsterFiFiltrationStd
+namespace NonVacuity.WebsterMidCapBasis
+
+open Categorification in
+/-- Webster, arXiv:1309.3796v3, Lemma 7.17 (the basis `B″`, cap after `λ_j`) with no red
+strands in `λ`, `j = 0`, no black strands and the zero module. -/
+noncomputable example :=
+  letI : ∀ e : (Stendhal.StendhalAlgebra ℚ (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+      (fun _ : Fin 2 => (0 : Unit →₀ ℕ)) 0)ᵐᵒᵖ,
+      Subsingleton (BalancedTensor.idemPart ℚ PUnit e) :=
+    fun _ => ⟨fun _ _ => Subtype.ext (Subsingleton.elim _ _)⟩
+  letI := Classical.decEq
+  Categorification.Stendhal.CupCap.midCapBasis (j := 0) (hj := le_rfl)
+    (Q := fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+    (Λ := (Fin.elim0 : Fin 0 → Unit →₀ ℕ)) (Λc := fun _ : Fin 2 => (0 : Unit →₀ ℕ))
+    (ν := 0) (ν₀ := 0) (L := PUnit)
+    (ρ₂ := fun w => (TypeA.exists_reduced _ w).choose)
+    (ρ₃ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun _ _ h => absurd (Subsingleton.elim _ _) h)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (fun _ => by simp [Stendhal.CupCap.cupScalar])
+    (fun _ _ _ => Subsingleton.elim _ _)
+    (fun _ v => by
+      rw [Subsingleton.elim v 0, InductionAlong.Ind.tmul_zero, smul_zero,
+        InductionAlong.Ind.tmul_zero])
+    (fun _ v => by
+      rw [Subsingleton.elim v 0, InductionAlong.Ind.tmul_zero, smul_zero,
+        InductionAlong.Ind.tmul_zero])
+    (ι := fun _ => Empty) (fun _ => Module.Basis.empty _)
+
+end NonVacuity.WebsterMidCapBasis

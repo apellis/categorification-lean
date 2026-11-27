@@ -1452,7 +1452,14 @@ cap at the right end (`j = ℓ`, `CupCap.capBasis`) for symmetric `Q`, under the
 hypotheses that the (max1) scalars are units and `PullOffLeft` (the mirror of Lemma 7.16);
 at Webster's `L_μ` (`CupCap.capBasis_coevaluationHead`, over a field) the support
 hypothesis is proved, leaving these two; removal items: prove Lemma 7.16 and its mirror
-for `L_μ`, and the case of general `j`.
+for `L_μ`. For a cap after any `λ_j` (`CupCap.midCapBasis`), Lemma 7.17 is proved for
+symmetric `Q` under the same route hypotheses plus `PullOff` (Lemma 7.16) and the support
+hypothesis: the model is induced along the diagrams at the maximum placed just before the red
+strand `λ_{j+1}`, all KLR relations hold on it (`CupCap.midKLRRel`), it is isomorphic to
+`K̃^{λ⁺}_λ` as a bimodule (`CupCap.midCapModelEquiv`), and its basis is indexed by Webster's
+`B″` (`CupCap.MidTriple`); its elements are Webster's diagrams, with the maximum at its
+canonical position at the top and every strand passing under it (`CupCap.midCapBasis_apply`).
+Removal item: Lemma 7.16 and its mirror for `L_μ` (needs Thm 4.30).
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants

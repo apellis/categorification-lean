@@ -108,6 +108,22 @@ def DownQuotCrossNatural : Prop :=
         redDownQuot S red upIso r i g₂ hR g₃ q₅ ▷ S.E j g₁ ≫ (α_ _ _ _).hom ≫
         S.E i q₅ ◁ redDownQuot S red upIso r j g₁ g₃ hr q₄
 
+/-- **A red strand between two downward strands of different colours** (Webster,
+arXiv:1309.3796v3, (4.1) read downward, with the red strand in the middle and `i ≠ j`): the two
+ways of moving the strands of `[i, r, j]` to `[j, r, i]` agree. -/
+def DownMidCrossNatural : Prop :=
+  ∀ (r : Fin ℓ) (i j : I), i ≠ j → ∀ {μ μi μj μij ρ ρi ρj T : X} (f₁ : μi + RD.iX i = μ)
+    (f₂ : μij + RD.iX j = μi) (hR : μi + Λ r = ρi) (e₁ : μij + Λ r = T) (q : T + RD.iX j = ρi)
+    (g₁ : μj + RD.iX j = μ) (g₂ : μij + RD.iX i = μj) (hRj : μj + Λ r = ρj)
+    (q₅ : T + RD.iX i = ρj) (hr : μ + Λ r = ρ) (q₃ : ρi + RD.iX i = ρ)
+    (q₄ : ρj + RD.iX j = ρ),
+    (α_ _ _ _).inv ≫ redDownDot S red upIso r j f₂ e₁ hR q ▷ S.E i f₁ ≫ (α_ _ _ _).hom ≫
+        red r e₁ ◁ S.cross i j f₂ f₁ g₂ g₁ ≫ (α_ _ _ _).inv ≫
+        redDownQuot S red upIso r i g₂ e₁ hRj q₅ ▷ S.E j g₁ ≫ (α_ _ _ _).hom =
+      S.E j q ◁ redDownQuot S red upIso r i f₁ hR hr q₃ ≫ (α_ _ _ _).inv ≫
+        S.cross i j q q₃ q₅ q₄ ▷ red r hr ≫ (α_ _ _ _).hom ≫
+        S.E i q₅ ◁ redDownDot S red upIso r j g₁ hRj hr q₄
+
 theorem cross_dn_heq (z : X) (i j : I) {a b : X} (ha hb hd hde hc hce) {a' b' c' d' : X}
     (hx : a = d') (hy : b = a') (h₁ : a' + RD.iX j = b') (h₂ : b' + RD.iX i = d')
     (h₃ : a' + RD.iX i = c') (h₄ : c' + RD.iX j = d') :
@@ -409,6 +425,154 @@ theorem admissibleMap_braid_bbr (hn : DownQuotCrossNatural S red upIso)
   case hg6 =>
     intro _ _ _ _
     exact redDownQuot_heq S red upIso r _ (by double_regions) (by double_regions)
+      (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
+
+/-- **The downward braid `[i, r, j]`** with `i ≠ j` is killed by the generator images. -/
+theorem admissibleMap_braid_brb (hn : DownMidCrossNatural S red upIso)
+    (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k) (i : I) (r : Fin ℓ) (j : I)
+    (h : ¬ ((Sum.inl i : I ⊕ Fin ℓ) = .inl j ∧ (Sum.inl i : I ⊕ Fin ℓ) ≠ .inr r))
+    (m : X) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inr r, .inl j])))
+    (hb : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl j, .inr r, .inl i]))) :
+    admissibleMap (genImg S red upIso Sc) ha hb (downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.braid (.inl i) (.inr r) (.inl j) h))) = 0 := by
+  have hij : i ≠ j := fun e => h ⟨congrArg Sum.inl e, Sum.inl_ne_inr⟩
+  obtain rfl : m = x := ha.2.2
+  obtain rfl : ((m + (wD i)) + Λ r) + (wD j) = y := ha.2.1
+  rw [relation_braid, map_sub, map_sub, sub_eq_zero]
+  obtain ⟨D, hD, eD⟩ := downLinear_dl3 (RD := RD) (Λ := Λ) (k := k) m [] [.inl j] [.inr r] []
+    [] [.inl i] (.cross (.inl i) (.inr r)) (.cross (.inl i) (.inl j)) (.cross (.inr r) (.inl j))
+    rfl rfl rfl (a := KLR.Diagram.ob [.inl i, .inr r, .inl j])
+    (b := KLR.Diagram.ob [.inr r, .inl i, .inl j]) (c := KLR.Diagram.ob [.inr r, .inl j, .inl i])
+    (d := KLR.Diagram.ob [.inl j, .inr r, .inl i]) rfl rfl rfl rfl rfl rfl
+  obtain ⟨D', hD', eD'⟩ := downLinear_dl3 (RD := RD) (Λ := Λ) (k := k) m [.inl i] [] [] [.inr r]
+    [.inl j] [] (.cross (.inr r) (.inl j)) (.cross (.inl i) (.inl j)) (.cross (.inl i) (.inr r))
+    rfl rfl rfl (a := KLR.Diagram.ob [.inl i, .inr r, .inl j])
+    (b := KLR.Diagram.ob [.inl i, .inl j, .inr r]) (c := KLR.Diagram.ob [.inl j, .inl i, .inr r])
+    (d := KLR.Diagram.ob [.inl j, .inr r, .inl i]) rfl rfl rfl rfl rfl rfl
+  erw [eD, eD', admissibleMap_of, admissibleMap_of]
+  change admissibleChain _ _ _ _ _ _ _ = admissibleChain _ _ _ _ _ _ _
+  dsimp only [ObjectProperty.homMk]
+  simp only [List.map_cons, List.map_nil, DoubleStrand.down, List.nil_append,
+    List.append_nil] at hD hD'
+  rw [admissibleChain_congr _ hD, admissibleChain_congr _ hD']
+  symm
+  have f₁ : (m + (wD i)) + RD.iX i = m := by double_regions
+  have f₂ : ((m + (wD i)) + (wD j)) + RD.iX j = m + (wD i) := by double_regions
+  have e₁ : ((m + (wD i)) + (wD j)) + Λ r = ((m + (wD i)) + Λ r) + (wD j) := by
+    double_regions
+  have q : (((m + (wD i)) + Λ r) + (wD j)) + RD.iX j = (m + (wD i)) + Λ r := by double_regions
+  have g₁ : (m + (wD j)) + RD.iX j = m := by double_regions
+  have g₂ : ((m + (wD i)) + (wD j)) + RD.iX i = m + (wD j) := by double_regions
+  have q₅ : (((m + (wD i)) + Λ r) + (wD j)) + RD.iX i = (m + (wD j)) + Λ r := by
+    double_regions
+  have q₃ : ((m + (wD i)) + Λ r) + RD.iX i = m + Λ r := by double_regions
+  have q₄ : ((m + (wD j)) + Λ r) + RD.iX j = m + Λ r := by double_regions
+  have e₂ : (m + (wD j)) + (wD i) = (m + (wD i)) + (wD j) := by double_regions
+  have e₃ : ((m + (wD j)) + Λ r) + (wD i) = ((m + (wD i)) + Λ r) + (wD j) := by double_regions
+  have e₄ : (m + Λ r) + (wD i) = (m + (wD i)) + Λ r := by double_regions
+  have e₅ : (m + Λ r) + (wD j) = (m + (wD j)) + Λ r := by double_regions
+  let R0 := fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl
+  let Ui := fwT (m + (wD i)) [(m + (wD i), .inr r)] ((m + (wD i)) + Λ r) ⟨rfl, trivial⟩ rfl
+  let Uj := fwT ((m + (wD i)) + Λ r) [((m + (wD i)) + Λ r, .inl (false, j))]
+    (((m + (wD i)) + Λ r) + (wD j)) ⟨rfl, trivial⟩ rfl
+  let Ui2 := fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inr r)]
+    (((m + (wD i)) + Λ r) + (wD j)) ⟨rfl, trivial⟩ e₁
+  let Uj2 := fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+    ⟨rfl, trivial⟩ rfl
+  let R3 := fwT (m + (wD j)) [(m + (wD j), .inl (false, i))] ((m + (wD i)) + (wD j))
+    ⟨rfl, trivial⟩ e₂
+  let Uj3 := fwT m [(m, .inl (false, j))] (m + (wD j)) ⟨rfl, trivial⟩ rfl
+  let R4 := fwT ((m + (wD j)) + Λ r) [((m + (wD j)) + Λ r, .inl (false, i))]
+    (((m + (wD i)) + Λ r) + (wD j)) ⟨rfl, trivial⟩ e₃
+  let Ui4 := fwT (m + (wD j)) [(m + (wD j), .inr r)] ((m + (wD j)) + Λ r) ⟨rfl, trivial⟩ rfl
+  let R5 := fwT (m + Λ r) [(m + Λ r, .inl (false, i))] ((m + (wD i)) + Λ r) ⟨rfl, trivial⟩ e₄
+  let Ui5 := fwT m [(m, .inr r)] (m + Λ r) ⟨rfl, trivial⟩ rfl
+  let Uj6 := fwT (m + Λ r) [(m + Λ r, .inl (false, j))] ((m + (wD j)) + Λ r) ⟨rfl, trivial⟩ e₅
+  refine admissibleChain₃_heq (doubleModel S red) (genImg S red upIso Sc) _ _ ha hb rfl rfl
+      (p₁ := 𝟙 _) (q₁ := R0) (x₁ := Uj ≫ Ui) (y₁ := Ui2 ≫ Uj2)
+      (p₂ := Ui2) (q₂ := 𝟙 _) (x₂ := Uj2 ≫ R0) (y₂ := R3 ≫ Uj3)
+      (p₃ := 𝟙 _) (q₃ := Uj3) (x₃ := Ui2 ≫ R3) (y₃ := R4 ≫ Ui4)
+      (p₄ := Uj) (q₄ := 𝟙 _) (x₄ := Ui ≫ R0) (y₄ := R5 ≫ Ui5)
+      (p₅ := 𝟙 _) (q₅ := Ui5) (x₅ := Uj ≫ R5) (y₅ := R4 ≫ Uj6)
+      (p₆ := R4) (q₆ := 𝟙 _) (x₆ := Uj6 ≫ Ui5) (y₆ := Ui4 ≫ Uj3)
+      (redDownDot S red upIso r j f₂ e₁ rfl q) (S.cross i j f₂ f₁ g₂ g₁)
+      (redDownQuot S red upIso r i g₂ e₁ rfl q₅) (redDownQuot S red upIso r i f₁ rfl rfl q₃)
+      (S.cross i j q q₃ q₅ q₄) (redDownDot S red upIso r j g₁ rfl rfl q₄)
+      ((α_ Uj Ui R0).symm ≪≫ (λ_ _).symm) ((λ_ _).hom ≫ (α_ _ _ _).hom ≫ Ui2 ◁ (ρ_ _).inv)
+      (Ui2 ◁ (ρ_ _).hom ≫ (α_ _ _ _).inv ≫ (λ_ _).inv) (λ_ _ ≪≫ α_ R4 Ui4 Uj3)
+      (whiskerLeftIso Uj (ρ_ (Ui ≫ R0)).symm) (Uj ◁ (ρ_ _).hom ≫ (α_ _ _ _).inv ≫ (λ_ _).inv)
+      ((λ_ _).hom ≫ (α_ _ _ _).hom ≫ R4 ◁ (ρ_ _).inv) (whiskerLeftIso R4 (ρ_ (Ui4 ≫ Uj3)))
+      ?hmain ?hn1 ?hm1 ?hr1 ?hl1 ?hd1 ?he1 ?hg1 ?hn2 ?hm2 ?hr2 ?hl2 ?hd2 ?he2 ?hg2 ?hn3 ?hm3 ?hr3
+      ?hl3 ?hd3 ?he3 ?hg3 ?hn4 ?hm4 ?hr4 ?hl4 ?hd4 ?he4 ?hg4 ?hn5 ?hm5 ?hr5 ?hl5 ?hd5 ?he5 ?hg5
+      ?hn6 ?hm6 ?hr6 ?hl6 ?hd6 ?he6 ?hg6
+  case hmain =>
+    have := slide3_right_hyp (doubleModel S red) (R0 := R0) (Ui := Ui) (Uj := Uj) (Ui2 := Ui2)
+      (Uj2 := Uj2) (R3 := R3) (Uj3 := Uj3) (R4 := R4) (Ui4 := Ui4) (R5 := R5) (Ui5 := Ui5)
+      (Uj6 := Uj6) (redDownDot S red upIso r j f₂ e₁ rfl q) (S.cross i j f₂ f₁ g₂ g₁)
+      (redDownQuot S red upIso r i g₂ e₁ rfl q₅) (redDownQuot S red upIso r i f₁ rfl rfl q₃)
+      (S.cross i j q q₃ q₅ q₄) (redDownDot S red upIso r j g₁ rfl rfl q₄)
+      (hn r i j hij f₁ f₂ rfl e₁ q g₁ g₂ rfl q₅ rfl q₃ q₄)
+    convert this using 2
+  case hg2 =>
+    intro _ _ _ _
+    refine (heq_of_eq (genImg_blackOn S red upIso Sc _ _ _ _ _ _ _ _ _ _)).trans ?_
+    exact cross_dn_heq S red Sc _ i j _ _ _ _ _ _ (by double_regions) (by double_regions) _ _ _ _
+  case hg5 =>
+    intro _ _ _ _
+    refine (heq_of_eq (genImg_blackOn S red upIso Sc _ _ _ _ _ _ _ _ _ _)).trans ?_
+    exact cross_dn_heq S red Sc _ i j _ _ _ _ _ _ (by double_regions) (by double_regions) _ _ _ _
+  case hn1 => double_regions
+  case hm1 => double_regions
+  case hr1 => intro _ _; double_nil
+  case hl1 => intro _ _; double_single
+  case hd1 => intro _ _; double_pair
+  case he1 => intro _ _; double_pair
+  case hn2 => double_regions
+  case hm2 => double_regions
+  case hr2 => intro _ _; double_single
+  case hl2 => intro _ _; double_nil
+  case hd2 => intro _ _; double_pair
+  case he2 => intro _ _; double_pair
+  case hn3 => double_regions
+  case hm3 => double_regions
+  case hr3 => intro _ _; double_nil
+  case hl3 => intro _ _; double_single
+  case hd3 => intro _ _; double_pair
+  case he3 => intro _ _; double_pair
+  case hn4 => double_regions
+  case hm4 => double_regions
+  case hr4 => intro _ _; double_single
+  case hl4 => intro _ _; double_nil
+  case hd4 => intro _ _; double_pair
+  case he4 => intro _ _; double_pair
+  case hn5 => double_regions
+  case hm5 => double_regions
+  case hr5 => intro _ _; double_nil
+  case hl5 => intro _ _; double_single
+  case hd5 => intro _ _; double_pair
+  case he5 => intro _ _; double_pair
+  case hn6 => double_regions
+  case hm6 => double_regions
+  case hr6 => intro _ _; double_single
+  case hl6 => intro _ _; double_nil
+  case hd6 => intro _ _; double_pair
+  case he6 => intro _ _; double_pair
+  case hg1 =>
+    intro _ _ _ _
+    exact redDownDot_heq S red upIso r _ (by double_regions) (by double_regions)
+      (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
+  case hg3 =>
+    intro _ _ _ _
+    exact redDownQuot_heq S red upIso r _ (by double_regions) (by double_regions)
+      (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
+  case hg4 =>
+    intro _ _ _ _
+    exact redDownQuot_heq S red upIso r _ (by double_regions) (by double_regions)
+      (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
+  case hg6 =>
+    intro _ _ _ _
+    exact redDownDot_heq S red upIso r _ (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
 
 end Categorification.Stendhal.DoubleDiagram

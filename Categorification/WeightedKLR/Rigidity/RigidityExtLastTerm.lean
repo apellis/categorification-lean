@@ -175,7 +175,8 @@ loading idempotent with a black strand right of the last red strand, `T^{λ'}_0 
 and let every finitely generated module over `R^{λ_ℓ}(ν)` be a sum of copies of `Y₀`, with
 `R^{λ_ℓ} e(u)` a nonempty sum of copies of `Y₀`. If `Ext^{|ν|}(S(T^{λ'} e(t) ⊠ Y₀), X)` is
 one-dimensional, the resolution of `exists_stdResolution` can be taken with last term
-`M_{|ν|} ≅ S(T^{λ'} e(t) ⊠ Y₀)`. Under the route hypothesis `hall` of Proposition 7.6. -/
+`M_{|ν|} ≅ S(T^{λ'} e(t) ⊠ Y₀)`; moreover `Hom(S(T^{λ'} e(t) ⊠ Y₀), S(T^{λ'} e(t) ⊠ Y₀)^⋆)` is
+one-dimensional. Under the route hypothesis `hall` of Proposition 7.6. -/
 theorem exists_stdResolution_last (X : ModuleCat.{0} T) [FiniteDimensional k X]
     (hX : ∀ (s : Seq (stendhalWeight (ℓ + 1) ν)) (hs : IsRedOrdered s), ¬HasLastRed s →
       ∀ x : X, loadingIdem Q Λ s hs • x = 0)
@@ -196,7 +197,9 @@ theorem exists_stdResolution_last (X : ModuleCat.{0} T) [FiniteDimensional k X]
       (∀ n, Nonempty ((S (n + 1)).X₃ ≅ (S n).X₁)) ∧ (∀ n, (S n).ShortExact) ∧
       (∀ n ≤ Multiset.card ν, StdSum Q Λ hQ (Multiset.card ν + ℓ - n) (S n).X₂) ∧
       (∀ n, Multiset.card ν < n → IsZero (S n).X₂) ∧
-      Nonempty ((S (Multiset.card ν)).X₂ ≅ tensorStd Q Λ hQ h₀ (oldProj Q Λ 0 t ht) Y₀) := by
+      Nonempty ((S (Multiset.card ν)).X₂ ≅ tensorStd Q Λ hQ h₀ (oldProj Q Λ 0 t ht) Y₀) ∧
+      Module.finrank k (tensorStd Q Λ hQ h₀ (oldProj Q Λ 0 t ht) Y₀ ⟶
+        starDualObj k σT (tensorStd Q Λ hQ h₀ (oldProj Q Λ 0 t ht) Y₀)) = 1 := by
   classical
   obtain ⟨S, h0, hs, he, hstd, hz⟩ := exists_stdResolution Q Λ hQ hR hall X hX
   refine ⟨S, h0, hs, he, hstd, hz, ?_⟩
@@ -259,7 +262,8 @@ theorem exists_stdResolution_last (X : ModuleCat.{0} T) [FiniteDimensional k X]
     rw [hHom', finrank_fun_eq_card_mul] at h2
     exact Nat.eq_one_of_mul_eq_one_right h2.symm
   obtain ⟨hU⟩ := Fintype.card_eq_one_iff_nonempty_unique.1 hA
-  exact ⟨eA ≪≫ biproductUniqueIso _⟩
+  refine ⟨⟨eA ≪≫ biproductUniqueIso _⟩, ?_⟩
+  exact (Linear.homCongr k (eA ≪≫ biproductUniqueIso _) (Iso.refl _)).finrank_eq.symm.trans hHom'
 
 end Last
 

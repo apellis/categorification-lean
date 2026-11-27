@@ -2179,6 +2179,7 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationDualWord
 import Categorification.WeightedKLR.Rigidity.RigidityExtDualBlock
 import Categorification.WeightedKLR.Rigidity.RigidityExtVacuumFactor
 import Categorification.WeightedKLR.Rigidity.RigidityExtLastTerm
+import Categorification.WeightedKLR.Rigidity.RigidityExtLastTermExt
 import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationLast
 import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
 import Categorification.WeightedKLR.Rigidity.CoevaluationIndependence

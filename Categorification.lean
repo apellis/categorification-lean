@@ -905,6 +905,7 @@ import Categorification.TwoRep.BlockSumCrossing
 import Categorification.TwoRep.BlockSumCrossingMate
 import Categorification.TwoRep.BlockSumCrossingBigon
 import Categorification.TwoRep.BlockSumCrossingNatural
+import Categorification.TwoRep.BlockSumCrossingBraid
 import Categorification.TwoRep.BlockSumCrossingGen
 import Categorification.TwoRep.BlockSumGen
 import Categorification.TwoRep.BlockSumTriple

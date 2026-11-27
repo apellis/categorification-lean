@@ -2503,4 +2503,5 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebra
 import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebraAction
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardization
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardizationEquiv
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardizationNatural
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

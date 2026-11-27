@@ -37,6 +37,9 @@ import Categorification.Algebra.DerivedTensorProjectiveCoefficient
 import Categorification.Algebra.DerivedTensorProjective
 import Categorification.Algebra.ExtTorDuality
 import Categorification.Algebra.ExtTorDualityModule
+import Categorification.Algebra.DegreeZeroHeart
+import Categorification.Algebra.DerivedTensorProjectiveHom
+import Categorification.Algebra.ExtShortExact
 import Categorification.Algebra.DerivedTensorTwoFiltrations
 import Categorification.Algebra.DerivedTensorRingEquiv
 import Categorification.Algebra.DerivedTensorFiltration
@@ -2507,6 +2510,7 @@ import Categorification.WeightedKLR.RedStrands.TensorCornerEndpoints
 import Categorification.WeightedKLR.RedStrands.TensorCornerPolynomial
 import Categorification.WeightedKLR.RedStrands.TensorCornerWords
 import Categorification.WeightedKLR.RedStrands.TensorFormWordSymmetry
+import Categorification.WeightedKLR.RedStrands.TensorFormEvalOne
 import Categorification.WeightedKLR.RedStrands.TensorGenerators
 import Categorification.WeightedKLR.RedStrands.TensorHomBoundary
 import Categorification.WeightedKLR.RedStrands.TensorHomGeneration

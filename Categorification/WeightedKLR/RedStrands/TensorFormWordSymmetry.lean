@@ -26,12 +26,14 @@ variable {I Y : Type*} [DecidableEq I] [AddCommGroup Y] {D : LusztigCartanDatum 
 private abbrev HW (w : Dom R) := IrreducibleModule R q w.1
 local notation "𝕌" => QuantumGroup R q
 
-private def scalarBar : 𝕂 →ₛₗ[barRingHom] 𝕂 where
+/-- The bar involution of `ℚ(v)` as a semilinear map. -/
+def scalarBar : 𝕂 →ₛₗ[barRingHom] 𝕂 where
   toFun := RatFunc.bar
   map_add' := map_add _
   map_smul' c x := map_mul _ c x
 
-private def entrywiseBar : {m : ℕ} → (wt : Fin m → Dom R) → TensorSpace wt →ₛₗ[barRingHom] TensorSpace wt
+/-- The bar involution of every tensor factor (the highest-weight bar `hwBar` on each). -/
+def entrywiseBar : {m : ℕ} → (wt : Fin m → Dom R) → TensorSpace wt →ₛₗ[barRingHom] TensorSpace wt
   | 0, wt =>
     let e := PiTensorProduct.isEmptyEquiv (R := 𝕂) (s := fun j => HW (wt j)) _
     e.symm.toLinearMap.comp (scalarBar.comp e.toLinearMap)
@@ -40,7 +42,7 @@ private def entrywiseBar : {m : ℕ} → (wt : Fin m → Dom R) → TensorSpace 
     e.symm.toLinearMap.comp ((TensorProduct.map (entrywiseBar (fun j => wt (Fin.castSucc j)))
       (hwBar hR (wt (Fin.last m)))).comp e.toLinearMap)
 
-private theorem entrywiseBar_append (wt : Fin (n+1) → Dom R)
+theorem entrywiseBar_append (wt : Fin (n+1) → Dom R)
     (x : TensorSpace (fun j => wt (Fin.castSucc j))) (y : HW (wt (Fin.last n))) :
     entrywiseBar hR wt (appendTensor wt x y) =
       appendTensor wt (entrywiseBar hR _ x) (hwBar hR _ y) := by
@@ -81,7 +83,7 @@ private theorem map_pairRep {M : Type*} [AddCommGroup M] [Module 𝕂 M]
         (σ (barHom R a) (b x)) ⊗ₜ[𝕂] (barHom R c • hwBar hR w y)
       rw [h, hwBar_smul_U]
 
-private theorem entrywiseBar_act (wt : Fin n → Dom R) (u : 𝕌) (x : TensorSpace wt) :
+theorem entrywiseBar_act (wt : Fin n → Dom R) (u : 𝕌) (x : TensorSpace wt) :
     entrywiseBar hR wt (tensorRepresentation wt u x) =
       barTensorRepresentation wt (barHom R u) (entrywiseBar hR wt x) := by
   induction n generalizing u with
@@ -99,7 +101,7 @@ private theorem entrywiseBar_act (wt : Fin n → Dom R) (u : 𝕌) (x : TensorSp
     rw [e.apply_symm_apply, e.apply_symm_apply, barComul_apply, barHom_barHom]
     exact congrArg e.symm (map_pairRep hR _ _ _ _ (ih L) _ _)
 
-private theorem entrywiseBar_word : ∀ {m : ℕ} (w : TensorWord I m) (wt : Fin m → Dom R),
+theorem entrywiseBar_word : ∀ {m : ℕ} (w : TensorWord I m) (wt : Fin m → Dom R),
     entrywiseBar hR wt (tensorWordVector w wt) = barTensorWordVector w wt
   | _, .empty, wt => by
     let e := PiTensorProduct.isEmptyEquiv (R := 𝕂) (s := fun j => HW (wt j)) _

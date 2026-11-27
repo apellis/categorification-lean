@@ -9685,7 +9685,7 @@ private theorem hS : S.ShortExact := by
   exact ⟨fun _ => ⟨x, rfl⟩, fun _ => Subsingleton.elim _ _⟩
 
 example : IsZero ((homologyFunctor ℤ 1).obj ((derivedTensor ℤ ℤ ℤ).obj
-    (Q.obj ((degreeZeroModuleFunctor ℤ).obj S.X₃)))) := by
+    (Q.obj ((Categorification.degreeZeroModuleFunctor ℤ).obj S.X₃)))) := by
   have hf : HasFiltration (fun _ : Unit => X) [] S.X₁ := .zero inferInstance
   refine isZero_derivedTensorHomology_quotient_of_filtered_kernel (k := ℤ) (M := ℤ) S hS hf
     ?_ ?_ ?_ (AddMonoidHom.id _) ?_ Function.injective_id 1 (by decide)
@@ -9694,7 +9694,7 @@ example : IsZero ((homologyFunctor ℤ 1).obj ((derivedTensor ℤ ℤ ℤ).obj
     apply Functor.map_isZero
     apply Functor.map_isZero
     apply Q.map_isZero
-    exact (degreeZeroModuleFunctor ℤ).map_isZero (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
+    exact (Categorification.degreeZeroModuleFunctor ℤ).map_isZero (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
   · intro c m
     change m * c = c * m
     exact mul_comm _ _
@@ -11546,7 +11546,7 @@ private theorem kernel_zero : blockLoadingKernel Q Λ t 0 1 = ⊥ := by
 example :
     IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0])ᵐᵒᵖ) ℤ 1).obj
       ((braidingFunctor ℤ Q Λ ν (redWord t) [1, 0]).obj (DG.DerivedCategory.Q.obj
-        ((degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
+        ((Categorification.degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
           (blockLoadingShortComplex Q Λ t 0 1).X₃)))) :=
   blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 0 1 [1, 0] kernel_zero 1 (by decide)
 
@@ -11588,7 +11588,7 @@ private theorem terminalLoading_black_lt (p : Fin (stendhalWeight 3 ν).card) (i
 example :
     IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0, 2])ᵐᵒᵖ) ℤ 1).obj
       ((braidingFunctor ℤ Q Λ ν (redWord terminalLoading) [1, 0, 2]).obj
-        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (corner (redWord terminalLoading))ᵐᵒᵖ).obj
+        (DG.DerivedCategory.Q.obj ((Categorification.degreeZeroModuleFunctor (corner (redWord terminalLoading))ᵐᵒᵖ).obj
           (blockLoadingShortComplex Q Λ terminalLoading 0 1).X₃)))) :=
   firstPair_terminal_partialStandard_braid_homology_vanish Q Λ terminalLoading (by decide)
     terminalLoading_black_lt [1, 0, 2] 1 (by decide)
@@ -12503,11 +12503,11 @@ private abbrev unitModule : ModuleCat.{0} ℤ := ModuleCat.of ℤ PUnit
 
 private theorem vanish (n : ℤ) (_ : n ≠ 0) :
     IsZero ((homologyFunctor ℤ n).obj ((derivedTensor ℤ ℤ ℤ).obj
-      (Q.obj ((degreeZeroModuleFunctor ℤ).obj unitModule)))) := by
+      (Q.obj ((Categorification.degreeZeroModuleFunctor ℤ).obj unitModule)))) := by
   apply Functor.map_isZero
   apply Functor.map_isZero
   apply Q.map_isZero
-  exact (degreeZeroModuleFunctor ℤ).map_isZero
+  exact (Categorification.degreeZeroModuleFunctor ℤ).map_isZero
     (X := unitModule) (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
 
 example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) unitModule vanish

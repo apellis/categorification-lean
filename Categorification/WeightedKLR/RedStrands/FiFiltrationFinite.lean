@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FiFiltration
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionCount
+import Categorification.WeightedKLR.RedStrands.Prop55DimensionCountQ
 
 /-!
 # The `Fᵢ` filtration of standardizations of finite-dimensional modules
@@ -14,9 +15,10 @@ categories `𝒜^{λ₁;…;λ_m}` of the proposition consist of finite-dimensio
 Rouquier parameters the input module `X_M` of the last-strand sequence is finite-dimensional
 when `M` is (`finiteDimensional_twoPieceInput`), so the filtration needs injectivity of `δ₁`
 only for finite-dimensional modules (`fiFiltration_finite`, route hypothesis
-`AllFiniteDeltaInjective`). At the standard Khovanov–Lauda parameters that hypothesis is
-Webster's dimension count (`allFiniteDeltaInjective_std`), and the filtration holds with no
-route hypothesis (`fiFiltration_finite_std`).
+`AllFiniteDeltaInjective`). For every Rouquier parameter `Q` that hypothesis is Webster's
+dimension count (`allFiniteDeltaInjective_of_rouquier`), and the filtration holds with no route
+hypothesis (`fiFiltration_finite_of_rouquier`; at the standard Khovanov–Lauda parameters,
+`fiFiltration_finite_std`).
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -85,16 +87,25 @@ namespace StendhalAlgebra
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I} (i : I)
 
+/-- **Webster's Proposition 5.5, `F`-part, for finite-dimensional modules** (arXiv:1309.3796v3),
+for every Rouquier parameter `Q` and with a commuting action, with no route hypothesis:
+`fiFiltration_finite` with Webster's dimension count (`allFiniteDeltaInjective_of_rouquier`).
+For every finite-dimensional `M`, `Fᵢ(M ⊗_B S^L_α)` is filtered by the `ₖFᵢ M ⊗_{B'} S^L_{α'}`,
+each red strand once. -/
+theorem fiFiltration_finite_of_rouquier {Q : I → I → MvPolynomial (Fin 2) k}
+    (hR : IsRouquierQ C Q) (hQs : KLRSymm Q) (ℓ : ℕ) :
+    FiFiltrationFor (k := k) Q i (fun M _ _ => FiniteDimensional k M) ℓ :=
+  fiFiltration_finite _ i hR hQs (fun _ _ => allFiniteDeltaInjective_of_rouquier hR hQs) ℓ
+
 /-- **Webster's Proposition 5.5, `F`-part, at the standard Khovanov–Lauda parameters**
 (arXiv:1309.3796v3), for finite-dimensional modules and with a commuting action, with no
-route hypothesis: `fiFiltration_finite` with Webster's dimension count
-(`allFiniteDeltaInjective_std`). -/
+route hypothesis: `fiFiltration_finite_of_rouquier` at `Q = CL.qCL CL.CLScalars.kl`. -/
 theorem fiFiltration_finite_std
     (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
     (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k))) (ℓ : ℕ) :
     FiFiltrationFor (k := k) (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) i
       (fun M _ _ => FiniteDimensional k M) ℓ :=
-  fiFiltration_finite _ i hR hQs (fun _ _ => allFiniteDeltaInjective_std hR hQs) ℓ
+  fiFiltration_finite_of_rouquier i hR hQs ℓ
 
 end StendhalAlgebra
 

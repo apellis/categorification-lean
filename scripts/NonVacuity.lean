@@ -12650,6 +12650,32 @@ example : StendhalAlgebra.FiFiltrationFor (k := ℚ)
   StendhalAlgebra.fiFiltration_finite_std () fsRouquier fsSymm 2
 
 end NonVacuity.WebsterFiFiltrationStd
+namespace NonVacuity.WebsterFiFiltrationRouquier
+
+open Categorification Categorification.KLR Categorification.Stendhal
+
+private noncomputable abbrev frC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem frRouquier :
+    KLR.IsRouquierQ frC (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem frSymm : KLRSymm (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)) :=
+  fun _ _ h => (h (Subsingleton.elim _ _)).elim
+
+noncomputable local instance (priority := high) frDecEqClassical : DecidableEq Unit :=
+  Classical.decEq _
+
+/-- Webster's Prop 5.5, `F`-part, for finite-dimensional modules at a Rouquier parameter given
+as a bare family `Q` (not built from Khovanov–Lauda scalars), for two red `sl₂` strands, with no
+route hypothesis. -/
+example : StendhalAlgebra.FiFiltrationFor (k := ℚ)
+    (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)) () (fun M _ _ => FiniteDimensional ℚ M) 2 :=
+  StendhalAlgebra.fiFiltration_finite_of_rouquier () frRouquier frSymm 2
+
+end NonVacuity.WebsterFiFiltrationRouquier
 namespace NonVacuity.WebsterMidCapBasis
 
 open Categorification in

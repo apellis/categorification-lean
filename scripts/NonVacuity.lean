@@ -2897,7 +2897,7 @@ local instance (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit) :
   Stendhal.tensorProductAlgebra_finite Ω ν params
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
 the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The
 finite-dimensionality of the algebras `T^λ` is discharged (`tensorProductAlgebra_finite`); the
@@ -2935,7 +2935,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
     params.klrSymm params hall (show (0 : Fin 2) < 1 by decide) rfl s hs
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Lemma 6.11, for two red `sl₂` strands of weight `ω` and the
 crossing: the graded braid functor sends each sequence projective to a module with a standard
 filtration. The route hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are
@@ -2970,7 +2970,7 @@ private theorem levelThree_eq (r : Fin 3) (i : Unit) :
   rfl
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Lemma 6.12, second clause, for three red `sl₂` strands of weight
 `ω`, `τ = (0 1)` and `s = (1 2)`: `𝔅(1, τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅(1, τ s)`. The route hypotheses
 (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
@@ -2990,7 +2990,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
     (Equiv.swap 0 1) (Equiv.swap 1 2) (by decide) (by decide)
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Lemma 6.13 (ungraded reading), for three red `sl₂` strands of
 weight `ω` and `w = (0 1)`: `𝔅(1, w)` sends the regular module to a compact object. The route
 hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not
@@ -3011,7 +3011,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
     (Equiv.swap 0 1) DG.DerivedCategory.isCompact_Q_self
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, proof of Theorem 6.14 (injectivity of `ι`), for three red `sl₂`
 strands of weight `ω` and the reversed bottom red order `(2, 1, 0)`: `e(t) V e_κ` is isomorphic to
 `y · e(t⁰) V e_κ`, with no injectivity input. The route hypotheses (`BaseCrossing`,
@@ -3056,7 +3056,7 @@ local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
   Stendhal.tensorProductAlgebra_finite Ω ν klParams
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Theorem 6.14, first clause, for three red `sl₂` strands of
 weight `ω` at the Khovanov–Lauda scalars and the reversed bottom red order `(2, 1, 0)`: the cut
 `e(t) V e_κ` and its flip dual both have standard filtrations. The route hypothesis
@@ -6537,6 +6537,50 @@ example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) �
     CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
     CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered
     (by rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]) 1 (by decide)
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Corollary 7.10 (vanishing part) for `M_λ` at the level-two
+coevaluation word, in degree zero. The route hypothesis `hall` of Proposition 7.6 is assumed
+here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) CyclotomicHighestWeight.params.klrSymm) :=
+  letI : DG.HasDerivedCategory (TensorProductAlgebra ℚ
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)])) :=
+    DG.HasDerivedCategory.standard _
+  letI : DG.HasDerivedCategory ℚ := DG.HasDerivedCategory.standard _
+  Categorification.Stendhal.isZero_derivedTensorHomology_cycDivProj_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
+    CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered
+    (by rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]) 0 (by decide)
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Corollary 7.10 (top degree) at the level-two coevaluation word:
+`Tor_{|ν|}(L_λ, M_λ)` is one-dimensional. The route hypothesis `hall` of Proposition 7.6 is
+assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))) CyclotomicHighestWeight.params.klrSymm) :=
+  letI : ∀ d : List (Unit × ℕ), DG.HasDerivedCategory (TensorProductAlgebra ℚ
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv d)) (KLR.KLRAlgebra.expandDiv d)) :=
+    fun _ => DG.HasDerivedCategory.standard _
+  letI : DG.HasDerivedCategory ℚ := DG.HasDerivedCategory.standard _
+  Categorification.Stendhal.finrank_derivedTensorHomology_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+    CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) [()] reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
+    firstRed firstRed_ordered coevaluationWeight_split
 
 /-- Webster, arXiv:1309.3796v3, Lemma 7.17 (spanning step) at the head `L_μ` of the
 level-two coevaluation projective, inserted into the empty sequence of red strands. -/

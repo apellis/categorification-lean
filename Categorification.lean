@@ -2531,6 +2531,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapDiagrams
 import Categorification.WeightedKLR.Rigidity.CupCapFunctor
 import Categorification.WeightedKLR.Rigidity.CupCapInducedMaps
 import Categorification.WeightedKLR.Rigidity.CupCapPullOff
+import Categorification.WeightedKLR.Rigidity.CupCapSliding
 import Categorification.WeightedKLR.Rigidity.CupCapSpanning
 import Categorification.WeightedKLR.Rigidity.CupCapTrace
 import Categorification.WeightedKLR.SimpleDots

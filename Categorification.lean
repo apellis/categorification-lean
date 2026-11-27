@@ -2608,6 +2608,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapMidGenerators
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftLoop
 import Categorification.WeightedKLR.Rigidity.CupCapMidNull
 import Categorification.WeightedKLR.Rigidity.CupCapMidRelBase
+import Categorification.WeightedKLR.Rigidity.CupCapMidRelSimple
 import Categorification.WeightedKLR.Rigidity.CupCapMidRightLoop
 import Categorification.WeightedKLR.Rigidity.CupCapMidSlides
 import Categorification.WeightedKLR.Rigidity.CupCapModelInverse

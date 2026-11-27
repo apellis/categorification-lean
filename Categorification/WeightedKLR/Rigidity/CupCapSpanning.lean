@@ -500,6 +500,141 @@ theorem capElt_mem_canonicalSpan_of_le (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i
     {z : Rp} (hz : z ∈ Z (n.val + N)) : capElt a s n v z ∈ canonicalSpan k Q Λ Λc j hj ν ν₀ L :=
   capElt_mem_of_le hκ s v (capPos ℓ j s - n.val) a n (by omega) z hz
 
+/-! ### The strands at the maximum -/
+
+theorem two_le_card_stendhalWeight {I' : Type*} (ν₁ : Multiset I') :
+    2 ≤ Multiset.card (stendhalWeight 2 ν₁) := by
+  simp [stendhalWeight]
+
+/-- A loading of the strands at the maximum whose first strand is `μ` and whose last strand is
+`μ*`. -/
+def IsCapGood {I' : Type*} (ν₁ : Multiset I') (w : Seq (stendhalWeight 2 ν₁)) : Prop :=
+  w.lbl ⟨0, lt_of_lt_of_le (by norm_num) (two_le_card_stendhalWeight ν₁)⟩ = .inr 0 ∧
+    w.lbl ⟨Multiset.card (stendhalWeight 2 ν₁) - 1,
+      Nat.sub_lt (lt_of_lt_of_le (by norm_num) (two_le_card_stendhalWeight ν₁)) one_pos⟩ = .inr 1
+
+instance {I' : Type*} [DecidableEq I'] (ν₁ : Multiset I') (w : Seq (stendhalWeight 2 ν₁)) :
+    Decidable (IsCapGood ν₁ w) := by
+  unfold IsCapGood; infer_instance
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem insertMap_e (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m)
+    (w : Seq (stendhalWeight 2 ν₀)) :
+    insertMap (j := j) (hj := hj) Q Λ Λc s n hn (KLRAlgebra.e w) =
+      KLRAlgebra.e (insertSeq s n hn (Seq.map (cupColour j hj) w)) := by
+  show (((insertEmb s n hn).hom (stendhalQ Q (plusLabels Λ Λc j hj)))
+    (KLRAlgebra.relabelHom (cupRelabel (j := j) (hj := hj) (ν₀ := ν₀) k Q Λ Λc)
+      (KLRAlgebra.e w))).val = _
+  rw [KLRAlgebra.relabelHom_e, KLRAlgebra.BlockEmb.hom_e, KLRAlgebra.BlockEmb.val_gE]
+  simp [KLRAlgebra.eSum, insertEmb, cupRelabel]
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem insertMap_ψ (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m) {p : ℕ}
+    (hp : p + 1 < N) :
+    insertMap (j := j) (hj := hj) Q Λ Λc s n hn (KLRAlgebra.ψ p) =
+      KLRAlgebra.ψ (n + p) * KLRAlgebra.eSum _ (insertSet (j := j) (hj := hj) (ν₀ := ν₀) s n hn) := by
+  show (((insertEmb s n hn).hom (stendhalQ Q (plusLabels Λ Λc j hj)))
+    (KLRAlgebra.relabelHom (cupRelabel (j := j) (hj := hj) (ν₀ := ν₀) k Q Λ Λc)
+      (KLRAlgebra.ψ p))).val = _
+  rw [KLRAlgebra.relabelHom_ψ, KLRAlgebra.BlockEmb.hom_ψ,
+    KLRAlgebra.BlockEmb.val_gψ _ (by simpa using hp)]
+  rfl
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem eSum_insertSet_mul_ψ (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m) {p : ℕ}
+    (hp : p + 1 < N) :
+    (KLRAlgebra.eSum _ (insertSet (j := j) (hj := hj) (ν₀ := ν₀) s n hn) *
+      KLRAlgebra.ψ (n + p) : Rp) =
+      KLRAlgebra.ψ (n + p) * KLRAlgebra.eSum _ (insertSet (j := j) (hj := hj) (ν₀ := ν₀) s n hn) :=
+  ((insertEmb s n hn).ψ_mul_E (Q := stendhalQ Q (plusLabels Λ Λc j hj)) (j := p)
+    (by simpa using hp)).symm
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- Crossings among the strands at the maximum, placed in the window. -/
+theorem insertMap_ψw (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m) (ρ : List ℕ)
+    (hρ : ∀ p ∈ ρ, p + 1 < N) :
+    insertMap (j := j) (hj := hj) Q Λ Λc s n hn (KLRAlgebra.ψw ρ) =
+      KLRAlgebra.eSum _ (insertSet (j := j) (hj := hj) (ν₀ := ν₀) s n hn) *
+        KLRAlgebra.ψw (ρ.map (n + ·)) := by
+  induction ρ with
+  | nil =>
+    rw [KLRAlgebra.ψw_nil, insertMap, map_one, Corner.val_one, List.map_nil, KLRAlgebra.ψw_nil,
+      mul_one]
+  | cons p ρ ih =>
+    rw [KLRAlgebra.ψw_cons, insertMap_mul, insertMap_ψ s hn (hρ p (by simp)),
+      ih fun q hq => hρ q (by simp [hq]), List.map_cons, KLRAlgebra.ψw_cons,
+      ← mul_assoc, mul_assoc (KLRAlgebra.ψ (n + p)),
+      (KLRAlgebra.eSum_idem (Q := stendhalQ Q (plusLabels Λ Λc j hj)) _).eq,
+      ← eSum_insertSet_mul_ψ s hn (hρ p (by simp)), mul_assoc]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- The crossings `s_q s_{q+1} ⋯ s_{q+l-1}` take the position `q + l` to `q`. -/
+theorem wordProd_range'_apply {K : ℕ} (q l : ℕ) (h : q + l < K) :
+    wordProd K (List.range' q l) ⟨q + l, h⟩ = ⟨q, Nat.lt_of_le_of_lt (Nat.le_add_right q l) h⟩ := by
+  induction l generalizing q with
+  | zero => simp [wordProd]
+  | succ l ih =>
+    rw [List.range'_succ, show wordProd K (q :: List.range' (q + 1) l) =
+        sadj K q * wordProd K (List.range' (q + 1) l) by simp [wordProd], Equiv.Perm.mul_apply,
+      show (⟨q + (l + 1), h⟩ : Fin K) = ⟨q + 1 + l, by omega⟩ from Fin.ext (by simp; omega),
+      ih (q + 1) (by omega)]
+    exact sadj_apply_right (by omega)
+
+/-- **Only `μ` and `μ*` leave the box at the ends.** If `L` is supported on loadings whose last
+strand is `μ*`, a strand at the maximum other than the last one cannot be pulled to the right of
+all the others. -/
+theorem smul_window_eq_zero
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (v : L) {q : ℕ} (hq : q + 1 < N) :
+    op (cupMap k Q Λc ν₀ (KLRAlgebra.ψw (List.range' q (N - 1 - q)))) • v = 0 := by
+  classical
+  have hv : v = ∑ w : Seq (stendhalWeight 2 ν₀), op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v := by
+    rw [← Finset.sum_smul, ← Finset.op_sum, ← map_sum, KLRAlgebra.sum_e, map_one, op_one,
+      one_smul]
+  rw [hv, Finset.smul_sum]
+  refine Finset.sum_eq_zero fun w _ => ?_
+  by_cases hw : IsCapGood ν₀ w
+  · rw [smul_smul, ← op_mul, ← map_mul, KLRAlgebra.e_mul_ψw, map_mul, op_mul, mul_smul]
+    refine hL _ _ fun hw' => ?_
+    have hlast := hw'.2
+    rw [Seq.lbl, Seq.smul_apply, Equiv.Perm.inv_def, Equiv.symm_symm,
+      show (⟨N - 1, _⟩ : Fin N) = ⟨q + (N - 1 - q), by omega⟩ from Fin.ext (by simp; omega),
+      wordProd_range'_apply] at hlast
+    have := lbl_eq_inr_unique hlast hw.2
+    rw [Fin.ext_iff] at this
+    simp at this
+    omega
+  · rw [hL w v hw, smul_zero]
+
+theorem capElt_sum_mid {ι : Type*} (a : T) (s) (n : Fin (m + 1)) (S : Finset ι) (v : ι → L)
+    (b : Rp) :
+    (capElt a s n (∑ i ∈ S, v i) b : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      ∑ i ∈ S, capElt a s n (v i) b := by
+  classical
+  induction S using Finset.induction_on with
+  | empty => simp [capElt_zero_mid]
+  | insert i S hi ih => rw [Finset.sum_insert hi, Finset.sum_insert hi, capElt_add_mid, ih]
+
+/-- Only the bottom loadings with `μ` and `μ*` at the ends of the window contribute. -/
+theorem capElt_eq_sum_good
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (a : T) (s) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    (capElt a s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      ∑ w ∈ Finset.univ.filter (IsCapGood ν₀), capElt a s n v
+        (KLRAlgebra.e (insertSeq s n (Nat.lt_succ_iff.1 n.2) (Seq.map (cupColour j hj) w)) * b) := by
+  classical
+  have hv : v = ∑ w : Seq (stendhalWeight 2 ν₀), op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v := by
+    rw [← Finset.sum_smul, ← Finset.op_sum, ← map_sum, KLRAlgebra.sum_e, map_one, op_one,
+      one_smul]
+  conv_lhs => rw [hv]
+  rw [capElt_sum_mid, Finset.sum_filter]
+  refine Finset.sum_congr rfl fun w _ => ?_
+  split_ifs with hw
+  · rw [capElt_box, insertMap_e]
+  · rw [hL w v hw, capElt_zero_mid]
+
 end Spanning
 
 end Categorification.Stendhal.CupCap

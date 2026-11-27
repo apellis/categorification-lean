@@ -2935,6 +2935,27 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
   braidingFunctorCompIsoOfLengthAdd D params regular hall H levelThree (factors 3) levelThree_eq ν
     (Equiv.swap 0 1) (Equiv.swap 1 2) (by decide) (by decide)
 
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Lemma 6.13 (ungraded reading), for three red `sl₂` strands of
+weight `ω` and `w = (0 1)`: `𝔅(1, w)` sends the regular module to a compact object. The route
+hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not
+discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ) := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  isCompact_braidingFunctor_obj D params regular hall H levelThree (factors 3) levelThree_eq ν
+    (Equiv.swap 0 1) DG.DerivedCategory.isCompact_Q_self
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

@@ -8,6 +8,7 @@ import Categorification.Algebra.BalancedTensorFiniteFamily
 import Categorification.Algebra.BalancedTensorFiltration
 import Categorification.Algebra.BalancedTensorSplit
 import Categorification.Algebra.BalancedTensorReflection
+import Categorification.Algebra.DerivedCompact
 import Categorification.Algebra.IdempotentExitLift
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
@@ -684,6 +685,7 @@ import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminalProjective
 import Categorification.WeightedKLR.RedStrands.BraidRightSequenceCut
+import Categorification.WeightedKLR.RedStrands.BraidingFunctorCompact
 import Categorification.WeightedKLR.RedStrands.BraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingForm

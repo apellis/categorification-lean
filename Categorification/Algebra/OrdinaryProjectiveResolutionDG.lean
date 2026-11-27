@@ -152,8 +152,9 @@ theorem projectiveResolutionDGModel_loading_support {ι : Type*} (e : ι → R) 
     apply hmap
     exact ⟨V x', hspan (V x'), congrArg Subtype.val (V.symm_apply_apply x')⟩
 
-
-private def ordinarySingleIso (X : ModuleCat.{u} R) :
+/-- The cochain complex underlying a module placed in degree `0` is the module placed in degree
+`0`. -/
+def complexFunctorInDegreeZeroIso (X : ModuleCat.{u} R) :
     (DegreeZero.complexFunctor R).obj (DGModuleCat.of R (InDegreeZero X)) ≅
       (HomologicalComplex.single _ (ComplexShape.up ℤ) 0).obj X := by
   let M := DGModuleCat.of R (InDegreeZero X)
@@ -196,7 +197,7 @@ def projectiveResolutionDGTargetIso (X : ModuleCat.{u} R) :
     (DegreeZero.ofComplexCompIso R).app K
   exact DegreeZero.complexFunctorFullyFaithful.preimageIso
     (e ≪≫ HomologicalComplex.extendSingleIso embeddingDownNat X 0 0 rfl ≪≫
-      (ordinarySingleIso X).symm)
+      (complexFunctorInDegreeZeroIso X).symm)
 
 /-- The chain resolution gives a DG augmentation to the ordinary module. -/
 def projectiveResolutionDGAugToOrdinary :

@@ -33,6 +33,8 @@ namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
 open KLR Equiv MulOpposite
 
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
 variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ}
   {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
   {ρ : Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ}

@@ -1655,6 +1655,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelationsQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparisonQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContextQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAdjunction
 import Categorification.WeightedKLR.RedStrands.DoubleCLWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedNegligibleIdeal

@@ -2886,23 +2886,17 @@ by partial standard modules at strictly higher roots, over `T^λ` and over the c
 hypothesis `AllFiniteDeltaInjective` (Lemma 5.19) is assumed here, not discharged. -/
 example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
-    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν)) (hs : Stendhal.IsRedOrdered s) :
-    (∃ l : List {t : KLR.Seq (Stendhal.stendhalWeight 2 ν) // Stendhal.IsRedOrdered t},
-      (∀ v ∈ l, Stendhal.adjacentBlockRoot 1 0 s < Stendhal.adjacentBlockRoot 1 0 v.1) ∧
-        ModuleFiltration.HasFiltration
-          (fun v => ModuleCat.of _ (Stendhal.leftPartialStandard _ level 1 0 v.1 v.2)) l
-          (ModuleCat.of _ (Stendhal.leftPartialKernel _ level 1 0 s hs))) ∧
-    ∃ l : List {t : KLR.Seq (Stendhal.stendhalWeight 2 ν) // Stendhal.redWord t = List.finRange 2},
-      (∀ v ∈ l, Stendhal.adjacentBlockRoot 1 0 s < Stendhal.adjacentBlockRoot 1 0 v.1) ∧
-        ModuleFiltration.HasFiltration
-          (fun v => Stendhal.BraidedStendhalAlgebra.blockPartialStandardAt _ level v.1 1 0
-            (List.finRange 2) v.2) l
-          (Stendhal.BraidedStendhalAlgebra.blockLoadingKernelObjAt _ level 1 0 (List.finRange 2) s
-            ((Stendhal.redWord_eq_finRange_iff s).2 hs)) :=
-  ⟨Stendhal.exists_hasFiltration_leftPartialKernel params.klrSymm params hall
-      (show (0 : Fin 2) < 1 by decide) hs,
-    Stendhal.BraidedStendhalAlgebra.exists_hasFiltration_blockLoadingKernelAt params.klrSymm params
-      hall (show (0 : Fin 2) < 1 by decide) rfl s _⟩
+    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν)) (hs : Stendhal.IsRedOrdered s) :=
+  Stendhal.exists_hasFiltration_leftPartialKernel (Λ := level) params.klrSymm params hall
+    (show (0 : Fin 2) < 1 by decide) hs
+
+/-- The same filtration over the corner `e_λ V e_λ`, for the loadings of red order `λ`. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν))
+    (hs : Stendhal.redWord s = List.finRange 2) :=
+  Stendhal.BraidedStendhalAlgebra.exists_hasFiltration_blockLoadingKernelAt (Λ := level)
+    params.klrSymm params hall (show (0 : Fin 2) < 1 by decide) rfl s hs
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open DG.DegreeZero in

@@ -108,6 +108,8 @@ import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongFinite
 import Categorification.Algebra.InductionAlongAssoc
+import Categorification.Algebra.InductionAlongBaseChange
+import Categorification.Algebra.InductionAlongBaseChangeEpi
 import Categorification.Algebra.InductionAlongCrossTransportNaturality
 import Categorification.Algebra.InductionAlongTransportEquiv
 import Categorification.Algebra.InductionAlongTransportNaturality
@@ -904,6 +906,11 @@ import Categorification.TwoRep.BlockSum
 import Categorification.TwoRep.BlockSumCross
 import Categorification.TwoRep.BlockSumCrossing
 import Categorification.TwoRep.BlockSumCrossingMate
+import Categorification.TwoRep.BlockSumCrossingBigon
+import Categorification.TwoRep.BlockSumCrossingNatural
+import Categorification.TwoRep.BlockSumCrossingBraid
+import Categorification.TwoRep.BlockSumCrossingEpi
+import Categorification.TwoRep.BlockSumCrossingGen
 import Categorification.TwoRep.BlockSumGen
 import Categorification.TwoRep.BlockSumTriple
 import Categorification.TwoRep.MatKarFunctor
@@ -961,6 +968,7 @@ import Categorification.TwoRep.RouqSoundness
 import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqFamilyPi
+import Categorification.TwoRep.RouqFamilyPiCap
 import Categorification.TwoRep.RouqUnfilteredSoundness
 import Categorification.TwoRep.RouqUnfilteredDescent
 import Categorification.TwoRep.RouqUpWords
@@ -1581,10 +1589,19 @@ import Categorification.WeightedKLR.RedStrands.DoublePrintedBubble
 import Categorification.WeightedKLR.RedStrands.DoubleRedBubble
 import Categorification.WeightedKLR.RedStrands.TensorCornerFormula
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedAbsentCap
+import Categorification.WeightedKLR.RedStrands.CyclotomicGlobalCapTensor
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedDotCap
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegion
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownMate
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDotMate
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownBigon
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDotSlide
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownCross
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownMidSame
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownQuotientEpi
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionTensorAction
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionFamily
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure
@@ -2151,6 +2168,7 @@ import Categorification.KLR.CyclotomicTruncation
 import Categorification.KLR.CyclotomicWordRestriction
 import Categorification.KLR.ReindexWordK0
 import Categorification.KLR.Rouquier.PolynomialDegree
+import Categorification.KLR.Rouquier.KLStandard
 import Categorification.QuantumGroup.DividedCoproduct
 import Categorification.QuantumGroup.RaisingSerre
 import Categorification.TwoRep.GradedHom
@@ -2263,6 +2281,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownBigon
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownBraid
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownMates
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownMid
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownMidSame
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownBraidQ
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedRepeat
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUp

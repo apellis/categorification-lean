@@ -361,6 +361,131 @@ theorem sum_invTerm_prefix (w : KLRAlgebra k (stendhalQ Q Λ) (stendhalWeight �
   rw [Finset.sum_congr rfl fun s _ => h1 s, ← Finset.smul_sum, key, Finset.smul_sum]
   exact Finset.sum_congr rfl fun s _ => h2 s
 
+theorem topMap_surjective' : Function.Surjective (topMap k Q Λ ν) :=
+  (orderProjection_surjective (Q := Q) (Λ := Λ) (ν := ν)).comp
+    (StendhalAlgebraAllOrders.ofKLR_surjective (k := k) (Q := Q) (Λ := Λ) (ν := ν))
+
+theorem invFun_left (a : T) (Z : Tp) (v : L) :
+    invFun Q Λ Λc ν₀ ((endStendhal Q Λ Λc ν ν₀ 1 * prefixStendhal Q Λ Λc ν ν₀ a) * Z) v =
+      (Env.mk a 1 : Ev) • invFun Q Λ Λc ν₀ Z v := by
+  obtain ⟨w, rfl⟩ := topMap_surjective' Q Λ a
+  have h1 : ∀ s : Seq (stendhalWeight ℓ ν), invTerm Q Λ Λc ν₀
+      ((endStendhal Q Λ Λc ν ν₀ 1 * prefixStendhal Q Λ Λc ν ν₀ (topMap k Q Λ ν w)) * Z) s v =
+      (Env.mk 1 Z : Ev) • ((Env.mk (algebraMap k T (Ring.inverse (capScalar Q ν₀ s m)))
+        (endStendhal Q Λ Λc ν ν₀ 1 * prefixStendhal Q Λ Λc ν ν₀ (topMap k Q Λ ν w)) : Ev) •
+        lastGen Q Λ Λc ν₀ L s v) := by
+    intro s
+    rw [invTerm, smul_smul, Env.mk_mul_mk, one_mul]
+  rw [invFun, Finset.sum_congr rfl fun s _ => h1 s, ← Finset.smul_sum, sum_invTerm_prefix,
+    invFun, Finset.smul_sum, Finset.smul_sum]
+  refine Finset.sum_congr rfl fun s _ => ?_
+  rw [invTerm, smul_smul, smul_smul, Env.mk_mul_mk, Env.mk_mul_mk, one_mul, one_mul, mul_one]
+
+/-- **The inverse of the map to the model**, as an additive map: `Z ⊗ v ↦ ∑_s κ_s⁻¹ ·
+cap(s, m, v) · Z`. -/
+def modelToCapAdd : EndModel Q Λ Λc ν ν₀ L →+ K :=
+  Ind.liftAdd (fun z v => invFun Q Λ Λc ν₀ z.1.unop v)
+    (fun z z' v => invFun_add_left Q Λ Λc ν₀ L _ _ v)
+    (fun z v v' => invFun_add_right Q Λ Λc ν₀ L _ v v')
+    (fun z a v => by
+      obtain ⟨x, hx⟩ := cupMap_surjective (Q := Q) (Λc := Λc) (ν₀ := ν₀) a.unop
+      change invFun Q Λ Λc ν₀ (endStendhal Q Λ Λc ν ν₀ a.unop * z.1.unop) v = _
+      rw [← hx, invFun_balanced, hx, op_unop])
+
+theorem modelToCapAdd_tmul (z : Corner (endOp Q Λ Λc ν ν₀)) (v : L) :
+    modelToCapAdd Q Λ Λc ν₀ L (Ind.tmul z v) = invFun Q Λ Λc ν₀ z.1.unop v := rfl
+
+theorem modelToCapAdd_op_smul (b : Tp) (y : EndModel Q Λ Λc ν ν₀ L) :
+    modelToCapAdd Q Λ Λc ν₀ L ((op b : Tpᵐᵒᵖ) • y) =
+      (Env.mk 1 b : Ev) • modelToCapAdd Q Λ Λc ν₀ L y := by
+  induction y using Ind.induction_on with
+  | zero => rw [smul_zero, map_zero, smul_zero]
+  | add y y' hy hy' => rw [smul_add, map_add, map_add, hy, hy', smul_add]
+  | tmul z v =>
+    rw [Ind.smul_tmul, modelToCapAdd_tmul, modelToCapAdd_tmul]
+    exact invFun_smul Q Λ Λc ν₀ L b z.1.unop v
+
+theorem modelToCapAdd_leftAct (a : T) (y : EndModel Q Λ Λc ν ν₀ L) :
+    modelToCapAdd Q Λ Λc ν₀ L (leftAct Q Λ Λc ν ν₀ L a y) =
+      (Env.mk a 1 : Ev) • modelToCapAdd Q Λ Λc ν₀ L y := by
+  induction y using Ind.induction_on with
+  | zero => rw [map_zero, map_zero, smul_zero]
+  | add y y' hy hy' => rw [map_add, map_add, map_add, hy, hy', smul_add]
+  | tmul z v =>
+    rw [leftAct_tmul, modelToCapAdd_tmul, modelToCapAdd_tmul]
+    exact invFun_left Q Λ Λc ν₀ L a z.1.unop v
+
+theorem modelToCapAdd_envMk (a : T) (b : Tp) (y : EndModel Q Λ Λc ν ν₀ L) :
+    modelToCapAdd Q Λ Λc ν₀ L ((Env.mk a b : Ev) • y) =
+      (Env.mk a b : Ev) • modelToCapAdd Q Λ Λc ν₀ L y := by
+  rw [envMk_smul, modelToCapAdd_leftAct, modelToCapAdd_op_smul, smul_smul, Env.mk_mul_mk,
+    mul_one, mul_one]
+
+theorem modelToCapAdd_smul (r : Ev) (y : EndModel Q Λ Λc ν ν₀ L) :
+    modelToCapAdd Q Λ Λc ν₀ L (r • y) = r • modelToCapAdd Q Λ Λc ν₀ L y := by
+  induction r using TensorProduct.inductionOn with
+  | tmul a b => exact modelToCapAdd_envMk Q Λ Λc ν₀ L a b.unop y
+  | add r r' hr hr' =>
+    have h := add_smul (show Ev from r) (show Ev from r') y
+    have h' := add_smul (show Ev from r) (show Ev from r') (modelToCapAdd Q Λ Λc ν₀ L y)
+    exact (congrArg _ h).trans ((map_add _ _ _).trans
+      ((congrArg₂ (· + ·) hr hr').trans h'.symm))
+
+/-- **The inverse of the map to the model** (Webster, arXiv:1309.3796v3, proof of Lemma 7.17,
+`j = ℓ`), as a map of bimodules. -/
+def modelToCap : EndModel Q Λ Λc ν ν₀ L →ₗ[Ev] K where
+  toFun := modelToCapAdd Q Λ Λc ν₀ L
+  map_add' := map_add _
+  map_smul' := modelToCapAdd_smul Q Λ Λc ν₀ L
+
+theorem modelToCap_apply (y : EndModel Q Λ Λc ν ν₀ L) :
+    modelToCap Q Λ Λc ν₀ L y = modelToCapAdd Q Λ Λc ν₀ L y := rfl
+
+/-! ### The scalars -/
+
+theorem isUnit_labelScalar (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i)) (c : I ⊕ Fin ℓ) :
+    IsUnit (labelScalar Q ν₀ c) := by
+  cases c with
+  | inl i => exact hκ i
+  | inr _ => exact isUnit_one
+
+theorem isUnit_capScalar (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i)) (s : Seq (stendhalWeight ℓ ν))
+    (n : ℕ) : IsUnit (capScalar Q ν₀ s n) := by
+  refine IsUnit.prod_iff.2 fun r _ => ?_
+  by_cases h : r < m
+  · simp only [h, ↓reduceDIte]
+    exact isUnit_labelScalar Q ν₀ hκ _
+  · simp only [h, ↓reduceDIte, isUnit_one]
+
+/-- **(max1) along a passage**: a cap generator whose black strands right of the maximum pass
+under it moves left, picking up the scalars of (max1). -/
+theorem capElt_passU (a : T) (s : Seq (stendhalWeight ℓ ν)) (v : L) (b : Rp) :
+    ∀ (d n : ℕ) (hnd : n + d ≤ m), (∀ (r : ℕ) (h : r < m), n ≤ r → r < n + d →
+      ∃ i, s.lbl ⟨r, h⟩ = .inl i) →
+    (capElt a s ⟨n + d, by omega⟩ v (passU Q Λ Λc ℓ le_rfl ν ν₀ n d * b) : K) =
+      capElt (a * algebraMap k T (∏ r ∈ Finset.Ico n (n + d),
+        if h : r < m then labelScalar Q ν₀ (s.lbl ⟨r, h⟩) else 1)) s ⟨n, by omega⟩ v b
+  | 0, n, _, _ => by
+    simp only [passU_zero, one_mul, add_zero, Finset.Ico_self, Finset.prod_empty, map_one,
+      mul_one]
+  | d + 1, n, hnd, hb => by
+    obtain ⟨i, hi⟩ := hb n (by omega) le_rfl (by omega)
+    have hfin : (⟨n + (d + 1), by omega⟩ : Fin (m + 1)) = ⟨n + 1 + d, by omega⟩ :=
+      Fin.ext (by simp only; omega)
+    rw [hfin, passU_succ_left, mul_assoc,
+      capElt_passU a s v (underRight N n * b) d (n + 1) (by omega)
+        (fun r h h1 h2 => hb r h (by omega) (by omega))]
+    refine (capElt_over _ s ⟨n + 1, by omega⟩ v i (Nat.succ_pos n) hi b).trans ?_
+    have hP : (∏ r ∈ Finset.Ico n (n + (d + 1)),
+        if h : r < m then labelScalar Q ν₀ (s.lbl ⟨r, h⟩) else 1) =
+        cupScalar Q ν₀ i * ∏ r ∈ Finset.Ico (n + 1) (n + 1 + d),
+          if h : r < m then labelScalar Q ν₀ (s.lbl ⟨r, h⟩) else 1 := by
+      rw [Finset.prod_eq_prod_Ico_succ_bot (by omega : n < n + (d + 1))]
+      simp only [show n + (d + 1) = n + 1 + d by omega, show n < m by omega, ↓reduceDIte, hi,
+        labelScalar, Sum.elim_inl]
+    rw [hP, map_mul, mul_assoc, ← map_mul, ← map_mul, mul_comm (cupScalar Q ν₀ i)]
+    rfl
+
 end Inverse
 
 end Categorification.Stendhal.CupCap

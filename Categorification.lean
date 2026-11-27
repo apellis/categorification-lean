@@ -2135,6 +2135,8 @@ import Categorification.Diagrams.CLQ.Reduction
 import Categorification.Diagrams.CLQ.Rewriting
 import Categorification.Diagrams.CLQ.SlideCalculus
 import Categorification.Diagrams.CLQ.SortDecomp
+import Categorification.Diagrams.CLQ.SpanningSetBlock
+import Categorification.Diagrams.CLQ.SpanningSetCaps
 import Categorification.Diagrams.CLQ.SpanningSetLocal
 import Categorification.Diagrams.CLQ.Spanning
 import Categorification.Diagrams.CLQ.SpanningBasic

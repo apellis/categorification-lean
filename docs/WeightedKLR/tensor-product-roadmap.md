@@ -805,9 +805,23 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   with right multiplication by the flipped diagram on `R^{λ_{ℓ+1}}(β)`
   (`twoPieceRootStandardEquiv_lastBlock`, from `suffixBlockMap_lastBlackMap`).
 
-Open: the iteration from this bimodule isomorphism to Prop 5.5 for the Def 5.4 standardization
-of right modules over the block algebra of all `ℓ + 1` blocks, injectivity in the `Fᵢ`-part of
-Prop 5.5, Prop 5.6, and the results listed below.
+* Prop 5.5, comparison with Def 5.4, iteration step (`RedStrands/LeftStandardization.lean`,
+  `TwoPieceBlockAlgebra*.lean`, `TwoPieceStandardization*.lean`,
+  `Algebra/CommutingFamilySingle.lean`): when no sequence of root function `α` is violated,
+  Def 5.4's `S(M) = M ⊗_B S_α` is `M ⊗_B S^L_α` (`standardizationReflectEquiv`), the right
+  action of `a` becoming the left action of `flip(a)`. The block algebra `B` of `ℓ + 1` red
+  strands receives commuting maps from the block algebra `B'` of the first `ℓ`
+  (`initBlockAlgHom`) and from the last factor (`lastBlockAlgHom`), whose images generate it
+  (`blockAlgebra_subalgebra_eq_top`), and `twoPieceRootStandardEquiv` intertwines both actions
+  (`twoPieceRootStandardEquiv_initBlockAlg`, `twoPieceRootStandardEquiv_lastBlockAlg`). For a
+  right `B`-module `M`, `X_M = M ⊗_{B'} S^L_{α'}` is a module over `T^{λ'} ⊗ R^{λ_{ℓ+1}}(β)`
+  (`TwoPieceInput`), and `M ⊗_B S^L_α ≅ S(X_M)` as left `T^λ`-modules
+  (`splitStandardEquiv`): this is the reduction of the proof of Prop 5.5 to two tensor
+  factors, for Def 5.4's standardization.
+
+Open: the `Eᵢ`/`Fᵢ` filtrations of Prop 5.5 for the Def 5.4 standardization from
+`splitStandardEquiv` by induction on `ℓ`, injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6,
+and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:
 `Stendhal.maxLoadClassification` (`RedStrands/StringyClassification.lean`). Prop 5.18 (summands

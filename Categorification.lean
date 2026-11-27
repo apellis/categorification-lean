@@ -2621,6 +2621,9 @@ import Categorification.WeightedKLR.Rigidity.CupCapMidDescent
 import Categorification.WeightedKLR.Rigidity.CupCapMidGenerators
 import Categorification.WeightedKLR.Rigidity.CupCapMidKLR
 import Categorification.WeightedKLR.Rigidity.CupCapMidKLRAll
+import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFree
+import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeCross
+import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeDots
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftLoop
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftMackey
 import Categorification.WeightedKLR.Rigidity.CupCapMidModelMap

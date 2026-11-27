@@ -154,4 +154,187 @@ theorem downEndAlg_D0_ir (s : X) (i : I) (r : Fin ℓ)
   case hd => intro _ _; double_single
   case he => intro _ _; double_single
 
+omit [∀ a b : B, Preadditive (a ⟶ b)] [AdditiveWhiskering B] in
+/-- A 2-morphism conjugated by unitors. -/
+theorem unit_conj {a b : B} {f g h : a ⟶ b} (γ : f ⟶ g) (κ : g ⟶ h) :
+    (λ_ f).inv ≫ 𝟙 a ◁ (ρ_ f).inv ≫ 𝟙 a ◁ (γ ▷ 𝟙 b) ≫ 𝟙 a ◁ (ρ_ g).hom ≫ (λ_ g).hom ≫ κ =
+      γ ≫ κ := by
+  simp
+
+theorem downLinear_X2_ir (s : X) (i : I) (r : Fin ℓ) :
+    downLinear RD Λ k s [] [] (LinDiagram.of (KLR.Diagram.X2 (Sum.inl i : I ⊕ Fin ℓ) (.inr r))) =
+      LinDiagram.of (Diagram.cast (moveDiagram RD Λ s [] (.blackRed (false, i) r) [])
+        rfl rfl) := by
+  rw [KLR.Diagram.X2, KLR.Diagram.dl, downLinear_layer,
+    downLinearLayer_of_move (g := .blackRed (false, i) r) RD Λ k s [] [] _ rfl,
+    LinDiagram.cast_of]
+  congr 1
+
+theorem downLinear_X2_ri (s : X) (i : I) (r : Fin ℓ) :
+    downLinear RD Λ k s [] [] (LinDiagram.of (KLR.Diagram.X2 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) =
+      LinDiagram.of (Diagram.cast (moveDiagram RD Λ s [] (.redBlack r (false, i)) [])
+        rfl rfl) := by
+  rw [KLR.Diagram.X2, KLR.Diagram.dl, downLinear_layer,
+    downLinearLayer_of_move (g := .redBlack r (false, i)) RD Λ k s [] [] _ rfl,
+    LinDiagram.cast_of]
+  congr 1
+
+theorem admissibleMap_X2_ir (s : X) (i : I) (r : Fin ℓ) {t : X}
+    (hR : (s + (wD i)) + Λ r = t) (he : (s + Λ r) + (wD i) = t)
+    (ha : Cond s t
+      (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])))
+    (hb : Cond s t
+      (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])))
+    (h₁ : (s + (wD i)) + RD.iX i = s) (h₄ : t + RD.iX i = s + Λ r)
+    (N : fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])).word
+        t ha.1 ha.2.1 ⟶
+      fwT (s + (wD i)) [((s + (wD i)), .inr r)] t ⟨rfl, trivial⟩ hR ≫
+        fwT s [(s, .inl (false, i))] (s + (wD i)) ⟨rfl, trivial⟩ rfl)
+    (N' : fwT (s + Λ r) [((s + Λ r), .inl (false, i))] t ⟨rfl, trivial⟩ he ≫
+        fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl ⟶
+      fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])).word
+        t hb.1 hb.2.1) :
+    admissibleMap (k := k) (genImg S red upIso Sc) ha hb
+        (downLinear RD Λ k s [] []
+          (LinDiagram.of (KLR.Diagram.X2 (Sum.inl i : I ⊕ Fin ℓ) (.inr r)))) =
+      (doubleModel S red).lift.map₂ N ≫ redDownQuot S red upIso r i h₁ hR rfl h₄ ≫
+        (doubleModel S red).lift.map₂ N' := by
+  subst hR
+  rw [downLinear_X2_ir, admissibleMap_of]
+  change admissibleChain _ _ _ _ _ _ _ = _
+  dsimp only [ObjectProperty.homMk]
+  rw [admissibleChain_congr _ (show Diagram.layers (Diagram.cast (moveDiagram RD Λ s []
+      (.blackRed (false, i) r) []) rfl rfl) =
+      [layer RD Λ s [] (.blackRed (false, i) r) []] by simp [moveDiagram])]
+  let R := fwT (s + (wD i)) [((s + (wD i)), .inr r)] ((s + (wD i)) + Λ r) ⟨rfl, trivial⟩ rfl
+  let Eb := fwT s [(s, .inl (false, i))] (s + (wD i)) ⟨rfl, trivial⟩ rfl
+  let E' := fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + (wD i)) + Λ r) ⟨rfl, trivial⟩ he
+  let R' := fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl
+  rw [admissibleChain₁_conj (doubleModel S red) _ _ _ _ (p₁ := 𝟙 _) (q₁ := 𝟙 _)
+    (x₁ := R ≫ Eb) (y₁ := E' ≫ R') (redDownQuot S red upIso r i h₁ rfl rfl h₄) (N ≫ (λ_ _).inv ≫ 𝟙 _ ◁ (ρ_ _).inv)
+    (𝟙 _ ◁ (ρ_ _).hom ≫ (λ_ _).hom ≫ N') ?hn ?hm ?hr ?hl ?hd ?he ?hg]
+  · simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_leftUnitor_hom,
+      lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_hom, lift_map₂_rightUnitor_inv,
+      Category.assoc]
+    congr 1
+    exact unit_conj _ _
+  case hg =>
+    intro _ _ _ _
+    exact redDownQuot_heq S red upIso r i (by double_regions) (by double_regions)
+      (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
+  case hn => double_regions
+  case hm => double_regions
+  case hr => intro _ _; double_nil
+  case hl => intro _ _; double_nil
+  case hd => intro _ _; double_pair
+  case he => intro _ _; double_pair
+
+theorem admissibleMap_X2_ri (s : X) (i : I) (r : Fin ℓ) {t : X}
+    (hR : (s + (wD i)) + Λ r = t) (he : (s + Λ r) + (wD i) = t)
+    (ha : Cond s t
+      (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])))
+    (hb : Cond s t
+      (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])))
+    (h₁ : (s + (wD i)) + RD.iX i = s) (h₄ : t + RD.iX i = s + Λ r)
+    (N : fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])).word
+        t ha.1 ha.2.1 ⟶
+      fwT (s + Λ r) [((s + Λ r), .inl (false, i))] t ⟨rfl, trivial⟩ he ≫
+        fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl)
+    (N' : fwT (s + (wD i)) [((s + (wD i)), .inr r)] t ⟨rfl, trivial⟩ hR ≫
+        fwT s [(s, .inl (false, i))] (s + (wD i)) ⟨rfl, trivial⟩ rfl ⟶
+      fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])).word
+        t hb.1 hb.2.1) :
+    admissibleMap (k := k) (genImg S red upIso Sc) ha hb
+        (downLinear RD Λ k s [] []
+          (LinDiagram.of (KLR.Diagram.X2 (Sum.inr r : I ⊕ Fin ℓ) (.inl i)))) =
+      (doubleModel S red).lift.map₂ N ≫ redDownDot S red upIso r i h₁ hR rfl h₄ ≫
+        (doubleModel S red).lift.map₂ N' := by
+  subst hR
+  rw [downLinear_X2_ri, admissibleMap_of]
+  change admissibleChain _ _ _ _ _ _ _ = _
+  dsimp only [ObjectProperty.homMk]
+  rw [admissibleChain_congr _ (show Diagram.layers (Diagram.cast (moveDiagram RD Λ s []
+      (.redBlack r (false, i)) []) rfl rfl) =
+      [layer RD Λ s [] (.redBlack r (false, i)) []] by simp [moveDiagram])]
+  let R := fwT (s + (wD i)) [((s + (wD i)), .inr r)] ((s + (wD i)) + Λ r) ⟨rfl, trivial⟩ rfl
+  let Eb := fwT s [(s, .inl (false, i))] (s + (wD i)) ⟨rfl, trivial⟩ rfl
+  let E' := fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + (wD i)) + Λ r) ⟨rfl, trivial⟩ he
+  let R' := fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl
+  rw [admissibleChain₁_conj (doubleModel S red) _ _ _ _ (p₁ := 𝟙 _) (q₁ := 𝟙 _)
+    (x₁ := E' ≫ R') (y₁ := R ≫ Eb) (redDownDot S red upIso r i h₁ rfl rfl h₄)
+    (N ≫ (λ_ _).inv ≫ 𝟙 _ ◁ (ρ_ _).inv)
+    (𝟙 _ ◁ (ρ_ _).hom ≫ (λ_ _).hom ≫ N') ?hn ?hm ?hr ?hl ?hd ?he ?hg]
+  · simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_leftUnitor_hom,
+      lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_hom, lift_map₂_rightUnitor_inv,
+      Category.assoc]
+    congr 1
+    exact unit_conj _ _
+  case hg =>
+    intro _ _ _ _
+    exact redDownDot_heq S red upIso r i (by double_regions) (by double_regions)
+      (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
+  case hn => double_regions
+  case hm => double_regions
+  case hr => intro _ _; double_nil
+  case hl => intro _ _; double_nil
+  case hd => intro _ _; double_pair
+  case he => intro _ _; double_pair
+
+omit [∀ a b : B, Preadditive (a ⟶ b)] [AdditiveWhiskering B] in
+/-- A 2-morphism whiskered by an identity, conjugated by the left unitor. -/
+theorem lunit_conj {a b : B} {f g h : a ⟶ b} (γ : f ⟶ g) (κ : g ⟶ h) :
+    (λ_ f).inv ≫ 𝟙 a ◁ γ ≫ (λ_ g).hom ≫ κ = γ ≫ κ := by
+  simp
+
+theorem downLinear_D1_ri (s : X) (i : I) (r : Fin ℓ) :
+    downLinear RD Λ k s [] [] (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) =
+      LinDiagram.of (Diagram.cast (moveDiagram RD Λ s [.inr r] (.black (.dot (false, i))) [])
+        rfl rfl) := by
+  rw [KLR.Diagram.D1, KLR.Diagram.dl, downLinear_layer,
+    downLinearLayer_of_move (g := .black (.dot (false, i))) RD Λ k s [] [] _ rfl,
+    LinDiagram.cast_of]
+  congr 1
+
+theorem downEndAlg_D1_ri (s : X) (i : I) (r : Fin ℓ)
+    (hc : Cond s ((s + Λ r) + (wD i))
+      (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])))
+    (h₄ : ((s + Λ r) + (wD i)) + RD.iX i = s + Λ r)
+    (N : fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])).word
+        ((s + Λ r) + (wD i)) hc.1 hc.2.1 ⟶
+      fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
+        fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl)
+    (N' : fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
+        fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl ⟶
+      fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])).word
+        ((s + Λ r) + (wD i)) hc.1 hc.2.1) :
+    downEndAlg (k := k) (genImg S red upIso Sc) s [.inr r, .inl i] hc
+        (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) =
+      (doubleModel S red).lift.map₂ N ≫ (S.dot i h₄ ▷ red r rfl) ≫
+        (doubleModel S red).lift.map₂ N' := by
+  rw [downEndAlg_apply, downLinear_D1_ri, admissibleMap_of]
+  change admissibleChain _ _ _ _ _ _ _ = _
+  dsimp only [ObjectProperty.homMk]
+  rw [admissibleChain_congr _ (show Diagram.layers (Diagram.cast (moveDiagram RD Λ s [.inr r]
+      (.black (.dot (false, i))) []) rfl rfl) =
+      [layer RD Λ s [.inr r] (.black (.dot (false, i))) []] by simp [moveDiagram])]
+  let E' := fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ rfl
+  let R' := fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl
+  rw [admissibleChain₁_conj (doubleModel S red) _ _ _ _ (p₁ := 𝟙 _) (q₁ := R') (x₁ := E')
+    (y₁ := E') (S.dot i h₄) (N ≫ (λ_ _).inv) ((λ_ _).hom ≫ N')
+    ?hn ?hm ?hr ?hl ?hd ?he ?hg]
+  · simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_leftUnitor_hom,
+      lift_map₂_leftUnitor_inv, Category.assoc]
+    congr 1
+    exact lunit_conj _ _
+  case hg =>
+    intro _ _ _ _
+    refine (heq_of_eq (genImg_blackOn S red upIso Sc _ _ _ _ _ _ _ _ _ _)).trans ?_
+    exact blackImg_dot_dn' S red Sc _ i _ _ _ _ _ _ (by double_regions) (by double_regions) h₄
+  case hn => double_regions
+  case hm => double_regions
+  case hr => intro _ _; double_nil
+  case hl => intro _ _; double_single
+  case hd => intro _ _; double_single
+  case he => intro _ _; double_single
+
 end Categorification.Stendhal.DoubleDiagram

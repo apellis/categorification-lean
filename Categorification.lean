@@ -2496,6 +2496,7 @@ import Categorification.WeightedKLR.RedStrands.TensorWordFirstRed
 import Categorification.WeightedKLR.RedStrands.TildeWordProjectives
 import Categorification.WeightedKLR.RedStrands.TildeTensorEquiv
 import Categorification.WeightedKLR.RedStrands.NegativeTensorLattice
+import Categorification.WeightedKLR.RedStrands.TildeBlackInduction
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
 import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition

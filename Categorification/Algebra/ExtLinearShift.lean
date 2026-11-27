@@ -59,6 +59,30 @@ noncomputable def linearEquivOfShortExact (Y : C) (n : ℕ) [Subsingleton (Ext.{
     obtain ⟨x₁, hx₁⟩ := contravariant_sequence_exact₃ hS Y x₃ (Subsingleton.elim _ _) rfl
     exact ⟨x₁, hx₁⟩⟩
 
+include hS in
+/-- **Dimension shifting in the second variable**: `Extⁿ(X, X₃) ≅ Ext^{n+1}(X, X₁)`,
+`R`-linearly, when `Extⁿ(X, X₂)` and `Ext^{n+1}(X, X₂)` vanish. -/
+noncomputable def linearEquivOfShortExactRight (X : C) (n : ℕ) [Subsingleton (Ext.{w} X S.X₂ n)]
+    [Subsingleton (Ext.{w} X S.X₂ (n + 1))] : Ext.{w} X S.X₃ n ≃ₗ[R] Ext.{w} X S.X₁ (n + 1) :=
+  LinearEquiv.ofBijective (postcompOfLinear hS.extClass R X rfl) ⟨by
+    refine (injective_iff_map_eq_zero _).2 fun x hx => ?_
+    obtain ⟨x₂, rfl⟩ := covariant_sequence_exact₃ X hS x rfl hx
+    rw [Subsingleton.elim x₂ 0, zero_comp], fun x₁ => by
+    obtain ⟨x₃, hx₃⟩ := covariant_sequence_exact₁ X hS x₁ (Subsingleton.elim _ _) rfl
+    exact ⟨x₃, hx₃⟩⟩
+
+/-- `Ext` is invariant under isomorphism in the second variable, `R`-linearly. -/
+noncomputable def linearEquivOfIsoRight (X : C) {Y Y' : C} (e : Y ≅ Y') (n : ℕ) :
+    Ext.{w} X Y n ≃ₗ[R] Ext.{w} X Y' n where
+  toFun x := x.comp (mk₀ e.hom) (add_zero n)
+  invFun x := x.comp (mk₀ e.inv) (add_zero n)
+  map_add' x y := by simp
+  map_smul' c x := by simp
+  left_inv x := by
+    simp only [comp_assoc_of_third_deg_zero, mk₀_comp_mk₀, e.hom_inv_id, comp_mk₀_id]
+  right_inv x := by
+    simp only [comp_assoc_of_third_deg_zero, mk₀_comp_mk₀, e.inv_hom_id, comp_mk₀_id]
+
 omit [HasExt.{w} C] in
 /-- **Dimension shifting along a resolution.** Let `S n` be short exact sequences
 `0 → K_{n+1} → M_n → K_n → 0` (with `K_{n+1}` the cokernel term of `S (n + 1)`) and let

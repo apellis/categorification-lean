@@ -2078,6 +2078,7 @@ import Categorification.WeightedKLR.Rigidity.RigidityExtBicone
 import Categorification.WeightedKLR.Rigidity.RigidityExtSplitting
 import Categorification.WeightedKLR.Rigidity.RigidityExtStandardSum
 import Categorification.WeightedKLR.Rigidity.RigidityExtDualStandard
+import Categorification.WeightedKLR.Rigidity.RigidityExtDualStandardTop
 import Categorification.WeightedKLR.Rigidity.StandardizationAdjunction
 import Categorification.WeightedKLR.Rigidity.RigidityExtLevels
 import Categorification.WeightedKLR.Rigidity.RigidityExtStandardVanishing

@@ -570,26 +570,30 @@ theorem _root_.Categorification.Stendhal.finrank_ext_standard_coevaluationHead_s
     (hlong : ∀ i, (P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsLeftDescent
       ((P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).wordProd w.reverse) i)
     (t : Seq (Stendhal.stendhalWeight 1 (0 : Multiset I))) (ht : Stendhal.IsRedOrdered t)
-    (h : 0 + Stendhal.wordWt (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w)) 0 = expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w))
+    (h : 0 + Stendhal.wordWt (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)) 0 =
+      expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))
     [HasExt.{v} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k QK
-      (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w))) (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w))))] :
+      (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))))] :
     Module.finrank k (Ext (Stendhal.tensorStd QK (coevaluationLabels Λ RD highest
-        (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w))) hQs h (Stendhal.oldProj QK _ 0 t ht) (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w)))
-      (Stendhal.flipLeft QK _ _ (Stendhal.coevaluationHead QK Λ RD highest (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w)))
-      (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w)).length) = 1 := by
+        (expandDiv (Stendhal.coevaluationDividedWord
+          (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hQs h
+        (Stendhal.oldProj QK _ 0 t ht) (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord
+          (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))
+      (Stendhal.flipLeft QK _ _ (Stendhal.coevaluationHead QK Λ RD highest
+        (Stendhal.coevaluationDividedWord
+          (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)).length) = 1 := by
   refine Stendhal.finrank_ext_standard_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight
     match_weight w hw hlong hQs ?_ t ht h
   convert Stendhal.allFiniteDeltaInjective_std
-    (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
-      weight w))) hP' hQs
+    (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord
+      (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hP' hQs
 
 /-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (vanishing part, for `M_λ`)**, ungraded,
 at the standard Khovanov–Lauda parameters, with no route hypothesis. -/

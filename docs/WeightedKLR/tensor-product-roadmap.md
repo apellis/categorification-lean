@@ -1420,7 +1420,11 @@ second red strand's cyclotomic relation at the lowest weight from Kang–Kashiwa
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,
-Props 7.20, 7.21, 7.22). All open.
+Props 7.20, 7.21, 7.22). Defs 7.14, 7.15 and 7.18 are done. Lemma 7.17 is proved for the
+cap at the right end (`j = ℓ`, `CupCap.capBasis`) for symmetric `Q`, under the route
+hypotheses that the (max1) scalars are units and `PullOffLeft` (the mirror of Lemma 7.16);
+removal items: prove Lemma 7.16 and its mirror for `L_μ`, and the case of general `j`.
+Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants
 

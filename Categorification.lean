@@ -2546,3 +2546,4 @@ import Categorification.WeightedKLR.RedStrands.FiLeftInput
 import Categorification.Algebra.TensorActRestrict
 import Categorification.WeightedKLR.RedStrands.FiSubTerm
 import Categorification.WeightedKLR.RedStrands.FiInitLayer
+import Categorification.Algebra.InductionAlongBalancedTensor

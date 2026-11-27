@@ -2395,6 +2395,7 @@ import Categorification.WeightedKLR.RedStrands.GradedRightStandardModule
 import Categorification.WeightedKLR.RedStrands.GradedStandardization
 import Categorification.WeightedKLR.RedStrands.GradedTwoPieceStandard
 import Categorification.WeightedKLR.RedStrands.HalfTwistCokernel
+import Categorification.WeightedKLR.RedStrands.HalfTwistCorner
 import Categorification.WeightedKLR.RedStrands.HalfTwistDots
 import Categorification.WeightedKLR.RedStrands.HalfTwistInclusion
 import Categorification.WeightedKLR.RedStrands.HalfTwistTransport

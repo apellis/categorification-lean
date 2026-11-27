@@ -1946,6 +1946,13 @@ import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.DerivedCupHom
 import Categorification.WeightedKLR.Rigidity.DerivedCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
+import Categorification.WeightedKLR.Rigidity.RigidityExtTrace
+import Categorification.WeightedKLR.Rigidity.RigidityExtRankOne
+import Categorification.WeightedKLR.Rigidity.RigidityExtLowest
+import Categorification.WeightedKLR.Rigidity.RigidityExtLastDot
+import Categorification.WeightedKLR.Rigidity.RigidityExtErase
+import Categorification.WeightedKLR.Rigidity.RigidityExtWrap
+import Categorification.WeightedKLR.Rigidity.RigidityExtHead
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle

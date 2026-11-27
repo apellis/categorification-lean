@@ -1460,6 +1460,10 @@ strand `λ_{j+1}`, all KLR relations hold on it (`CupCap.midKLRRel`), it is isom
 `B″` (`CupCap.MidTriple`); its elements are Webster's diagrams, with the maximum at its
 canonical position at the top and every strand passing under it (`CupCap.midCapBasis_apply`).
 Removal item: Lemma 7.16 and its mirror for `L_μ` (needs Thm 4.30).
+The projectivity of `coe^{λ⁺}_λ` as a left `T^λ`-module, asserted after Lemma 7.19, is proved
+for a cap at the right end (`j = ℓ`, `CupCap.projective_capBimodule`) when the pieces `L e(t)`
+are free over `k` (removal item: projective pieces, by a split-summand argument); the case
+`j < ℓ` is in progress (`CupCap.leftMackeyEquiv` is its one-sided Mackey step).
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants

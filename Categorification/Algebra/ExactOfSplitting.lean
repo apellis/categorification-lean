@@ -23,6 +23,10 @@ cube on a standard module split into those matched downward (`B`) and those matc
 ## Main results
 
 * `LinearMap.ker_le_range_of_sup_eq_top`.
+* `LinearMap.ker_le_range_of_subcomplex`: exactness in degree one of a three-term complex from
+  exactness of a subcomplex and of the quotient complex (the middle of the long exact sequence).
+  In the proof of Lemma 6.9 the subcomplex is the face of the cube where the first between strand
+  exits left; it reduces the three-state cube to a two-state one.
 -/
 
 namespace LinearMap
@@ -60,5 +64,41 @@ theorem exact_of_sup_eq_top {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] 
     exact ⟨y, hy⟩
   · rintro ⟨y, rfl⟩
     rw [← comp_apply, hd, zero_apply]
+
+section Subcomplex
+
+variable {C₂' C₁' C₀' C₂'' C₁'' : Type*} [AddCommGroup C₂'] [AddCommGroup C₁'] [AddCommGroup C₀']
+  [AddCommGroup C₂''] [AddCommGroup C₁''] [Module R C₂'] [Module R C₁'] [Module R C₀']
+  [Module R C₂''] [Module R C₁'']
+
+/-- **Degree one of a short exact sequence of complexes.** Let `C' → C → C''` be maps of
+three-term complexes (`C''` is only needed in degrees two and one), surjective in degree two,
+exact in degree one, and injective in degree zero. If `C'` and `C''` are exact in degree one, so
+is `C`. -/
+theorem ker_le_range_of_subcomplex
+    {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] C₀}
+    {d₂' : C₂' →ₗ[R] C₁'} {d₁' : C₁' →ₗ[R] C₀'} {d₂'' : C₂'' →ₗ[R] C₁''}
+    {i₂ : C₂' →ₗ[R] C₂} {i₁ : C₁' →ₗ[R] C₁} {i₀ : C₀' →ₗ[R] C₀}
+    {p₂ : C₂ →ₗ[R] C₂''} {p₁ : C₁ →ₗ[R] C₁''} (hd : d₁.comp d₂ = 0)
+    (hi₂ : d₂.comp i₂ = i₁.comp d₂') (hi₁ : d₁.comp i₁ = i₀.comp d₁')
+    (hp₂ : d₂''.comp p₂ = p₁.comp d₂)
+    (hp₂s : Function.Surjective p₂) (hex : Function.Exact i₁ p₁) (hi₀ : Function.Injective i₀)
+    (h' : ker d₁' ≤ range d₂') (h'' : ∀ z, d₁ z = 0 → p₁ z ∈ range d₂'') :
+    ker d₁ ≤ range d₂ := by
+  intro z hz
+  obtain ⟨y'', hy''⟩ := h'' z (mem_ker.1 hz)
+  obtain ⟨y, rfl⟩ := hp₂s y''
+  have hq : p₁ (z - d₂ y) = 0 := by
+    rw [map_sub, ← hy'', ← comp_apply, hp₂, comp_apply, sub_self]
+  obtain ⟨z', hz'⟩ := (hex _).1 hq
+  have hc : d₁' z' = 0 := by
+    apply hi₀
+    rw [map_zero, ← comp_apply, ← hi₁, comp_apply, hz', map_sub, mem_ker.1 hz, ← comp_apply,
+      hd, zero_apply, sub_zero]
+  obtain ⟨y', hy'⟩ := h' (mem_ker.2 hc)
+  refine ⟨y + i₂ y', ?_⟩
+  rw [map_add, ← comp_apply d₂ i₂, hi₂, comp_apply, hy', hz', add_sub_cancel]
+
+end Subcomplex
 
 end LinearMap

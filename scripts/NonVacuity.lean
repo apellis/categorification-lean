@@ -2579,8 +2579,8 @@ example := Stendhal.FirstWeight.exists_tensorWordEquiv_iff (fun _ : Fin 2 => Fin
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular
 
 /-- Webster, Proposition 4.39, for two level-two labels of `sl₂`. -/
-example := Stendhal.FirstWeight.exists_tildeTensorEquiv (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
-  params regular twoTensorFactors
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
   ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
   (fun _ : Fin 2 => Finsupp.single () 2)
   (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)

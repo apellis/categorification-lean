@@ -2,6 +2,7 @@ import Categorification.Algebra.AmbidextrousTrace
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.BalancedTensorScalar
+import Categorification.Algebra.Graded.DegreewiseLayerCount
 import Categorification.Algebra.Graded.HomogeneousLayerCount
 import Categorification.Algebra.BalancedTensorEndAction
 import Categorification.Algebra.BalancedTensorCyclic
@@ -1194,9 +1195,12 @@ import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.CentralPolynomials
 import Categorification.WeightedKLR.CentralFinite
 import Categorification.WeightedKLR.Arrangement
+import Categorification.WeightedKLR.RedStrands.TildeLayerIso
 import Categorification.WeightedKLR.RedStrands.TildePhiCount
+import Categorification.WeightedKLR.RedStrands.TildePhiGradedLayers
 import Categorification.WeightedKLR.RedStrands.TildePhiLayers
 import Categorification.WeightedKLR.RedStrands.TildePhiStraightening
+import Categorification.WeightedKLR.RedStrands.TildeRelLayers
 import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel
 import Categorification.WeightedKLR.Segment

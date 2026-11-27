@@ -247,10 +247,14 @@ not the printed `F_{i_n} ⋯ F_{i_1}`, and `𝔮_N` does not intertwine it with 
 **Corrected.** Multiply on the left: `F̃_i(u ⊗ w) = F_i u ⊗ K_{-ĩ} w + u ⊗ F_i w`, with the
 coproduct `Δ(F_i) = F_i ⊗ K_{-ĩ} + 1 ⊗ F_i` of the library. Then `p̃_w` is `F_{i_n} ⋯ F_{i_1}` for
 `λ = ∅`, `𝔮_N` intertwines `F̃_i` with `F_i`, and Proposition 4.39 holds with these vectors.
+In this convention the two sides of (4.40) for the black functors exchange: `F̃_i` acts by
+`F̃_i(u ⊗ w)` above, and the reflected functor `F̃_i^*` by right multiplication
+`u ⊗ w ↦ u F_i ⊗ w` on the `U⁻` factor, in place of the printed `F_i · (u ⊗ w)`.
 
 **Declarations.** `Categorification.Stendhal.FirstWeight.negTensorF`,
 `FirstWeight.negTensorMap_negTensorF`, `FirstWeight.negTensorMap_negWordVector`,
-`FirstWeight.exists_tildeTensorEquiv`.
+`FirstWeight.exists_tildeTensorEquiv`, `FirstWeight.exists_negIntegralTensorEquiv_lower`,
+`FirstWeight.exists_negIntegralTensorEquiv_leftLower`.
 
 **Roadmap.** [Tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md),
 Proposition 4.39.

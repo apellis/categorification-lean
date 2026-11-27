@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.InductionAlongExact
+import Categorification.WeightedKLR.RedStrands.ExactMulRightTransport
 import Categorification.WeightedKLR.Induction.K0
 import Mathlib.CategoryTheory.Abelian.Exact
 import Mathlib.CategoryTheory.Preadditive.Projective.Resolution
@@ -11,7 +12,7 @@ import Mathlib.CategoryTheory.Preadditive.Projective.Resolution
 # Induction along a map with projective corner maps projective resolutions
 
 Let `φ : A →ₙ+* B` be a nonunital ring map whose corner `B φ(1)` is projective as a right
-`A`-module. Induction `Ind − φ` of left modules is then additive, exact and sends projective
+`A`-module. Induction `Ind − φ` of left modules is additive (`Ind.map_add`), exact and sends projective
 modules to projective modules, so it sends a projective resolution of `N` to a projective
 resolution of `Ind N φ`.
 
@@ -21,7 +22,6 @@ Theorem 4.31) to a resolution of a standard module.
 
 ## Main results
 
-* `InductionAlong.Ind.map_add`: induction is additive on maps.
 * `InductionAlong.functor_preservesProjectiveObjects`.
 * `InductionAlong.functor_preservesHomology`: under a projective corner.
 * `InductionAlong.indResolution`: the induced projective resolution.
@@ -38,18 +38,6 @@ namespace InductionAlong
 universe u
 
 variable {A : Type u} [Ring A] {B : Type u} [Ring B] (φ : A →ₙ+* B)
-
-namespace Ind
-
-variable {φ} {N N' : Type u} [AddCommGroup N] [Module A N] [AddCommGroup N'] [Module A N']
-
-/-- Induction is additive on maps. -/
-theorem map_add (f g : N →ₗ[A] N') :
-    Ind.map (φ := φ) (f + g) = Ind.map (φ := φ) f + Ind.map (φ := φ) g :=
-  Ind.ext fun z n => by
-    rw [LinearMap.add_apply, map_tmul, map_tmul, map_tmul, LinearMap.add_apply, tmul_add]
-
-end Ind
 
 instance functor_additive : (functor.{u, u} φ).Additive where
   map_add {_ _ f g} := ModuleCat.hom_ext (Ind.map_add f.hom g.hom)

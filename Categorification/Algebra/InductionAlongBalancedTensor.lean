@@ -276,6 +276,28 @@ theorem indBalancedEquiv_map (σT : X →ₗ[A] X) (t : T) (ht : ∀ x, g (σT x
     rw [ht, map_smul]
   | add s t' hs ht' => rw [map_add, map_add, hs, ht', ← smul_add, ← map_add]
 
+/-- **`indBalancedEquiv` is natural**: a map of `X` that is `L ⊗_R` a map of `N` is carried to
+`L ⊗_R` the induced map of `N'`. -/
+theorem indBalancedEquiv_natural (GX : X →ₗ[A] X) (GN : N →ₗ[A] N) (GR : N →ₗ[R] N)
+    (hGR : ∀ n, GR n = GN n) (hgX : ∀ x, g (GX x) = BalancedTensor.mapRight GR (g x))
+    (h : N' →ₗ[R] N') (hh : ∀ w, f (IndK.map GN w) = h (f w)) (w : IndK k X φ) :
+    indBalancedEquiv hφ σ hσ g hg f hf (IndK.map GX w) =
+      BalancedTensor.mapRight h (indBalancedEquiv hφ σ hσ g hg f hf w) := by
+  induction w using IndK.induction_on' with
+  | zero => rw [map_zero, map_zero, map_zero]
+  | tmul z x =>
+    change BalancedTensor.mapRight (indBalancedSlice f hf z) (g (GX x)) =
+      BalancedTensor.mapRight h (BalancedTensor.mapRight (indBalancedSlice f hf z) (g x))
+    rw [hgX, ← LinearMap.comp_apply (BalancedTensor.mapRight h), ← BalancedTensor.mapRight_comp,
+      ← LinearMap.comp_apply (BalancedTensor.mapRight (indBalancedSlice f hf z)),
+      ← BalancedTensor.mapRight_comp]
+    congr 2
+    refine LinearMap.ext fun n => ?_
+    rw [LinearMap.comp_apply, LinearMap.comp_apply, indBalancedSlice_apply,
+      indBalancedSlice_apply, ← hh, hGR]
+    rfl
+  | add s t hs ht => rw [map_add, map_add, hs, ht, map_add, map_add]
+
 end InductionAlong
 
 end Categorification

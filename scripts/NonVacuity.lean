@@ -6399,7 +6399,7 @@ example : CategoryTheory.HasExt.{0} (ModuleCat.{0} (TensorProductAlgebra ℚ
     (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
     (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
       (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)]))) :=
-  CategoryTheory.hasExt_of_enoughProjectives
+  CategoryTheory.hasExt_of_enoughProjectives _
 
 /-- Webster, arXiv:1309.3796v3, Corollary 7.7 (vanishing part) for the divided standard module
 `M_λ` at the level-two coevaluation word, in degree one. The route hypothesis `hall` of

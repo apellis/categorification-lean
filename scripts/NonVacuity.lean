@@ -12174,4 +12174,15 @@ private theorem vanish (n : ℤ) (_ : n ≠ 0) :
 example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) unitModule vanish
 
 end NonVacuity.WebsterDerivedOrdinaryComparison
+
+namespace NonVacuity.WebsterEiFiltration
+open Categorification Categorification.KLR Categorification.Stendhal.StendhalAlgebra
+
+private abbrev Q (i j : Bool) : MvPolynomial (Fin 2) ℚ := if i = j then 0 else 1
+private theorem sym : KLRSymm Q := by intro i j h; simp [Q, h, h.symm]
+
+/-- Webster's Prop 5.5, `E`-part, for two red strands and two colours. -/
+example : EiFiltration (k := ℚ) Q true 2 := eiFiltration Q true sym 2
+
+end NonVacuity.WebsterEiFiltration
 end

@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.TildePhiGradedLayers
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, Corollary
 5.23 (the `T̃^λ` form of Proposition 5.21): for a red-ordered loading `s` and every block
 assignment `φ` of `s`, the map `S̃_{φ • s} → P̃_{≥φ}/P̃_{≻φ}`, `[e(φ • s)] ↦ [x̃_φ]`, is an
-isomorphism of `T̃^λ`-modules (`tildePhiLayerEquiv`).
+isomorphism of `T̃^λ`-modules (`tildeRelLayerEquiv`).
 
 Injectivity is checked one homogeneous component at a time. For the component of degree `j`,
 a red strand `λ₀` is added on the left with `λ₀` large relative to `j` and the degrees of the

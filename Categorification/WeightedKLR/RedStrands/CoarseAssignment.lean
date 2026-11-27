@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.PhiDiagrams
+import Categorification.WeightedKLR.RedStrands.AdjacentBlockRoot
 
 /-!
 # Coarse block assignments
@@ -358,6 +359,377 @@ theorem phiPerm_eq_mul {s : Seq μ} {f : Fin m → ℕ} (hf : f ∈ assignments 
     · exact Or.inl h
     · exact Or.inr ⟨h, (H p q h).2 h'⟩
 
+omit [DecidableEq I] in
+/-- The inversions of the coarse part are inversions of the assignment. -/
+theorem invSet_phiPerm_coarsen_subset {s : Seq μ} {f : Fin m → ℕ} (hf : f ∈ assignments s.lbl) :
+    invSet m (phiPerm s (coarsen j s f)) ⊆ invSet m (phiPerm s f) := by
+  rintro ⟨p, q⟩ hpq
+  rw [mem_invSet] at hpq ⊢
+  dsimp only at hpq ⊢
+  obtain ⟨hlt, hφ⟩ := hpq
+  refine ⟨hlt, ?_⟩
+  have hk : assignKey s.lbl (coarsen j s f) q < assignKey s.lbl (coarsen j s f) p := by
+    rcases (keyPerm_lt_iff _).1 hφ with h | ⟨-, h⟩
+    · exact h
+    · exact absurd (h.trans hlt) (lt_irrefl _)
+  refine (keyPerm_lt_iff _).2 (Or.inl ?_)
+  rw [assignKey_coarsen, assignKey_coarsen] at hk
+  have hm := redsBefore_mono s.lbl hlt.le
+  rcases Bool.eq_false_or_eq_true (s.lbl p).isRight with hbp | hbp
+  · have hKp := assignKey_red hf hbp
+    simp only [hbp, Bool.true_eq_false, false_and, ite_false] at hk
+    split_ifs at hk <;> omega
+  · rcases Bool.eq_false_or_eq_true (s.lbl q).isRight with hbq | hbq
+    · have hKq := assignKey_red hf hbq
+      have hKp := assignKey_black f hbp
+      simp only [hbq, Bool.true_eq_false, false_and, ite_false] at hk
+      split_ifs at hk <;> omega
+    · have hKp := assignKey_black f hbp
+      have hKq := assignKey_black f hbq
+      simp only [hbp, hbq, true_and] at hk
+      split_ifs at hk <;> omega
+
+omit [DecidableEq I] in
+/-- Membership in the block assignments of a loading. -/
+theorem mem_assignments_iff {lbl : Fin m → I ⊕ Fin ℓ} {f : Fin m → ℕ} :
+    f ∈ assignments lbl ↔ ∀ p, ((lbl p).isRight → f p = redsBefore lbl p) ∧
+      ((lbl p).isRight = false → f p ≤ redsBefore lbl p) := by
+  rw [mem_assignList]
+  refine forall_congr' fun p => ?_
+  rcases Bool.eq_false_or_eq_true (lbl p).isRight with h | h
+  · simp [assignChoices, h]
+  · simp only [assignChoices, h, Bool.false_eq_true, ite_false, List.mem_range]
+    constructor
+    · intro h'; exact ⟨fun h'' => absurd h'' (by simp), fun _ => by omega⟩
+    · intro h'; have := h'.2 trivial; omega
+
+omit [DecidableEq I] in
+/-- **An assignment is read off its `φ`**: the block of a black strand is its block at the
+bottom. -/
+theorem diagAssign_phiPerm {s : Seq μ} (hs : IsRedOrdered s) {f : Fin m → ℕ}
+    (hf : f ∈ assignments s.lbl) : diagAssign s (phiPerm s f) = f := by
+  funext p
+  have h := (mem_assignments_iff.1 hf p)
+  unfold diagAssign
+  split_ifs with hp
+  · exact (h.1 hp).symm
+  · have hp' : (s.lbl p).isRight = false := by simpa using hp
+    have e := redsBefore_phiBottom hs hf hp'
+    change redsBefore (phiBottom s f).lbl (phiPerm s f p) = f p at e
+    change min (redsBefore s.lbl p) (redsBefore (phiBottom s f).lbl (phiPerm s f p)) = f p
+    rw [e]
+    exact min_eq_right (h.2 hp')
+
+omit [DecidableEq I] in
+/-- Red strands keep their block at the bottom of an assignment. -/
+theorem redsBefore_phiBottom_red {s : Seq μ} (hs : IsRedOrdered s) {g : Fin m → ℕ}
+    (hg : g ∈ assignments s.lbl) {p : Fin m} (hp : (s.lbl p).isRight) :
+    redsBefore (phiBottom s g).lbl (phiPerm s g p) = redsBefore s.lbl p := by
+  obtain ⟨r, hr⟩ : ∃ r, s.lbl p = .inr r := by
+    rcases h : s.lbl p with i | r
+    · simp [h] at hp
+    · exact ⟨r, rfl⟩
+  rw [redsBefore_of_lbl_eq_inr (isRedOrdered_phiBottom hs hg) ((lbl_smul_apply s _ p).trans hr),
+    redsBefore_of_lbl_eq_inr hs hr]
+
+omit [DecidableEq I] in
+/-- The local part is a block assignment of the bottom of the coarse part. -/
+theorem localPart_mem {s : Seq μ} (hs : IsRedOrdered s) {f : Fin m → ℕ}
+    (hf : f ∈ assignments s.lbl) :
+    localPart j s f ∈ assignments (phiBottom s (coarsen j s f)).lbl := by
+  have hg := coarsen_mem (j := j) hf
+  refine mem_assignments_iff.2 fun x => ?_
+  obtain ⟨y, rfl⟩ := (phiPerm s (coarsen j s f)).surjective x
+  have hl := lbl_smul_apply s (phiPerm s (coarsen j s f)) y
+  simp only [localPart, Function.comp_apply, Equiv.symm_apply_apply]
+  rw [show (phiBottom s (coarsen j s f)).lbl (phiPerm s (coarsen j s f) y) = s.lbl y from hl]
+  have h := mem_assignments_iff.1 hf y
+  refine ⟨fun hy => ?_, fun hy => ?_⟩
+  · rw [redsBefore_phiBottom_red hs hg hy]; exact h.1 hy
+  · rw [redsBefore_phiBottom hs hg hy]; exact coarsen_le s f y
+
+omit [DecidableEq I] in
+/-- The local part is local. -/
+theorem isLocal_localPart {s : Seq μ} (hs : IsRedOrdered s) {f : Fin m → ℕ}
+    (hf : f ∈ assignments s.lbl) :
+    IsLocal j (phiBottom s (coarsen j s f)) (localPart j s f) := by
+  have hg := coarsen_mem (j := j) hf
+  intro x hx
+  obtain ⟨y, rfl⟩ := (phiPerm s (coarsen j s f)).surjective x
+  have hl : (phiBottom s (coarsen j s f)).lbl (phiPerm s (coarsen j s f) y) = s.lbl y :=
+    lbl_smul_apply s _ y
+  rw [hl] at hx
+  simp only [localPart, Function.comp_apply, Equiv.symm_apply_apply]
+  rw [redsBefore_phiBottom hs hg hx]
+  unfold coarsen
+  split_ifs with hc
+  · exact Or.inr ⟨rfl, hc.2.1⟩
+  · exact Or.inl rfl
+
+omit [DecidableEq I] in
+/-- **The bottom of an assignment is the bottom of its local part.** -/
+theorem phiBottom_eq_phiBottom_localPart {s : Seq μ} {f : Fin m → ℕ}
+    (hf : f ∈ assignments s.lbl) :
+    phiBottom s f = phiBottom (phiBottom s (coarsen j s f)) (localPart j s f) := by
+  change phiPerm s f • s = _ • (_ • s)
+  rw [phiPerm_eq_mul (j := j) hf, mul_smul]
+
+omit [DecidableEq I] in
+/-- A local assignment after a coarse one is an assignment. -/
+theorem comp_phiPerm_mem {s : Seq μ} (hs : IsRedOrdered s) {g : Fin m → ℕ}
+    (hg : g ∈ assignments s.lbl) {f' : Fin m → ℕ}
+    (hf' : f' ∈ assignments (phiBottom s g).lbl) :
+    f' ∘ phiPerm s g ∈ assignments s.lbl := by
+  refine mem_assignments_iff.2 fun y => ?_
+  have hl : (phiBottom s g).lbl (phiPerm s g y) = s.lbl y := lbl_smul_apply s _ y
+  have h := mem_assignments_iff.1 hf' (phiPerm s g y)
+  rw [hl] at h
+  have h' := mem_assignments_iff.1 hg y
+  refine ⟨fun hy => ?_, fun hy => ?_⟩
+  · rw [Function.comp_apply, h.1 hy, redsBefore_phiBottom_red hs hg hy]
+  · have := h.2 hy
+    rw [redsBefore_phiBottom hs hg hy] at this
+    exact this.trans (h'.2 hy)
+
+omit [DecidableEq I] in
+/-- The coarse part of a local assignment after a coarse one is the coarse one. -/
+theorem coarsen_comp_phiPerm {s : Seq μ} (hs : IsRedOrdered s) {g : Fin m → ℕ}
+    (hg : g ∈ assignments s.lbl) (hc : IsCoarse j s g) {f' : Fin m → ℕ}
+    (hf' : f' ∈ assignments (phiBottom s g).lbl) (hl : IsLocal j (phiBottom s g) f') :
+    coarsen j s (f' ∘ phiPerm s g) = g := by
+  funext y
+  have hlb : (phiBottom s g).lbl (phiPerm s g y) = s.lbl y := lbl_smul_apply s _ y
+  have h' := mem_assignments_iff.1 hg y
+  unfold coarsen
+  rcases Bool.eq_false_or_eq_true (s.lbl y).isRight with hy | hy
+  · simp only [hy, Bool.true_eq_false, false_and, ite_false, Function.comp_apply]
+    have h := (mem_assignments_iff.1 hf' (phiPerm s g y)).1 (by rw [hlb]; exact hy)
+    rw [h, redsBefore_phiBottom_red hs hg hy, h'.1 hy]
+  · have hloc := hl (phiPerm s g y) (by rw [hlb]; exact hy)
+    rw [redsBefore_phiBottom hs hg hy] at hloc
+    have hcy := hc y hy
+    simp only [hy, true_and, Function.comp_apply]
+    rcases hloc with h | ⟨h1, h2⟩
+    · rw [h]
+      split_ifs with hc'
+      · exact absurd (hcy hc'.1) (by omega)
+      · rfl
+    · rw [h2]
+      split_ifs with hc'
+      · exact h1.symm
+      · exact absurd ⟨rfl, by have := h'.2 hy; omega⟩ hc'
+
+
+omit [DecidableEq I] in
+/-- The local part of a local assignment after a coarse one is the local assignment. -/
+theorem localPart_comp_phiPerm {s : Seq μ} (hs : IsRedOrdered s) {g : Fin m → ℕ}
+    (hg : g ∈ assignments s.lbl) (hc : IsCoarse j s g) {f' : Fin m → ℕ}
+    (hf' : f' ∈ assignments (phiBottom s g).lbl) (hl : IsLocal j (phiBottom s g) f') :
+    localPart j s (f' ∘ phiPerm s g) = f' := by
+  funext x
+  simp only [localPart, coarsen_comp_phiPerm hs hg hc hf' hl, Function.comp_apply,
+    Equiv.apply_symm_apply]
+
+omit [DecidableEq I] in
+/-- An assignment is its local part after its coarse part. -/
+theorem localPart_comp_phiPerm_coarsen (s : Seq μ) (f : Fin m → ℕ) :
+    localPart j s f ∘ phiPerm s (coarsen j s f) = f := by
+  funext x
+  simp only [localPart, Function.comp_apply, Equiv.symm_apply_apply]
+
+omit [DecidableEq I] in
+open scoped Classical in
+/-- **Block assignments as pairs of a coarse and a local assignment**: a sum over the block
+assignments of `s`, of a function of the bottom, is a sum over the coarse assignments `g` and
+the local assignments of `φ_g • s`. -/
+theorem sum_assignments_eq_sum_coarse_local {β : Type*} [AddCommMonoid β] {s : Seq μ}
+    (hs : IsRedOrdered s) (D : Seq μ → β) :
+    ∑ f ∈ (assignments s.lbl).toFinset, D (phiBottom s f) =
+      ∑ g ∈ (assignments s.lbl).toFinset.filter (IsCoarse j s),
+        ∑ f' ∈ (assignments (phiBottom s g).lbl).toFinset.filter (IsLocal j (phiBottom s g)),
+          D (phiBottom (phiBottom s g) f') := by
+  rw [Finset.sum_sigma']
+  refine Finset.sum_nbij' (fun f => ⟨coarsen j s f, localPart j s f⟩)
+    (fun x => x.2 ∘ phiPerm s x.1) ?_ ?_ ?_ ?_ ?_
+  · intro f hf
+    have hf' := List.mem_toFinset.1 hf
+    simp only [Finset.mem_sigma, Finset.mem_filter, List.mem_toFinset]
+    exact ⟨⟨coarsen_mem hf', isCoarse_coarsen s f hf'⟩, localPart_mem hs hf',
+      isLocal_localPart hs hf'⟩
+  · rintro ⟨g, f'⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_filter, List.mem_toFinset] at h
+    exact List.mem_toFinset.2 (comp_phiPerm_mem hs h.1.1 h.2.1)
+  · intro f _
+    exact localPart_comp_phiPerm_coarsen s f
+  · rintro ⟨g, f'⟩ h
+    simp only [Finset.mem_sigma, Finset.mem_filter, List.mem_toFinset] at h
+    simp only [Sigma.mk.injEq]
+    exact ⟨coarsen_comp_phiPerm hs h.1.1 h.1.2 h.2.1 h.2.2,
+      heq_of_eq (localPart_comp_phiPerm hs h.1.1 h.1.2 h.2.1 h.2.2)⟩
+  · intro f hf
+    rw [phiBottom_eq_phiBottom_localPart (j := j) (List.mem_toFinset.1 hf)]
+
+omit [DecidableEq I] in
+/-- The trivial block assignment. -/
+theorem redsBefore_mem_assignments (lbl : Fin m → I ⊕ Fin ℓ) :
+    redsBefore lbl ∈ assignments lbl :=
+  mem_assignments_iff.2 fun _ => ⟨fun _ => rfl, fun _ => le_rfl⟩
+
+omit [DecidableEq I] in
+/-- The trivial assignment moves nothing. -/
+theorem phiPerm_redsBefore (s : Seq μ) : phiPerm s (redsBefore s.lbl) = 1 := by
+  refine perm_eq_of_lt_iff fun p q => ?_
+  rw [keyPerm_lt_iff, Perm.one_apply, Perm.one_apply]
+  constructor
+  · rintro (h | ⟨-, h⟩)
+    · by_contra hn
+      exact absurd (baseKey_le s.lbl (not_lt.1 hn)) (not_le.2 h)
+    · exact h
+  · intro h
+    rcases (baseKey_le s.lbl h.le).lt_or_eq with h' | h'
+    · exact Or.inl h'
+    · exact Or.inr ⟨h', h⟩
+
+omit [DecidableEq I] in
+theorem isCoarse_redsBefore (s : Seq μ) : IsCoarse j s (redsBefore s.lbl) :=
+  fun _ _ h => h
+
+/-- A loading lies below the bottom of each of its block assignments. -/
+theorem stendhalLE_phiBottom {s : Seq μ} (hs : IsRedOrdered s) {f : Fin m → ℕ}
+    (hf : f ∈ assignments s.lbl) : StendhalLE s (phiBottom s f) := by
+  intro r i
+  rw [blackCount_phiBottom hs hf, blackCount_eq_card_redsBefore hs]
+  refine Finset.card_le_card fun p hp => ?_
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hp ⊢
+  refine ⟨hp.1, le_trans ?_ hp.2⟩
+  exact (mem_assignments_iff.1 hf p).2 (by simp [hp.1])
+
+private theorem blackCount_lt_phiBottom {s : Seq μ} (hs : IsRedOrdered s) {f : Fin m → ℕ}
+    (hf : f ∈ assignments s.lbl) {p : Fin m} {i : I} (hp : s.lbl p = .inl i) {r : Fin ℓ}
+    (h1 : f p ≤ r) (h2 : (r : ℕ) < redsBefore s.lbl p) :
+    blackCount s r ≠ blackCount (phiBottom s f) r := by
+  intro h
+  have h' := congrFun h i
+  rw [blackCount_phiBottom hs hf, blackCount_eq_card_redsBefore hs] at h'
+  refine absurd h' (Nat.ne_of_lt (Finset.card_lt_card ⟨fun q hq => ?_, fun hsub => ?_⟩))
+  · simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hq ⊢
+    exact ⟨hq.1, le_trans ((mem_assignments_iff.1 hf q).2 (by simp [hq.1])) hq.2⟩
+  · have := hsub (show p ∈ Finset.univ.filter fun q => s.lbl q = .inl i ∧ f q ≤ r by simp [hp, h1])
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at this
+    omega
+
+/-- A local assignment keeps the black counts at every red strand except `λ_j`. -/
+theorem blackCount_phiBottom_of_isLocal {u : Seq μ} (hu : IsRedOrdered u) {f' : Fin m → ℕ}
+    (hf' : f' ∈ assignments u.lbl) (hl : IsLocal j u f') {r : Fin ℓ} (hr : (r : ℕ) ≠ j) :
+    blackCount (phiBottom u f') r = blackCount u r := by
+  funext i
+  rw [blackCount_phiBottom hu hf', blackCount_eq_card_redsBefore hu]
+  congr 1
+  ext p
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_congr_right_iff]
+  intro hp
+  rcases hl p (by simp [hp]) with h | ⟨h1, h2⟩ <;> omega
+
+/-- An assignment that is not local moves a black strand across a red strand other than
+`λ_j`. -/
+theorem exists_blackCount_ne_of_not_isLocal {u : Seq μ} (hu : IsRedOrdered u) {f' : Fin m → ℕ}
+    (hf' : f' ∈ assignments u.lbl) (hl : ¬ IsLocal j u f') :
+    ∃ r : Fin ℓ, (r : ℕ) ≠ j ∧ blackCount u r ≠ blackCount (phiBottom u f') r := by
+  simp only [IsLocal, not_forall, not_or, not_and] at hl
+  obtain ⟨p, hb, hne, hj⟩ := hl
+  obtain ⟨i, hi⟩ : ∃ i, u.lbl p = .inl i := by
+    rcases h : u.lbl p with i | r
+    · exact ⟨i, rfl⟩
+    · simp [h] at hb
+  have hle := (mem_assignments_iff.1 hf' p).2 hb
+  have hcard := redsBefore_le_card hu p
+  by_cases hfj : f' p = j
+  · have hrb : j + 2 ≤ redsBefore u.lbl p := by
+      have := fun h => hj h hfj
+      omega
+    exact ⟨⟨j + 1, by omega⟩, by simp, blackCount_lt_phiBottom hu hf' hi (by simp; omega)
+      (by simp; omega)⟩
+  · exact ⟨⟨f' p, by omega⟩, hfj, blackCount_lt_phiBottom hu hf' hi le_rfl (by simp; omega)⟩
+
+/-- A nontrivial coarse assignment moves a black strand across a red strand other than
+`λ_j`. -/
+theorem exists_blackCount_ne_of_isCoarse {s : Seq μ} (hs : IsRedOrdered s) {g : Fin m → ℕ}
+    (hg : g ∈ assignments s.lbl) (hc : IsCoarse j s g) (hne : g ≠ redsBefore s.lbl) :
+    ∃ r : Fin ℓ, (r : ℕ) ≠ j ∧ blackCount s r ≠ blackCount (phiBottom s g) r := by
+  obtain ⟨p, hp⟩ := Function.ne_iff.1 hne
+  have h := mem_assignments_iff.1 hg p
+  rcases Bool.eq_false_or_eq_true (s.lbl p).isRight with hb | hb
+  · exact absurd (h.1 hb) hp
+  obtain ⟨i, hi⟩ : ∃ i, s.lbl p = .inl i := by
+    rcases h' : s.lbl p with i | r
+    · exact ⟨i, rfl⟩
+    · simp [h'] at hb
+  have hle := h.2 hb
+  have hcard := redsBefore_le_card hs p
+  have hgj : g p ≠ j := fun hgj => hp (by rw [hgj, hc p hb hgj])
+  exact ⟨⟨g p, by omega⟩, hgj, blackCount_lt_phiBottom hs hg hi le_rfl (by simp; omega)⟩
+
 end Factor
+
+section Root
+
+variable {j : ℕ} {a b : Fin ℓ}
+
+/-- The root of a red-ordered loading, at the merged pair `b < a`, reads the black counts at
+`λ_b` for both labels of the pair. -/
+theorem adjacentBlockRoot_eq_of_isRedOrdered (hba : b < a) {t : Seq μ} (ht : IsRedOrdered t)
+    (r : Fin ℓ) : adjacentBlockRoot a b t r = blackCount t (if r = a ∨ r = b then b else r) := by
+  unfold adjacentBlockRoot
+  split_ifs with hr
+  · funext i
+    unfold blockBlackCount blackCount
+    congr 1
+    ext x
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_insert,
+      Finset.mem_singleton]
+    refine and_congr_right fun _ => ⟨fun h y hy => h y b (Or.inr rfl) hy, ?_⟩
+    rintro h y r' (rfl | rfl) hy
+    · obtain ⟨z, hz⟩ := exists_lbl_eq_inr t b
+      refine (h z hz).trans ?_
+      rcases lt_trichotomy z y with h' | rfl | h'
+      · exact h'
+      · rw [hz] at hy; cases hy; exact absurd hba (lt_irrefl _)
+      · exact absurd (ht y z _ _ h' hy hz) (not_lt.2 hba.le)
+    · exact h y hy
+  · funext i
+    simp [blockBlackCount_singleton]
+
+/-- Red-ordered loadings with the same black counts away from `λ_j` have the same root at a
+merged pair `b < a = j`. -/
+theorem adjacentBlockRoot_eq_of_blackCount (hba : b < a) (ha : (a : ℕ) = j) {t t' : Seq μ}
+    (ht : IsRedOrdered t) (ht' : IsRedOrdered t')
+    (h : ∀ r : Fin ℓ, (r : ℕ) ≠ j → blackCount t r = blackCount t' r) :
+    adjacentBlockRoot a b t = adjacentBlockRoot a b t' := by
+  funext r
+  rw [adjacentBlockRoot_eq_of_isRedOrdered hba ht, adjacentBlockRoot_eq_of_isRedOrdered hba ht']
+  refine h _ ?_
+  split_ifs with hr
+  · have := Fin.lt_def.1 hba; omega
+  · intro hj; exact hr (Or.inl (Fin.ext (hj.trans ha.symm)))
+
+/-- A red-ordered loading above another, with a different black count away from `λ_j`, has a
+strictly larger root at a merged pair `b < a = j`. -/
+theorem adjacentBlockRoot_lt_of_blackCount (hba : b < a) (ha : (a : ℕ) = j) {t t' : Seq μ}
+    (ht : IsRedOrdered t) (ht' : IsRedOrdered t') (hle : StendhalLE t t')
+    (h : ∃ r : Fin ℓ, (r : ℕ) ≠ j ∧ blackCount t r ≠ blackCount t' r) :
+    adjacentBlockRoot a b t < adjacentBlockRoot a b t' := by
+  refine lt_of_le_of_ne (fun r i => ?_) fun he => ?_
+  · rw [adjacentBlockRoot_eq_of_isRedOrdered hba ht, adjacentBlockRoot_eq_of_isRedOrdered hba ht']
+    exact hle _ i
+  · obtain ⟨r, hr, hne⟩ := h
+    have e := congrFun he r
+    rw [adjacentBlockRoot_eq_of_isRedOrdered hba ht,
+      adjacentBlockRoot_eq_of_isRedOrdered hba ht'] at e
+    have hra : r ≠ a := fun h' => hr (by rw [h', ha])
+    by_cases hrb : r = b
+    · subst hrb; simp only [or_true, ite_true] at e; exact hne e
+    · simp only [hra, hrb, or_self, ite_false] at e; exact hne e
+
+end Root
 
 end Categorification.Stendhal

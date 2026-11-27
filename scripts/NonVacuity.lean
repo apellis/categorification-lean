@@ -6351,6 +6351,16 @@ example := Categorification.Stendhal.isSimpleModule_coevaluationHead
     cases i
     simp [CoxeterSystem.IsLeftDescent])
 
+/-- Webster, arXiv:1309.3796v3, Lemma 7.17 (spanning step) at the head `L_μ` of the
+level-two coevaluation projective, inserted into the empty sequence of red strands. -/
+example := Categorification.Stendhal.CupCap.span_canonical_coevaluationHead
+  (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (fun _ => 2)
+  Categorification.QuantumGroup.UDot.sl2RootDatum 2 [((), 2)]
+  (Fin.elim0 : Fin 0 → Unit →₀ ℕ) 0 le_rfl 0 (fun i => by
+    rw [Categorification.Stendhal.CupCap.cupScalar, Finset.prod_eq_one fun x hx =>
+      absurd (Subsingleton.elim x i) (Finset.mem_erase.1 hx).1, mul_one]
+    exact (isUnit_neg_one.pow _))
+
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
   LieLean.QuantumGroup.hvn_ratFunc 3

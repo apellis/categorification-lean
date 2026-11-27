@@ -79,6 +79,14 @@ noncomputable def extLinearEquivHomZero (hz : IsZero (P.complex.X 1)) :
 
 end CategoryTheory.ProjectiveResolution
 
+/-- If `V^J ≅ W^{J'}` for nonempty finite `J`, `J'` of the same cardinality and `W` is
+finite-dimensional, then `V` and `W` have the same dimension. -/
+theorem finrank_eq_of_linearEquiv_pi {k : Type*} [Field k] {V W : Type*} [AddCommGroup V]
+    [Module k V] [AddCommGroup W] [Module k W] [FiniteDimensional k W] {J J' : Type*}
+    [Fintype J] [Fintype J'] [Nonempty J] (hc : Fintype.card J = Fintype.card J')
+    (e : (J → V) ≃ₗ[k] (J' → W)) : Module.finrank k V = Module.finrank k W :=
+  finrank_eq_of_linearEquiv_fun (e.trans (LinearEquiv.funCongrLeft k W (Fintype.equivOfCardEq hc)))
+
 /-! ### Ext out of a standard module in the top degree, `k`-linearly -/
 
 namespace Categorification.Stendhal
@@ -221,5 +229,127 @@ theorem exists_bicone_cycWord_cycDivProj (d : List (I × ℕ)) :
 
 
 end Divided
+
+/-! ### The coevaluation standard module and the head of the wrap projective -/
+
+section Coevaluation
+
+open KLRAlgebra TwoRedErase
+
+variable {I : Type} {k : Type} [DecidableEq I] [Field k]
+  (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin 2 → I →₀ ℕ)
+
+omit [DecidableEq I] in
+/-- The word of the wrap loading: the first red strand, the black word, the second red strand. -/
+theorem word_wrap {ν : Multiset I} (t : Seq ν) :
+    (wrap ν t).word = Sum.inr 0 :: t.word.map Sum.inl ++ [Sum.inr 1] := by
+  rw [wrap, seqWord_appendRedLoading, SingleRed.insertWord, Seq.word_cast, Seq.word_append,
+    Seq.word_map, Seq.word_singleton]
+  simp [addRedColor]
+
+omit [DecidableEq I] in
+/-- The only loading of a single red strand. -/
+theorem word_eq_of_stendhalWeight_one_zero (t : Seq (stendhalWeight 1 (0 : Multiset I))) :
+    t.word = [Sum.inr 0] := by
+  have h : ((t.word : List _) : Multiset _) = stendhalWeight 1 (0 : Multiset I) := by
+    rw [Seq.word, ← Fin.univ_val_map]
+    exact t.2
+  have h1 : stendhalWeight 1 (0 : Multiset I) = {Sum.inr 0} := by simp [stendhalWeight]
+  exact Multiset.coe_eq_singleton.1 (h.trans h1)
+
+/-- The head of the wrap projective is killed by the cuts (as `coevaluationHead_cut`, for any
+idempotent `z` of the first red strand's cyclotomic quotient). -/
+theorem wrapHead_cut {ν : Multiset I} (z : CycKLR k Q (fun i => Polynomial.X ^ Λ 0 i) ν)
+    (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) (hcut : ¬HasLastRed s)
+    (y : rIdeal (wrapIdem Q Λ ν z) ⧸ coevaluationTrace (cutIdem Q Λ ν)) :
+    op (loadingIdem Q Λ s hs) • y = 0 := by
+  induction y using Submodule.Quotient.induction_on with
+  | H x =>
+    rw [← Submodule.Quotient.mk_smul, Submodule.Quotient.mk_eq_zero]
+    refine Submodule.subset_span ⟨⟨⟨s, hs⟩, hcut⟩, ?_⟩
+    change x.val * loadingIdem Q _ s hs * loadingIdem Q _ s hs =
+      x.val * loadingIdem Q _ s hs
+    rw [mul_assoc, (isIdempotentElem_mk_e s hs).eq]
+
+variable (d : List (I × ℕ))
+
+local notation "νᵈ" => (expandDiv d : Multiset I)
+local notation "z₀" => CycKLR.mk k Q (fun i => Polynomial.X ^ Λ 0 i) (expandDiv d : Multiset I)
+  (hflip (divIdem (Seq.ofList (expandDiv d) rfl) (blocksDiv d 0)))
+
+/-- **`e(wrap d̂)` is a sum of `∏ nₐ!` copies of the reflected wrap idempotent of `1_d`.** -/
+theorem exists_isSplitting_wrap :
+    ∃ (J : Type) (_ : Fintype J) (_ : DecidableEq J) (a b : J → TensorProductAlgebra k Q Λ νᵈ),
+      Graded.IsSplitting (loadingIdem Q Λ (wrap νᵈ (Seq.ofList (expandDiv d) rfl))
+          (wrap_ordered νᵈ _))
+        (fun _ => tensorFlip (wrapIdem Q Λ νᵈ z₀)) a b ∧
+      Fintype.card J = (d.map fun q => q.2.factorial).prod := by
+  obtain ⟨J, _, _, a, b, hS, hc⟩ := exists_isSplitting_cyc_hflip (Q := Q)
+    (fun i => Polynomial.X ^ Λ 0 i) (isBlocks_ofList d rfl)
+  have h2 := (hS.map_mul (wrapIdemHom Q Λ νᵈ) (fun x y => (wrapIdem_mul Q Λ νᵈ x y).symm)).map_anti
+    (tensorFlip (Q := Q) (Λ := Λ) (ν := (expandDiv d : Multiset I))).toAddMonoidHom tensorFlip_mul
+  change Graded.IsSplitting (tensorFlip (wrapIdem Q Λ νᵈ (CycKLR.mk k Q _ _ (e _)))) _ _ _ at h2
+  rw [wrapIdem_e, tensorFlip_mk_e] at h2
+  exact ⟨J, inferInstance, inferInstance, _, _, h2, by rw [hc, prod_factorial_blocksDiv]⟩
+
+omit [DecidableEq I] in
+/-- The product `∏ nₐ!` is positive. -/
+theorem prod_factorial_pos : 0 < (d.map fun q => q.2.factorial).prod :=
+  List.prod_pos fun n hn => by
+    obtain ⟨q, -, rfl⟩ := List.mem_map.1 hn
+    exact Nat.factorial_pos _
+
+theorem isIdempotentElem_wrapHeadIdem : IsIdempotentElem z₀ :=
+  (isIdempotentElem_hflip_divIdem (Q := Q) (isBlocks_ofList d rfl)).map (CycKLR.mk k Q _ _)
+
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (top degree), for two red strands.** Let
+`z₀ ∈ R^{λ₁}(ν)` be the reflected divided-power idempotent of `d`, `L` the head of the wrap
+projective `wrapIdem z₀ · T` (the quotient by the images of the cut projectives) and `M` the
+standard module `S(T^{λ₁} ⊠ R^{λ₂} 1_{d̄})`. If the second red strand's cyclotomic relation
+holds on the last black strand, every nonzero element of `z₀ R^{λ₁}(ν)` generates `z₀` and
+`z₀ R^{λ₁}(ν) z₀ = k z₀`, then `Ext^{|ν|}(M, L)` is one-dimensional. Ext of left modules, with
+`L` a left module through the horizontal reflection; ungraded. Under the route hypothesis `hall`
+of Proposition 7.6. -/
+theorem finrank_ext_standard_cycDivProj_wrapHead (hQ : KLRSymm Q) {C : QuantumGroup.CartanDatum I}
+    (hRq : IsRouquierQ C Q) (hall : AllFiniteDeltaInjective Q Λ hQ)
+    (t : Seq (stendhalWeight 1 (0 : Multiset I))) (ht : IsRedOrdered t)
+    (h : 0 + wordWt (expandDiv d) 0 = νᵈ)
+    [HasExt.{v} (ModuleCat.{0} (TensorProductAlgebra k Q Λ νᵈ))]
+    (hR : LastDotRelation Q Λ νᵈ) (hne : z₀ ≠ 0)
+    (hgen : ∀ y : CycKLR k Q (fun i => Polynomial.X ^ Λ 0 i) νᵈ, z₀ * y = y → y ≠ 0 →
+      ∃ c, y * c = z₀)
+    (hscalar : ∀ x : CycKLR k Q (fun i => Polynomial.X ^ Λ 0 i) νᵈ, z₀ * x * z₀ = x →
+      ∃ c : k, x = c • z₀) :
+    Module.finrank k (Ext (tensorStd Q Λ hQ h (oldProj Q Λ 0 t ht) (cycDivProj Q Λ d))
+      (flipLeft Q Λ νᵈ (rIdeal (wrapIdem Q Λ νᵈ z₀) ⧸ coevaluationTrace (cutIdem Q Λ νᵈ)))
+      (expandDiv d).length) = 1 := by
+  classical
+  have hz₀ := isIdempotentElem_wrapHeadIdem Q Λ d
+  set W := wrapIdem Q Λ νᵈ z₀ with hW
+  have he : IsIdempotentElem W := by rw [IsIdempotentElem, hW, wrapIdem_mul, hz₀.eq]
+  have hfe : IsIdempotentElem (tensorFlip W) := by
+    rw [IsIdempotentElem, ← tensorFlip_mul, he.eq]
+  set M := flipLeft Q Λ νᵈ (rIdeal W ⧸ coevaluationTrace (cutIdem Q Λ νᵈ))
+  obtain ⟨J₁, _, _, ι, π, hιπ, htot, hc₁⟩ := exists_bicone_cycWord_cycDivProj Q Λ d
+  have hB := tensorStdBiconeIsBilimit Q Λ hQ h (oldProj Q Λ 0 t ht) ι π hιπ htot
+  have E₁ := Abelian.Ext.biproductLinearEquiv (R := k) hB M (expandDiv d).length
+  obtain ⟨s, hs, hw, ⟨E₂⟩⟩ := exists_extLinearEquiv_standard Q Λ hQ hRq hall t ht (expandDiv d)
+    h M fun p hp s hs hmem => subsingleton_hom_loadingProj_flipLeft s hs
+      (wrapHead_cut Q Λ z₀ s hs (not_hasLastRed_of_mem_websterWords _ _
+        (by rw [List.length_reverse]; omega) hmem))
+  obtain rfl : s = wrap νᵈ (Seq.ofList (expandDiv d) rfl) := Seq.word_injective (by
+    rw [hw, word_wrap, Seq.word_ofList, word_eq_of_stendhalWeight_one_zero t]
+    simp [addRedColor])
+  obtain ⟨J₂, _, _, a, b, hS, hc₂⟩ := exists_isSplitting_wrap Q Λ d
+  have E₃ := Limits.Bicone.homLinearEquiv (R := k) (lIdealBiconeIsBilimit hS) M
+  have E₄ := LinearEquiv.piCongrRight fun _ : J₂ => lIdealHomEquiv (k := k) hfe M
+  have hfin := finrank_fixedSubspace_flipLeft_wrapHead Q Λ νᵈ hR z₀ hz₀ hne hgen hscalar
+  have : FiniteDimensional k (fixedSubspace (k := k) M (tensorFlip W)) :=
+    Module.finite_of_finrank_eq_succ hfin
+  have : Nonempty J₁ := Fintype.card_pos_iff.1 (hc₁ ▸ prod_factorial_pos d)
+  exact (finrank_eq_of_linearEquiv_pi (hc₁.trans hc₂.symm)
+    (E₁.symm.trans (E₂.trans (E₃.trans E₄)))).trans hfin
+
+end Coevaluation
 
 end Categorification.Stendhal

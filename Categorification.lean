@@ -37,6 +37,8 @@ import Categorification.Algebra.DerivedTensorProjectiveCoefficient
 import Categorification.Algebra.DerivedTensorProjective
 import Categorification.Algebra.ExtTorDuality
 import Categorification.Algebra.ExtTorDualityModule
+import Categorification.Algebra.DegreeZeroHeart
+import Categorification.Algebra.DerivedTensorProjectiveHom
 import Categorification.Algebra.DerivedTensorTwoFiltrations
 import Categorification.Algebra.DerivedTensorRingEquiv
 import Categorification.Algebra.DerivedTensorFiltration

@@ -2912,3 +2912,4 @@ import Categorification.WeightedKLR.RedStrands.Prop55DimensionFirstFactorQ
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionSecondFactorQ
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionCountQ
 import Categorification.Algebra.BalancedTensorPresentationInjective
+import Categorification.Algebra.ExactOfSplitting

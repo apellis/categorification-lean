@@ -127,6 +127,14 @@ theorem x_mem_leftSub {n : ℕ} (a : Fin m) (ha : a.val < n) : (x a : R) ∈ lef
 theorem ψ_mem_leftSub {n p : ℕ} (hp : p + 1 < n) : (ψ p : R) ∈ leftSub Q ν n :=
   Algebra.subset_adjoin (Or.inr ⟨p, hp, rfl⟩)
 
+theorem ψw_mem_leftSub {n : ℕ} {ρ : List ℕ} (h : ∀ p ∈ ρ, p + 1 < n) :
+    (ψw ρ : R) ∈ leftSub Q ν n := by
+  induction ρ with
+  | nil => simp
+  | cons p ρ ih =>
+    rw [ψw_cons]
+    exact mul_mem (ψ_mem_leftSub (h p (by simp))) (ih fun q hq => h q (by simp [hq]))
+
 theorem leftSub_mono {n n' : ℕ} (h : n ≤ n') : leftSub Q ν n ≤ leftSub Q ν n' := by
   refine Algebra.adjoin_le ?_
   rintro y ((⟨i, rfl⟩ | ⟨a, ha, rfl⟩) | ⟨p, hp, rfl⟩)

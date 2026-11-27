@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.RedStrands.DoubleFarLeftBlackCut
 import Categorification.WeightedKLR.RedStrands.DoubleBlackBubbleSlideQ
 import Categorification.WeightedKLR.RedStrands.DoubleFirstRed
 
@@ -18,7 +19,7 @@ open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 universe u v w
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   {RD : WeightDatum C X Y} {ℓ : ℕ} {weights : Fin ℓ → {x : X // ∀ i, 0 ≤ RD.pair (RD.iY i) x}}
-  {k : Type w} [CommRing k] {sc : CL.CLScalars C k}
+  {k : Type w} [CommRing k] {sc : KL3.Diagram.CL.CLScalars C k}
 variable (P : Presentation.{w,max u v} (signature RD (Subtype.val ∘ weights)) k)
   (kl : ∀ z : (CLQ.pres RD k sc).Rel, P.lin (blackMirrorLinear RD (Subtype.val ∘ weights) ((CLQ.pres RD k sc).rel z)) = 0)
   {η : X} (b : BoundaryCategory (Λ := weights) P η)
@@ -28,17 +29,10 @@ local notation "K" => CLQ.pres RD k sc
 local notation "CLQ.U" => endWeight RD lab 0 []
 local notation "cut" => blackCutHomQ RD lab sc P kl 0 [] b.val.word b.val.word (List.nil_append _)
 
-/-- Project an endomorphism of a signed word to its class in the violating quotient. -/
-def cutProjectionQ : End (P.obj (obj RD lab 0 b.val.word)) →ₗ[k] End ((V).obj b) where
-  toFun f := (V).map (InducedCategory.homMk (X := b) (Y := b) f)
-  map_add' f g := (V).map_add (f := InducedCategory.homMk (X := b) (Y := b) f)
-    (g := InducedCategory.homMk (X := b) (Y := b) g)
-  map_smul' c f := (V).map_smul c (InducedCategory.homMk (X := b) (Y := b) f)
-
 /-- The entire black empty-word endomorphism algebra acts through scalars
 on the far-left cut of any signed boundary. -/
 theorem farLeftBlackCut_scalarQ (β : End ((K).obj (ob RD CLQ.U []))) :
-    ∃ c : k, cutProjectionQ P b ((cut) β) = c • 𝟙 _ := by
+    ∃ c : k, cutProjection P b ((cut) β) = c • 𝟙 _ := by
   induction β using (K).hom_induction with
   | diag f =>
     obtain ⟨xs,hx,rfl⟩ := exists_mkD RD CLQ.U f
@@ -76,10 +70,10 @@ theorem farLeftBlackCut_scalarQ (β : End ((K).obj (ob RD CLQ.U []))) :
 /-- Far-left bubble evaluation remains scalar after an arbitrary preceding
 endomorphism of the same boundary. -/
 theorem farLeftBlackCut_comp_scalarQ (β : End ((K).obj (ob RD CLQ.U []))) :
-    ∃ c : k, ∀ f, cutProjectionQ P b (f ≫ (cut) β) = c • cutProjectionQ P b f := by
+    ∃ c : k, ∀ f, cutProjection P b (f ≫ (cut) β) = c • cutProjection P b f := by
   obtain ⟨c,hc⟩ := farLeftBlackCut_scalarQ P kl b β
   refine ⟨c, fun f => ?_⟩
-  have hm : cutProjectionQ P b (f ≫ (cut) β) = cutProjectionQ P b f ≫ cutProjectionQ P b ((cut) β) :=
+  have hm : cutProjection P b (f ≫ (cut) β) = cutProjection P b f ≫ cutProjection P b ((cut) β) :=
     (V).map_comp (InducedCategory.homMk (X := b) (Y := b) f) (InducedCategory.homMk ((cut) β))
   rw [hm, hc, Linear.comp_smul, Category.comp_id]
 

@@ -28,7 +28,7 @@ open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 universe w u v
 variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
   [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y) (Λ : Fin ℓ → X)
-  {k : Type w} [CommRing k] (sc : CL.CLScalars C k) (P : Presentation.{w,max u v} (signature RD Λ) k)
+  {k : Type w} [CommRing k] (sc : KL3.Diagram.CL.CLScalars C k) (P : Presentation.{w,max u v} (signature RD Λ) k)
   (hP : ∀ r : (CLQ.pres RD k sc).Rel, P.lin (blackMirrorLinear RD Λ ((CLQ.pres RD k sc).rel r)) = 0)
   (μ : X) (w : List (DoubleStrand I ℓ))
 
@@ -47,7 +47,7 @@ theorem signedCapBlock_cupBubble_mem_dotSpanQ {V : Type*} [AddCommGroup V] [Modu
       ∃ c : k, ∀ f : End T, π (f ≫ cut [] w w rfl γ) = c • π f)
     (L R : List (DoubleStrand I ℓ)) (hw : L ++ R = w) (s : BubbleOrientation) (i : I) (d : ℕ) :
     π (D ((L,.black (.cup (s.cupLetter i)),R) :: signedCapBlock L [] (s.cupLetter i).dual R d)) ∈
-      Submodule.span k {g | ∃ A, signedChain w A w ∧ (∀ x ∈ A, IsBlackDotLayerQ x) ∧ g = π (D A)} := by
+      Submodule.span k {g | ∃ A, signedChain w A w ∧ (∀ x ∈ A, IsBlackDotLayer x) ∧ g = π (D A)} := by
   let ν := endWeight RD Λ μ L
   let b := s.beforeReflection RD ν i d
   have hb : CLQ.IsBub RD k sc ν ((K).lin (LinDiagram.of b)) := by
@@ -87,7 +87,7 @@ theorem capBlock_push_cupBubbleQ {a t : Obj (signature RD Λ)} {V : Type*}
   let g := Diagram.mk _ (chain_signedLayers RD Λ μ hA)
   apply Submodule.subset_span
   refine ⟨p ≫ g, hp.postcompose_blackDots RD Λ μ g A rfl hd, ?_, ?_⟩
-  · rw [crossingNumber_comp, crossingNumber_of_blackDotsQ RD Λ μ g A rfl hd, Nat.add_zero]
+  · rw [crossingNumber_comp, crossingNumber_of_blackDots RD Λ μ g A rfl hd, Nat.add_zero]
   · change π (P.diag p ≫ D A ≫ P.diag tail) = _
     change π (P.diag p ≫ D A ≫ P.diag tail) = π (P.diag ((p ≫ g) ≫ tail))
     rw [signedDg_of RD Λ P μ hA, P.diag_comp, P.diag_comp, Category.assoc]

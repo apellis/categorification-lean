@@ -437,6 +437,23 @@ theorem omega_transport_single {ν : X} {s t : List (Letter I)} {c : ℕ}
   rw [CLQ.thetaScalars_thetaScalars_withRone] at h'
   exact h'
 
+/-- **Transport of an equation by `ω̃`, into `U_Q(g)`**: an equation between normal-form
+diagrams in `U_{Q^θ}(g)` with the same sign gives the orientation-reversed equation in
+`U_Q(g)`. -/
+theorem omega_eq_transport {ν : X} {s t : List (Letter I)} {L₁ L₂ : List (LayerData I)}
+    (h₁ : SChain s L₁ t) (h₂ : SChain s L₂ t) (hs : Sig.sgnS L₁ = Sig.sgnS L₂)
+    (h : NF.dg (pres RD k (CLQ.thetaScalars RD sc)) ν s t L₁ =
+      NF.dg (pres RD k (CLQ.thetaScalars RD sc)) ν s t L₂) :
+    NF.dg (pres RD k sc) (-ν) (s.map Letter.dual) (t.map Letter.dual) (Omega.wls L₁) =
+      NF.dg (pres RD k sc) (-ν) (s.map Letter.dual) (t.map Letter.dual) (Omega.wls L₂) := by
+  have e := congrArg (omegaHom (CLQ.thetaScalars RD sc) (ob_wf RD ν s)) h
+  rw [omegaHom_dg ν L₁ h₁, omegaHom_dg ν L₂ h₂, hs, CLQ.thetaScalars_thetaScalars_withRone] at e
+  have e' := congrArg (fun x => ((Sig.sgnS L₂ : ℤ) : k) • x) e
+  simp only [smul_smul, ← Int.cast_mul, sgnS_sq, Int.cast_one, one_smul] at e'
+  refine sub_eq_zero.mp ((TRQ_eq_zero (sc := sc.withRone) (Omega.trO ν s) (Omega.trO ν t)).mp ?_)
+  rw [map_sub]
+  exact sub_eq_zero.mpr e'
+
 end Omega
 
 /-! ## Dots slide through all crossings -/

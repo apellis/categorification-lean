@@ -29,7 +29,7 @@ open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 
 universe u v w
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : WeightDatum C X Y) {ℓ : ℕ} (Λ : Fin ℓ → X) {k : Type w} [CommRing k] (sc : CL.CLScalars C k)
+  (RD : WeightDatum C X Y) {ℓ : ℕ} (Λ : Fin ℓ → X) {k : Type w} [CommRing k] (sc : KL3.Diagram.CL.CLScalars C k)
   (P : Presentation.{w, max u v} (signature RD Λ) k)
   (hP : ∀ r : (CLQ.pres RD k sc).Rel, P.lin (blackMirrorLinear RD Λ ((CLQ.pres RD k sc).rel r)) = 0)
   (μ : X) (L R : List (DoubleStrand I ℓ)) (l : Letter I)
@@ -68,7 +68,7 @@ theorem blackBubbleRight_mem_leftSpanQ {β : End ((K).obj (ob RD (wt RD ν [l]) 
     exact Submodule.subset_span ⟨a, γ, hγ, rfl⟩
   exact h (CLQ.bubLU_mem_slideSetR_gen ν l hβ)
 
-private theorem signedChain_reflectQ {s t : List (Letter I)} {A : List (LayerData I)}
+private theorem signedChain_reflect {s t : List (Letter I)} {A : List (LayerData I)}
     (hA : SChain s A t) :
     signedChain (L ++ blackWord s ++ R)
       (A.map fun x => (L ++ blackWord x.2.2, .black (Sig.shape x.2.1), blackWord x.1 ++ R))
@@ -93,7 +93,7 @@ theorem blackLetterHom_dgQ (A : List (LayerData I)) (hA : SChain [l] A [l]) :
     exact he
   rw [NF.dg_of hA, hm]
   symm
-  exact signedDg_eq_diag_of_layers RD Λ P μ (signedChain_reflectQ L R hA) (blackDiagram RD Λ μ L R d)
+  exact signedDg_eq_diag_of_layers RD Λ P μ (signedChain_reflect L R hA) (blackDiagram RD Λ μ L R d)
     (by rw [layers_blackDiagram_mkD]; simp only [signedLayers, List.map_map, Function.comp_def])
 
 /-- Dots in the one-strand rectangle are actual signed dots. -/
@@ -137,11 +137,11 @@ section Cut
 variable (w : List (DoubleStrand I ℓ)) (hw : L ++ R = w)
 
 include hw in
-private theorem blackCut_objQ :
+private theorem blackCut_obj :
     obj RD Λ μ (L ++ blackWord [] ++ R) = obj RD Λ μ w :=
   congrArg (obj RD Λ μ) (by simpa [blackWord] using hw)
 
-local notation "e" => blackCut_objQ RD Λ μ L R w hw
+local notation "e" => blackCut_obj RD Λ μ L R w hw
 local notation "F₀" => blackRectangleHomQ RD Λ sc μ L R [] P hP [] rfl rfl
 
 /-- Insert an endomorphism of the empty black word at a specified cut of a
@@ -200,7 +200,7 @@ theorem blackCutHom_dgQ (A : List (LayerData I)) (hA : SChain [] A []) :
   rw [NF.dg_of hA, ← Presentation.lin_of, blackCutHom_linQ, blackLinear_of, LinDiagram.cast_of,
     Presentation.lin_of]
   have hc : L ++ blackWord [] ++ R = w := by simpa [blackWord] using hw
-  have hs := signedChain_reflectQ L R hA
+  have hs := signedChain_reflect L R hA
   have hs' : signedChain w
       (A.map fun x => (L ++ blackWord x.2.2, .black (Sig.shape x.2.1), blackWord x.1 ++ R)) w := by
     rw [← hc]
@@ -213,7 +213,7 @@ theorem blackCutHom_dgQ (A : List (LayerData I)) (hA : SChain [] A []) :
 
 end Cut
 
-private theorem blackLetter_rightCutWeightQ :
+private theorem blackLetter_rightCutWeight :
     wt RD ν [l] = endWeight RD Λ μ (L ++ [.inl l]) := by
   rw [endWeight_append, ← endWeight_blackWord RD Λ ν [l]]
   rfl
@@ -239,9 +239,9 @@ at the physical cut immediately after the signed black strand. -/
 theorem blackLetterHom_bubLU_cutQ (β : End ((K).obj (ob RD (wt RD ν [l]) []))) :
     F (NF.bubLU (CLQ.pres RD k sc) ν l β) =
       blackCutHomQ RD Λ sc P hP μ (L ++ [.inl l]) R w₀ (by simp [blackWord])
-        (CLQ.wtTransport RD k sc (blackLetter_rightCutWeightQ RD Λ μ L l) β) := by
+        (CLQ.wtTransport RD k sc (blackLetter_rightCutWeight RD Λ μ L l) β) := by
   let G := blackCutHomQ RD Λ sc P hP μ (L ++ [.inl l]) R w₀ (by simp [blackWord])
-  let e := blackLetter_rightCutWeightQ RD Λ μ L l
+  let e := blackLetter_rightCutWeight RD Λ μ L l
   have h : (F).comp (NF.plcL (CLQ.pres RD k sc) ν [] [l] [] []) = G.comp (CLQ.wtTransportL (RD := RD) (k := k) e) := by
     apply CLQ.hom_ext_dg RD k sc (wt RD ν [l])
     intro A hA
@@ -268,7 +268,7 @@ theorem blackCutBubble_mem_leftSpanQ {w : List (DoubleStrand I ℓ)} (hw : L ++ 
         f = signedDg RD Λ P μ w w (List.replicate a (L, .black (.dot l), R)) ≫
           blackCutHomQ RD Λ sc P hP μ L ([.inl l] ++ R) w (by rw [← hw, List.append_assoc]) γ} := by
   subst w
-  let e := blackLetter_rightCutWeightQ RD Λ μ L l
+  let e := blackLetter_rightCutWeight RD Λ μ L l
   have h := wtTransport_symm_cancelQ RD (k := k) sc e β
   have hs := blackBubbleRight_mem_leftSpanQ RD Λ sc P hP μ L R l (CLQ.IsBub.wtTransport e.symm hβ)
   rw [blackLetterHom_bubLU_cutQ, h] at hs

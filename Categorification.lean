@@ -2216,6 +2216,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentation
 import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlack
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlackDown
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlackDownBraid
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRed
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedBlack
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedCup

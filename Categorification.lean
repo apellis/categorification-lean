@@ -1586,6 +1586,7 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegion
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownMate
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDotMate
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionFamily
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure

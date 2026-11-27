@@ -1452,11 +1452,9 @@ symmetric `Q` under the same route hypotheses plus `PullOff` (Lemma 7.16) and th
 hypothesis: the model is induced along the diagrams at the maximum placed just before the red
 strand `λ_{j+1}`, all KLR relations hold on it (`CupCap.midKLRRel`), it is isomorphic to
 `K̃^{λ⁺}_λ` as a bimodule (`CupCap.midCapModelEquiv`), and its basis is indexed by Webster's
-`B″` (`CupCap.MidTriple`). The basis elements are the generators `b′ γ_g` of the model; they
-agree with Webster's diagrams of `B″` only up to a triangular change of basis (a strand of `b`
-that starts right of the maximum and ends right of a strand at the maximum gives lower terms).
-Removal items: Lemma 7.16 and its mirror for `L_μ` (needs Thm 4.30), and the identification
-of the basis elements with Webster's diagrams (a unitriangularity argument).
+`B″` (`CupCap.MidTriple`); its elements are Webster's diagrams, with the maximum at its
+canonical position at the top and every strand passing under it (`CupCap.midCapBasis_apply`).
+Removal item: Lemma 7.16 and its mirror for `L_μ` (needs Thm 4.30).
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants

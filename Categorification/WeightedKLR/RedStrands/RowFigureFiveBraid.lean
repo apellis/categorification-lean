@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.RowFigureFiveLoading
 import Categorification.WeightedKLR.RedStrands.BraidRowConcentrated
 import Categorification.WeightedKLR.RedStrands.BraidRowStandard
 import Categorification.WeightedKLR.RedStrands.RightRowStandardClass
+import Categorification.WeightedKLR.RedStrands.BlockStackedStandard
 
 /-!
 # The braid of a right row standard module
@@ -18,8 +19,9 @@ degree zero (`braidConcentrated_rightRowStandard`), and `𝔅_π S(u)` is the st
 row loading of the swapped words, relabelled by `π`, shifted by `⟨|u_{n+1}|, λ_{n+2}⟩ - 2` in
 the auxiliary grading (`rightRowStandardBraidIso`).
 
-Both carry the route hypotheses of Proposition 6.9 at the row of `u`
-(`RowFigureFiveHypotheses`): the two hypotheses of Lemma 6.8 and `StackedStandard`.
+`StackedStandard` holds at the row of `u` (`stackedStandard_rowFigureFive`, from
+`stackedStandard_setPairLoading`). Braid concentration carries the two route hypotheses of
+Lemma 6.8 at the row of `u` (`RowFigureFiveHypotheses`); the graded isomorphism carries none.
 -/
 
 noncomputable section
@@ -54,19 +56,12 @@ abbrev rowCrossed (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []) 
   KLR.Seq.cast (weightSum_rowBlocks u hu) (place _ (setPairLoading (rowM u) (pairEmb n m) (rowβ u)
     (crossedLoading _) (rowL u) (rowBlockLoadings u (crossedLoading _))))
 
-/-- **The route hypotheses of Proposition 6.9 at the row of `u`**: `StackedStandard`
-(partial standardization of the local standard is the global standard) and the two hypotheses
-of Lemma 6.8 (a filtration of the loading kernel by partial standards, and injectivity on the
-kernel). Each is an explicit hypothesis tracked for removal. -/
-structure RowFigureFiveHypotheses (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []) :
+/-- **The route hypotheses of Lemma 6.8 at the row of `u`**: a filtration of the loading kernel
+by partial standards, and injectivity on the kernel. Each is an explicit hypothesis tracked for
+removal. -/
+structure RowFigureFiveHypotheses (C : QuantumGroup.CartanDatum I) (hQ : IsRouquierQ C Q)
+    (Λ : Fin (n + 2 + m) → I →₀ ℕ) (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []) :
     Prop where
-  stacked : StackedStandard hQ.klrSymm (weightSum_rowBlocks u hu) (rowRelations Q Λ hQ.klrSymm
-    (rowM u) (pairEmb n m) (rowβ u)
-    (tensorOfKLR Q (Λ ∘ pairEmb n m) (rowβ u) (KLRAlgebra.e (uncrossedLoading _)))
-    (pairRelations Q Λ hQ.klrSymm (pairEmb n m) (rowβ u) (uncrossedLoading _)) (rowL u)
-      (rowBlockLoadings u (crossedLoading _)))
-    (setPairLoading (rowM u) (pairEmb n m) (rowβ u) (uncrossedLoading _) (rowL u)
-      (rowBlockLoadings u (crossedLoading _)))
   filtration : ∀ (s : Seq (stendhalWeight (n + 2 + m) (blockContent u)))
       (hs : redWord s = redWord (rowCrossed u hu)),
       ∃ l : List {v : Seq (stendhalWeight (n + 2 + m) (blockContent u)) //
@@ -107,6 +102,41 @@ theorem not_violated_rowCrossed (u : Fin (n + 2 + m) → List I) :
   rw [he]
   exact not_violated_rowBlockLoadings u
 
+theorem blackCount_uncrossedLoading (w : List I) (r : Fin 2) (i : I) :
+    blackCount (uncrossedLoading w) r i = 0 := by
+  rw [blackCount, Finset.card_eq_zero, Finset.filter_eq_empty_iff]
+  rintro x - ⟨hx, hlt⟩
+  fin_cases r
+  · exact Nat.not_lt_zero _ (hlt _ (uncrossedLoading_lbl_zero w))
+  · have h1 := hlt _ (uncrossedLoading_lbl_one w)
+    have hx0 : x = ⟨0, by simp [stendhalWeight]⟩ := Fin.ext (Nat.lt_one_iff.1 h1)
+    subst hx0
+    rw [uncrossedLoading_lbl_zero] at hx
+    exact Sum.inl_ne_inr hx.symm
+
+omit [DecidableEq I] in
+theorem not_isViolated_uncrossedLoading (w : List I) : ¬ IsViolated (uncrossedLoading w) :=
+  not_isViolated_of_ofFn _ (by rw [uncrossedLoading, ofFn_seqOfList])
+
+/-- **`StackedStandard` at the Figure 5 row** (Webster, arXiv:1309.3796v2, §6.1, Proposition
+6.9): partial standardization of the local uncrossed standard module is the global standard
+module at the row of `u`. -/
+theorem stackedStandard_rowFigureFive (u : Fin (n + 2 + m) → List I)
+    (hu : u (rightPos n m) = []) :
+    StackedStandard hQ.klrSymm (weightSum_rowBlocks u hu) (rowRelations Q Λ hQ.klrSymm
+      (rowM u) (pairEmb n m) (rowβ u)
+      (tensorOfKLR Q (Λ ∘ pairEmb n m) (rowβ u) (KLRAlgebra.e (uncrossedLoading _)))
+      (pairRelations Q Λ hQ.klrSymm (pairEmb n m) (rowβ u) (uncrossedLoading _)) (rowL u)
+        (rowBlockLoadings u (crossedLoading _)))
+      (setPairLoading (rowM u) (pairEmb n m) (rowβ u) (uncrossedLoading _) (rowL u)
+        (rowBlockLoadings u (crossedLoading _))) :=
+  stackedStandard_setPairLoading (hQ := hQ.klrSymm) (h := weightSum_rowBlocks u hu)
+    (rowBlockLoadings u (crossedLoading _)) (uncrossedLoading _)
+    ((redWord_uncrossedLoading _).trans (show [0, 1] = List.finRange 2 by decide))
+    (blackCount_uncrossedLoading _)
+    (not_violated_setPairLoading (rowM u) (pairEmb n m) (rowβ u) (crossedLoading _)
+      (uncrossedLoading _) (not_isViolated_uncrossedLoading _) _ _ (not_violated_rowCrossed u))
+
 /-- Braid concentration of a right standard module only depends on its loading. -/
 theorem braidConcentrated_rightStandard_congr {ℓ : ℕ} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
     {ρ : Equiv.Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ}
@@ -131,7 +161,7 @@ variable [∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ) (ν : Multiset I),
 (Webster, arXiv:1309.3796v2, §6.1, Proposition 6.9 and proof of Corollary 6.10): for words `u`
 with `u_{n+2}` empty, `𝔅_π S(u)` has no cohomology outside degree zero, where `π` swaps
 `λ_{n+1}` and `λ_{n+2}`. Hypotheses: `RowFigureFiveHypotheses`, the route hypotheses of
-Proposition 6.9. -/
+Lemma 6.8. -/
 theorem braidConcentrated_rightRowStandard (u : Fin (n + 2 + m) → List I)
     (hu : u (rightPos n m) = []) (H : RowFigureFiveHypotheses C hQ Λ u hu)
     [DG.HasDerivedCategory.{w} (IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ
@@ -145,7 +175,7 @@ theorem braidConcentrated_rightRowStandard (u : Fin (n + 2 + m) → List I)
     (uncrossedLoading_lbl_zero _) (uncrossedLoading_lbl_one _) (edgeBraid_crossedLoading _)
     (redWord_crossedLoading _) (redWord_uncrossedLoading _) (rowL u) (weightSum_rowBlocks u hu)
     (rowBlockLoadings u (crossedLoading _)) (not_violated_rowCrossed u) (redWord_rowCrossed u hu)
-    H.stacked (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
+    (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
     (map_pairSwap_finRange u) H.filtration H.injective
   exact braidConcentrated_rightStandard_congr.{w} _ hQ.klrSymm _ hQ
     (rowLoading_eq_rowCrossed u hu).symm _ _ key
@@ -175,9 +205,8 @@ theorem redPerm_swappedRowLoading_eq (u : Fin (n + 2 + m) → List I)
 Proposition 6.9 and proof of Corollary 6.10): for words `u` with `u_{n+2}` empty,
 `𝔅_π S(u) ≅ S'⟨⟨|u_{n+1}|, λ_{n+2}⟩ - 2⟩` as graded right `T^{λ ∘ π}`-modules with the auxiliary
 gradings, where `π` swaps `λ_{n+1}` and `λ_{n+2}` and `S'` is the right standard module at the row
-loading of the swapped words. Hypotheses: `RowFigureFiveHypotheses`. -/
-def rightRowStandardBraidIso (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = [])
-    (H : RowFigureFiveHypotheses C hQ Λ u hu) :
+loading of the swapped words. -/
+def rightRowStandardBraidIso (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []) :
     (rightStandard (Λ := Λ ∘ pairSwap n m) (isReducedChoice_canChoice _) hQ.klrSymm
         (swappedRowLoading u) (rouquierGrading Q hQ (Λ ∘ pairSwap n m))
         (redWord_swappedRowLoading u)).Iso
@@ -193,7 +222,7 @@ def rightRowStandardBraidIso (u : Fin (n + 2 + m) → List I) (hu : u (rightPos 
     (uncrossedLoading_lbl_zero _) (uncrossedLoading_lbl_one _) (edgeBraid_crossedLoading _)
     (redWord_crossedLoading _) (redWord_uncrossedLoading _) (rowL u) (weightSum_rowBlocks u hu)
     (rowBlockLoadings u (crossedLoading _)) (not_violated_rowCrossed u) (redWord_rowCrossed u hu)
-    H.stacked (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
+    (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
     (map_pairSwap_finRange u) (redWord_swappedRowLoading u) (redPerm_swappedRowLoading_eq u hu)
 
 end Categorification.Stendhal.FirstWeight

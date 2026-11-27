@@ -153,7 +153,7 @@ theorem braidClass_wordTensor
       (braidConcentrated_rightRowStandard.{w} C hQ Λ u hu H)]
   congr 1
   have h2 := classFunctional_congr C hQ hR (Λ ∘ pairSwap n m) (wt ∘ pairSwap n m)
-    (fun r i => hwt (pairSwap n m r) i) _ (rightRowStandardBraidIso C hQ Λ u hu H)
+    (fun r i => hwt (pairSwap n m r) i) _ (rightRowStandardBraidIso C hQ Λ u hu)
   rw [classFunctional_shift] at h2
   have h3 := (classFunctional_rightStandard_cast C hQ hR (Λ ∘ pairSwap n m) (wt ∘ pairSwap n m)
     (fun r i => hwt (pairSwap n m r) i) (blockContent_comp_perm u (pairSwap n m))

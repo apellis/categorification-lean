@@ -964,16 +964,17 @@ left multiplication by the stacked generator maps `e(s') V e_{κ₀}` onto the c
 step 2 at `s` with kernel the stacked local relations, so under `StackedStandard` the cut
 quotient is the standard module at `s'` (`braidCutQuotientEquivStandard`,
 `rowBraidCutEquivStandard`) and the derived braid of the partial standard at a Figure 5 row
-loading is that standard module in degree zero (`rowPartialStandard_braidIso`). One input is
-an explicit hypothesis (maintainer decision), a roadmap item to remove:
+loading is that standard module in degree zero (`rowPartialStandard_braidIso`).
 
-- **(6.9-std)** `StackedStandard`: the standard relations at the uncrossed row loading are
-  exactly the corner elements whose class modulo the higher cuts lies in the local two-red
-  standard relations stacked on the uncrossed column. Webster's reduction to `ℓ = 2` uses
-  that partial standardization of the local standard is the global standard without proof.
-  Route: the inclusion of the stacked relations is the comparison of roots under
-  juxtaposition; the converse is a factorization of `e(t') x e(u)` through juxtaposed higher
-  loadings, as in step 1 (`e_mul_mul_e_mem_commonUpperSpan`).
+`StackedStandard` (Webster's reduction to `ℓ = 2` uses without proof that partial
+standardization of the local standard is the global standard) is a theorem at every placed
+loading whose pair loading has the identity red order and no black strand left of a red strand
+(`RedStrands/BlockStackedStandard.lean`, `stackedStandard_setPairLoading`), in particular at the
+Figure 5 rows (`stackedStandard_rowFigureFive`). The inclusion of the stacked relations is the
+comparison of roots under juxtaposition (`e_mul_mul_place_mem_stendhalUpperIdeal`); the converse
+factors each generator `e(t') x e(u)` of the upper ideal through juxtaposed loadings, which lie
+strictly above the uncrossed pair loading when the root does not increase
+(`exists_blackCount_lt_of_adjacentBlockRoot_eq`, `RedStrands/BlockStackedCounts.lean`).
 
 Input side (`RedStrands/BlockPartialStandardRigid.lean`): at a rigid cut the partial standard
 is the standard module (`partialStandardEquivStandard`, from step 1), giving the ungraded
@@ -1318,7 +1319,7 @@ comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
 (proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
-`RowFigureFiveHypotheses` at every row; finite-dimensionality of `T^λ` is
+`RowFigureFiveHypotheses` (the two hypotheses of Lemma 6.8) at every row; finite-dimensionality of `T^λ` is
 `tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
 `w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses and
 `BraidDiagramFiltration`), Def 6.12, Cor 6.13,

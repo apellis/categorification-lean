@@ -79,6 +79,60 @@ theorem downEndAlg_apply (m : X) (l : List (I ⊕ Fin ℓ)) {x y : X}
     (f : End (Free.of k (KLR.Diagram.ob l))) :
     downEndAlg G m l hc f = admissibleMap G hc hc (downLinear RD Λ k m [] [] f) := rfl
 
+/-- **The image of one downward layer** with canonical pieces, read through free 2-morphisms. -/
+theorem admissibleMap_down_dl (s : X) (l r : List (I ⊕ Fin ℓ)) (g : KLR.Diagram.Gen (I ⊕ Fin ℓ))
+    {mv : Move I ℓ} (hmv : downMove g = some mv) {a b : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))}
+    (hda : l ++ g.dom ++ r = a.word) (hdb : l ++ g.cod ++ r = b.word) {t : X}
+    (ha : Cond s t (downContextObj RD Λ s [] [] a)) (hb : Cond s t (downContextObj RD Λ s [] [] b))
+    {b₁ c₁ : FB (signature RD Λ)} {p₁ : fo (S := signature RD Λ) t ⟶ b₁}
+    {q₁ : c₁ ⟶ fo (S := signature RD Λ) s} {x₁ y₁ : b₁ ⟶ c₁}
+    (γ₁ : M.lift.map x₁ ⟶ M.lift.map y₁)
+    (N0 : fw s (downContextObj RD Λ s [] [] a).word t ha.1 ha.2.1 ⟶ p₁ ≫ (x₁ ≫ q₁))
+    (N1 : p₁ ≫ (y₁ ≫ q₁) ⟶ fw s (downContextObj RD Λ s [] [] b).word t hb.1 hb.2.1)
+    (hn1 : fo (S := signature RD Λ)
+      ((signature RD Λ).right (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen) = b₁)
+    (hm1 : fo (S := signature RD Λ)
+      ((signature RD Λ).left (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen) = c₁)
+    (hr1 : ∀ h e, fw ((signature RD Λ).right (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen)
+      (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv (r.map DoubleStrand.down ++ [])).right t
+        h e ≍ p₁)
+    (hl1 : ∀ h e, fw s (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).left
+      ((signature RD Λ).left (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen) h e ≍ q₁)
+    (hd1 : ∀ h e, fw ((signature RD Λ).left (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen)
+      ((signature RD Λ).dom (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen)
+      ((signature RD Λ).right (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen) h e ≍ x₁)
+    (he1 : ∀ h e, fw ((signature RD Λ).left (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen)
+      ((signature RD Λ).cod (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen)
+      ((signature RD Λ).right (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+        (r.map DoubleStrand.down ++ [])).gen) h e ≍ y₁)
+    (hg1 : ∀ hd hde hc hce,
+      G.gen (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv (r.map DoubleStrand.down ++ [])).gen
+        ((signature RD Λ).left (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+          (r.map DoubleStrand.down ++ [])).gen)
+        ((signature RD Λ).right (layer RD Λ s ([] ++ l.map DoubleStrand.down) mv
+          (r.map DoubleStrand.down ++ [])).gen) rfl rfl hd hde hc hce ≍ γ₁) :
+    admissibleMap G ha hb (downLinear RD Λ k s [] [] (LinDiagram.of (KLR.Diagram.dl l g r hda hdb))) =
+      M.lift.map₂ N0 ≫ midK M p₁ q₁ γ₁ ≫ M.lift.map₂ N1 := by
+  rw [KLR.Diagram.dl, downLinear_layer,
+    downLinearLayer_of_move RD Λ k s [] [] (KLR.Diagram.lay l g r) hmv, LinDiagram.cast_of,
+    admissibleMap_of]
+  change admissibleChain _ _ _ _ _ _ _ = _
+  dsimp only [ObjectProperty.homMk]
+  rw [admissibleChain_congr _ (show Diagram.layers (Diagram.cast (downLayerDiagram RD Λ s [] []
+      (KLR.Diagram.lay l g r) hmv) _ _) =
+      [layer RD Λ s ([] ++ l.map DoubleStrand.down) mv (r.map DoubleStrand.down ++ [])] by simp)]
+  exact admissibleChain₁_conj M G _ ha hb γ₁ N0 N1 hn1 hm1 hr1 hl1 hd1 he1 hg1
+
 end Alg
 
 local notation "fwT" => fw (S := signature RD Λ)

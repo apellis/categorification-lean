@@ -2401,6 +2401,8 @@ import Categorification.WeightedKLR.RedStrands.HalfTwistInclusion
 import Categorification.WeightedKLR.RedStrands.HalfTwistTransport
 import Categorification.WeightedKLR.RedStrands.HalfTwistInjective
 import Categorification.WeightedKLR.RedStrands.HalfTwistRedFirst
+import Categorification.WeightedKLR.RedStrands.HalfTwistSelfDual
+import Categorification.WeightedKLR.RedStrands.HalfTwistDuality
 import Categorification.WeightedKLR.RedStrands.InterleavedPBW
 import Categorification.WeightedKLR.RedStrands.IteratedLeftStandard
 import Categorification.WeightedKLR.RedStrands.LastRedDetectedClasses

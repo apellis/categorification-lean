@@ -1,0 +1,427 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
+import Categorification.WeightedKLR.Rigidity.CupCapDiagrams
+import Categorification.KLR.StrandCoset
+import Categorification.KLR.Prop213
+import Categorification.WeightedKLR.RedStrands.StandardModule
+
+/-!
+# Spanning `K̃^{λ⁺}_λ` by canonical cap generators
+
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, §7.3,
+proof of Lemma 7.17 (spanning half, first step).
+
+Webster's spanning set `B''` of `K̃^{λ⁺}_λ` consists of diagrams with the maximum of the cap
+inserted directly to the left of the red strand `λ_{j+1}` at the top (the *canonical position*
+`capPos s` of the top loading `s`), the element of `L` at the maximum, and, below the cap, only
+crossings among the strands left of `λ_{j+1}`. The new point of the proof, compared with the
+spanning argument for `T̃^λ` (Lemma 4.16), is that no strand starting left of `λ_{j+1}` needs to
+pass right of the maximum of the cap; this is achieved with the relation (max1).
+
+We prove this step: `K̃^{λ⁺}_λ` is spanned, as a left `T̃^λ`-module, by the elements
+`cap(s, capPos s, v) · z` with `z` in the subalgebra `R_{<capPos s + N}` of diagrams on the
+strands left of `λ_{j+1}` at the bottom (`KLRAlgebra.leftSub`), `N` the number of strands at the
+maximum (`CupCap.span_canonical`).
+
+## Hypotheses
+
+* The scalars `κ_i` of (max1) are units (`hκ`); they are products of `±1` and of the leading
+  coefficients `t_{i'i}` of the polynomials `Q_{i'i}`, which Webster assumes to be units.
+* The coefficient module `L` is supported on loadings whose first strand is the red strand `μ`
+  and whose last strand is the red strand `μ*` (`hL`: `v · e(w) = 0` for every other loading
+  `w`). Webster's `L = L_μ` (Lemma 7.3) has this property: it is a module over the algebra
+  `T^{(μ, μ*)}`, in which a black strand left of `μ` is violated, and the kernel of the
+  quotient map onto `L_μ` contains every diagram with a black strand right of `μ*`.
+
+## Main results
+
+* `CupCap.capPos`: the canonical position of the maximum.
+* `CupCap.capElt`: the element `a · cap(s, n, v) · b` of `K̃^{λ⁺}_λ`.
+* `CupCap.span_canonical`: the spanning statement.
+-/
+
+noncomputable section
+
+namespace Categorification.Stendhal.CupCap
+
+open KLR MvPolynomial TypeA MulOpposite
+open scoped TensorProduct
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+section Spanning
+
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} {Λc : Fin 2 → I →₀ ℕ}
+  {j : ℕ} {hj : j ≤ ℓ} {ν ν₀ : Multiset I}
+  {L : Type*} [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L]
+
+local notation "m" => Multiset.card (stendhalWeight ℓ ν)
+local notation "N" => Multiset.card (stendhalWeight 2 ν₀)
+local notation "M" => Multiset.card (stendhalWeight (ℓ + 2) (ν + ν₀))
+local notation "T" => StendhalAlgebra k Q Λ ν
+local notation "Rp" => KLRAlgebra k (stendhalQ Q (plusLabels Λ Λc j hj)) (stendhalWeight (ℓ + 2) (ν + ν₀))
+local notation "Rc" => KLRAlgebra k (stendhalQ Q Λc) (stendhalWeight 2 ν₀)
+
+/-! ### Multiplication in `T̃^λ ⊗ (T̃^{λ⁺})ᵐᵒᵖ` -/
+
+theorem Env.mk_mul_mk (a a' : T) (b b' : StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀)) :
+    (Env.mk a b * Env.mk a' b' : Env k Q Λ Λc j hj ν ν₀) = Env.mk (a * a') (b' * b) := by
+  have h : ((a ⊗ₜ[k] op b : StendhalAlgebra k Q Λ ν ⊗[k]
+      (StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀))ᵐᵒᵖ) * (a' ⊗ₜ[k] op b')) =
+      (a * a') ⊗ₜ[k] op (b' * b) := by
+    rw [Algebra.TensorProduct.tmul_mul_tmul, op_mul]
+  exact h
+
+theorem Env.mk_add_left (a a' : T) (b : StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀)) :
+    (Env.mk (a + a') b : Env k Q Λ Λc j hj ν ν₀) = Env.mk a b + Env.mk a' b :=
+  TensorProduct.add_tmul _ _ _
+
+theorem Env.mk_add_right (a : T) (b b' : StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀)) :
+    (Env.mk a (b + b') : Env k Q Λ Λc j hj ν ν₀) = Env.mk a b + Env.mk a b' := by
+  have h : (a ⊗ₜ[k] op (b + b') : StendhalAlgebra k Q Λ ν ⊗[k]
+      (StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀))ᵐᵒᵖ) =
+      a ⊗ₜ[k] op b + a ⊗ₜ[k] op b' := by
+    rw [op_add, TensorProduct.tmul_add]
+  exact h
+
+theorem Env.mk_zero_right (a : T) :
+    (Env.mk a 0 : Env k Q Λ Λc j hj ν ν₀) = 0 := by
+  have h : (a ⊗ₜ[k] op 0 : StendhalAlgebra k Q Λ ν ⊗[k]
+      (StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀))ᵐᵒᵖ) = 0 := by
+    rw [op_zero, TensorProduct.tmul_zero]
+  exact h
+
+theorem Env.mk_smul_right (a : T) (c : k)
+    (b : StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀)) :
+    (Env.mk a (c • b) : Env k Q Λ Λc j hj ν ν₀) = Env.mk (c • a) b := by
+  have h : (a ⊗ₜ[k] op (c • b) : StendhalAlgebra k Q Λ ν ⊗[k]
+      (StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀))ᵐᵒᵖ) = (c • a) ⊗ₜ[k] op b := by
+    rw [op_smul, TensorProduct.tmul_smul, TensorProduct.smul_tmul']
+  exact h
+
+/-! ### Elements of `K̃^{λ⁺}_λ` -/
+
+/-- The element `a · cap(s, n, v) · b` of `K̃^{λ⁺}_λ`, for `a ∈ T̃^λ` and a diagram `b` of the KLR
+algebra of `λ⁺`. -/
+def capElt (a : T) (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    CapTilde k Q Λ Λc j hj ν ν₀ L :=
+  Submodule.Quotient.mk (act a (botMap k Q Λ Λc j hj ν ν₀ b) (gen (s, n) v))
+
+theorem mk_eq_zero_of_isRel {z : FreeCap k Q Λ Λc j hj ν ν₀ L}
+    (h : IsRel k Q Λ Λc j hj ν ν₀ L z) :
+    (Submodule.Quotient.mk z : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 :=
+  (Submodule.Quotient.mk_eq_zero _).2 (Submodule.subset_span h)
+
+theorem smul_capElt (a' : T) (b' : Rp) (a : T) (s) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    (Env.mk a' (botMap k Q Λ Λc j hj ν ν₀ b') • capElt a s n v b) =
+      capElt (a' * a) s n v (b * b') := by
+  rw [capElt, capElt, ← Submodule.Quotient.mk_smul, act, act, smul_smul, Env.mk_mul_mk, map_mul]
+
+theorem capElt_add_right (a : T) (s) (n : Fin (m + 1)) (v : L) (b b' : Rp) :
+    (capElt a s n v (b + b') : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      capElt a s n v b + capElt a s n v b' := by
+  rw [capElt, capElt, capElt, act, act, act, map_add, Env.mk_add_right, add_smul,
+    Submodule.Quotient.mk_add]
+
+theorem capElt_add_left (a a' : T) (s) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    (capElt (a + a') s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      capElt a s n v b + capElt a' s n v b := by
+  rw [capElt, capElt, capElt, act, act, act, Env.mk_add_left, add_smul,
+    Submodule.Quotient.mk_add]
+
+theorem capElt_zero_right (a : T) (s) (n : Fin (m + 1)) (v : L) :
+    (capElt a s n v 0 : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := by
+  rw [capElt, act, map_zero, Env.mk_zero_right, zero_smul, Submodule.Quotient.mk_zero]
+
+theorem capElt_smul_right (a : T) (s) (n : Fin (m + 1)) (v : L) (c : k) (b : Rp) :
+    (capElt a s n v (c • b) : CapTilde k Q Λ Λc j hj ν ν₀ L) = capElt (c • a) s n v b := by
+  rw [capElt, capElt, act, act, map_smul, Env.mk_smul_right]
+
+theorem capElt_sum_right {ι : Type*} (a : T) (s) (n : Fin (m + 1)) (v : L) (S : Finset ι)
+    (b : ι → Rp) :
+    (capElt a s n v (∑ i ∈ S, b i) : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      ∑ i ∈ S, capElt a s n v (b i) := by
+  classical
+  induction S using Finset.induction_on with
+  | empty => simp [capElt_zero_right]
+  | insert i S hi ih => rw [Finset.sum_insert hi, Finset.sum_insert hi, capElt_add_right, ih]
+
+theorem capElt_add_mid (a : T) (s) (n : Fin (m + 1)) (v w : L) (b : Rp) :
+    (capElt a s n (v + w) b : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      capElt a s n v b + capElt a s n w b := by
+  have h := mk_eq_zero_of_isRel (IsRel.add (k := k) (Q := Q) (Λ := Λ) (Λc := Λc) (j := j)
+    (hj := hj) (ν := ν) (ν₀ := ν₀) (s, n) v w)
+  rw [Submodule.Quotient.mk_sub, Submodule.Quotient.mk_sub, sub_sub, sub_eq_zero] at h
+  have := congrArg (fun z => Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b) • z) h
+  simp only [smul_add, ← Submodule.Quotient.mk_smul] at this
+  exact this
+
+theorem capElt_zero_mid (a : T) (s) (n : Fin (m + 1)) (b : Rp) :
+    (capElt a s n (0 : L) b : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := by
+  have h := capElt_add_mid (L := L) a s n 0 0 b
+  rw [add_zero] at h
+  exact left_eq_add.1 h |>.symm ▸ rfl
+
+/-! ### The relations, in terms of `capElt` -/
+
+theorem mk_smul_eq_of_isRel {z₁ z₂ : FreeCap k Q Λ Λc j hj ν ν₀ L}
+    (h : IsRel k Q Λ Λc j hj ν ν₀ L (z₁ - z₂)) (r : Env k Q Λ Λc j hj ν ν₀) :
+    (Submodule.Quotient.mk (r • z₁) : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      Submodule.Quotient.mk (r • z₂) := by
+  rw [← sub_eq_zero, ← Submodule.Quotient.mk_sub, ← smul_sub, Submodule.Quotient.mk_smul,
+    mk_eq_zero_of_isRel h, smul_zero]
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem act_act (a a' : T) (b b' : StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀))
+    (z : FreeCap k Q Λ Λc j hj ν ν₀ L) :
+    Env.mk a b • act a' b' z = act (a * a') (b' * b) z := by
+  rw [act, act, smul_smul, Env.mk_mul_mk]
+
+/-- The top of `cap(s, n, v)` is `s`. -/
+theorem capElt_idem (a : T) (s) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    capElt (a * topMap k Q Λ ν (KLRAlgebra.e s)) s n v b = capElt a s n v b := by
+  have := mk_smul_eq_of_isRel (IsRel.idem s n v) (Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b))
+  rw [act_act, one_mul] at this
+  exact this
+
+/-- Diagrams on the strands at the maximum act on `L`. -/
+theorem capElt_box (a : T) (s) (n : Fin (m + 1)) (v : L) (x : Rc) (b : Rp) :
+    capElt a s n (op (cupMap k Q Λc ν₀ x) • v) b =
+      capElt a s n v (insertMap Q Λ Λc s n (Nat.lt_succ_iff.1 n.2) x * b) := by
+  have := mk_smul_eq_of_isRel (IsRel.box s n v x) (Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b))
+  rw [act_act, mul_one, ← map_mul] at this
+  exact this
+
+/-- A dot on the top passes below the cap. -/
+theorem capElt_dot (a : T) (s) (n : Fin (m + 1)) (v : L) (a' : Fin m) (b : Rp) :
+    capElt (a * topMap k Q Λ ν (KLRAlgebra.x a')) s n v b =
+      capElt a s n v (KLRAlgebra.x (dotPos (j := j) (hj := hj) (ν₀ := ν₀) n a') * b) := by
+  have := mk_smul_eq_of_isRel (IsRel.dot s n v a') (Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b))
+  rw [act_act, act_act, one_mul, mul_one, ← map_mul] at this
+  exact this
+
+/-- A crossing of the top on one side of the maximum passes below the cap. -/
+theorem capElt_cross (a : T) (s) (n : Fin (m + 1)) (v : L) (p : ℕ)
+    (hp : p + 1 < n.val ∨ n.val ≤ p) (b : Rp) :
+    capElt (a * topMap k Q Λ ν (KLRAlgebra.ψ p)) s n v b =
+      capElt a (sadj m p • s) n v (KLRAlgebra.ψ (crossPos n N p) * b) := by
+  have := mk_smul_eq_of_isRel (IsRel.cross s n v p hp) (Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b))
+  rw [act_act, act_act, one_mul, mul_one, ← map_mul] at this
+  exact this
+
+/-- **(max1)**, in terms of `capElt`. -/
+theorem capElt_over (a : T) (s) (n : Fin (m + 1)) (v : L) (i : I) (hn : 0 < n.val)
+    (hi : s.lbl ⟨n - 1, by omega⟩ = .inl i) (b : Rp) :
+    capElt a s n v (underRight N (n - 1) * b) =
+      capElt (a * algebraMap k _ (cupScalar Q ν₀ i)) s ⟨n - 1, by omega⟩ v b := by
+  have := mk_smul_eq_of_isRel (IsRel.over s n v i hn hi) (Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b))
+  rw [act_act, act_act, one_mul, mul_one, ← map_mul] at this
+  exact this
+
+/-- **(max2)**, in terms of `capElt`. -/
+theorem capElt_under (a : T) (s) (n : Fin (m + 1)) (v : L) (i : I) (hn : n.val < m)
+    (hi : s.lbl ⟨n, hn⟩ = .inl i) (b : Rp) :
+    capElt a s n v (underLeft N n * b) = capElt a s ⟨n + 1, by omega⟩ v b := by
+  have := mk_smul_eq_of_isRel (IsRel.under s n v i hn hi) (Env.mk a (botMap k Q Λ Λc j hj ν ν₀ b))
+  rw [act_act, mul_one, ← map_mul] at this
+  exact this
+
+/-! ### Vanishing by the order of the red strands -/
+
+section Projection
+
+variable {ℓ' : ℕ} {Λ' : Fin ℓ' → I →₀ ℕ} {ν' : Multiset I}
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- An idempotent whose red strands are out of order vanishes in `T̃`. -/
+theorem orderProjection_e_of_not {i : Seq (stendhalWeight ℓ' ν')} (h : ¬ IsRedOrdered i) :
+    orderProjection Q Λ' ν' (StendhalAlgebraAllOrders.ofKLR k Q Λ' ν' (KLRAlgebra.e i)) = 0 := by
+  apply Subtype.ext
+  change StendhalAlgebraAllOrders.e i * StendhalAlgebraAllOrders.redOrderedIdem k Q Λ' ν' = 0
+  rw [StendhalAlgebraAllOrders.e_mul_redOrderedIdem]
+  simp [h]
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- Two red strands do not cross. -/
+theorem ofKLR_ψ_mul_e_of_red (p : ℕ) (hp : p + 1 < Multiset.card (stendhalWeight ℓ' ν'))
+    (i : Seq (stendhalWeight ℓ' ν')) (h₁ : (i.lbl ⟨p, by omega⟩).isRight)
+    (h₂ : (i.lbl ⟨p + 1, hp⟩).isRight) :
+    StendhalAlgebraAllOrders.ofKLR k Q Λ' ν' (KLRAlgebra.ψ p * KLRAlgebra.e i) = 0 := by
+  rw [map_mul]
+  exact StendhalAlgebraAllOrders.ψ_mul_e_of_red p hp i h₁ h₂
+
+end Projection
+
+theorem capElt_zero_left (s) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    (capElt 0 s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := by
+  have h : (Env.mk 0 (botMap k Q Λ Λc j hj ν ν₀ b) : Env k Q Λ Λc j hj ν ν₀) = 0 :=
+    TensorProduct.zero_tmul _ _
+  rw [capElt, act, h, zero_smul, Submodule.Quotient.mk_zero]
+
+/-- Generators whose top loading has its red strands out of order vanish. -/
+theorem capElt_eq_zero_of_top (a : T) {s : Seq (stendhalWeight ℓ ν)} (hs : ¬ IsRedOrdered s)
+    (n : Fin (m + 1)) (v : L) (b : Rp) :
+    (capElt a s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := by
+  rw [← capElt_idem, topMap, AlgHom.comp_apply, orderProjection_e_of_not hs, mul_zero,
+    capElt_zero_left]
+
+/-- The bottom of `cap(s, n, v)` is one of the loadings `insertSeq s n w`. -/
+theorem capElt_eq_eSum_mul (a : T) (s) (n : Fin (m + 1)) (v : L) (b : Rp) :
+    (capElt a s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) =
+      capElt a s n v (KLRAlgebra.eSum _ (insertSet (j := j) (hj := hj) (ν₀ := ν₀) s n
+        (Nat.lt_succ_iff.1 n.2)) * b) := by
+  have := capElt_box a s n v 1 b
+  rw [map_one, op_one, one_smul] at this
+  rw [this, insertMap, map_one, Corner.val_one]
+
+/-- Generators all of whose bottom loadings have their red strands out of order vanish. -/
+theorem capElt_eq_zero_of_bottom (a : T) (s) (n : Fin (m + 1)) (v : L) (b : Rp)
+    (h : ∀ w, ¬ IsRedOrdered (insertSeq (j := j) (hj := hj) (ν₀ := ν₀) s n
+      (Nat.lt_succ_iff.1 n.2) w)) :
+    (capElt a s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := by
+  have hE : botMap k Q Λ Λc j hj ν ν₀ (KLRAlgebra.eSum _ (insertSet (j := j) (hj := hj)
+      (ν₀ := ν₀) s n (Nat.lt_succ_iff.1 n.2))) = 0 := by
+    rw [KLRAlgebra.eSum, map_sum]
+    refine Finset.sum_eq_zero fun t ht => ?_
+    obtain ⟨w, -, rfl⟩ := Finset.mem_image.1 ht
+    rw [botMap, AlgHom.comp_apply, orderProjection_e_of_not (h w)]
+  rw [capElt_eq_eSum_mul, capElt, map_mul, hE, zero_mul, ← map_zero (botMap k Q Λ Λc j hj ν ν₀),
+    ← capElt, capElt_zero_right]
+
+/-! ### Positions in the bottom loading -/
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem exists_lbl_eq_of_mem {J : Type*} {μ : Multiset J} (t : Seq μ) {c : J} (hc : c ∈ μ) :
+    ∃ b, t.lbl b = c := by
+  rw [← t.2] at hc
+  obtain ⟨b, -, hb⟩ := Multiset.mem_map.1 hc
+  exact ⟨b, hb⟩
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem insertSeq_lbl_win (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m)
+    (t : Seq ((stendhalWeight 2 ν₀).map (cupColour j hj))) {c : Fin M}
+    (b : Fin (Multiset.card ((stendhalWeight 2 ν₀).map (cupColour j hj))))
+    (hc : c.val = n + b.val) : (insertSeq s n hn t).lbl c = t.lbl b := by
+  have : c = Fin.cast (card_plus j hj ν ν₀).symm (insertPos _ _ n hn (.inr b)) :=
+    Fin.ext (by simp [hc])
+  rw [this, insertSeq_lbl_new]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem insertSeq_lbl_lt (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m)
+    (t : Seq ((stendhalWeight 2 ν₀).map (cupColour j hj))) {c : Fin M} (a : Fin m)
+    (ha : a.val < n) (hc : c.val = a.val) :
+    (insertSeq s n hn t).lbl c = oldColour j hj (s.lbl a) := by
+  have : c = Fin.cast (card_plus j hj ν ν₀).symm (insertPos _ _ n hn (.inl a)) :=
+    Fin.ext (by simp [hc, ha])
+  rw [this, insertSeq_lbl_old]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem insertSeq_lbl_ge (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m)
+    (t : Seq ((stendhalWeight 2 ν₀).map (cupColour j hj))) {c : Fin M} (a : Fin m)
+    (ha : n ≤ a.val) (hc : c.val = a.val + N) :
+    (insertSeq s n hn t).lbl c = oldColour j hj (s.lbl a) := by
+  have : c = Fin.cast (card_plus j hj ν ν₀).symm (insertPos _ _ n hn (.inl a)) :=
+    Fin.ext (by simp [hc, show ¬ a.val < n by omega])
+  rw [this, insertSeq_lbl_old]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- Each leg of the cap is somewhere in the window of a bottom loading. -/
+theorem exists_win_cupRed (t : Seq ((stendhalWeight 2 ν₀).map (cupColour j hj))) (r : Fin 2) :
+    ∃ b, t.lbl b = .inr (cupRed (ℓ := ℓ) j hj r) := by
+  refine exists_lbl_eq_of_mem t (Multiset.mem_map.2 ⟨.inr r, ?_, rfl⟩)
+  fin_cases r <;> simp [stendhalWeight]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem cupRed_val (r : Fin 2) : (cupRed (ℓ := ℓ) j hj r).val = j + r.val := rfl
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem oldRed_val_of_lt {r : Fin ℓ} (h : r.val < j) : (oldRed j hj r).val = r.val := by
+  simp [oldRed, h]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem oldRed_val_of_ge {r : Fin ℓ} (h : j ≤ r.val) : (oldRed j hj r).val = r.val + 2 := by
+  simp [oldRed, show ¬ r.val < j by omega]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- A cap right of an old red strand `λ_r` with `r ≥ j` (zero-indexed) gives a loading whose red
+strands are out of order. -/
+theorem not_isRedOrdered_of_red_left (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m)
+    (t : Seq ((stendhalWeight 2 ν₀).map (cupColour j hj))) (a : Fin m) (ha : a.val < n)
+    {r : Fin ℓ} (hr : s.lbl a = .inr r) (hrj : j ≤ r.val) :
+    ¬ IsRedOrdered (insertSeq s n hn t) := by
+  intro h
+  obtain ⟨b, hb⟩ := exists_win_cupRed (ℓ := ℓ) (hj := hj) t 0
+  have hbN := b.2
+  have hcard := card_plus j hj ν ν₀
+  have h1 := insertSeq_lbl_lt s hn t (c := ⟨a.val, by omega⟩) a ha rfl
+  have h2 := insertSeq_lbl_win s hn t (c := ⟨n + b.val, by omega⟩) b rfl
+  rw [hr] at h1
+  rw [hb] at h2
+  have := h ⟨a.val, by omega⟩ ⟨n + b.val, by omega⟩ _ _ (Fin.mk_lt_mk.2 (by omega)) h1 h2
+  rw [Fin.lt_def, oldRed_val_of_ge hrj, cupRed_val] at this
+  simp at this
+  omega
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- A cap left of an old red strand `λ_r` with `r < j` (zero-indexed) gives a loading whose red
+strands are out of order. -/
+theorem not_isRedOrdered_of_red_right (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m)
+    (t : Seq ((stendhalWeight 2 ν₀).map (cupColour j hj))) (a : Fin m) (ha : n ≤ a.val)
+    {r : Fin ℓ} (hr : s.lbl a = .inr r) (hrj : r.val < j) :
+    ¬ IsRedOrdered (insertSeq s n hn t) := by
+  intro h
+  obtain ⟨b, hb⟩ := exists_win_cupRed (ℓ := ℓ) (hj := hj) t 0
+  have hbN := b.2
+  have hcard := card_plus j hj ν ν₀
+  have hN : Multiset.card ((stendhalWeight 2 ν₀).map (cupColour (I := I) (ℓ := ℓ) j hj)) = N :=
+    Multiset.card_map _ _
+  have h1 := insertSeq_lbl_ge s hn t (c := ⟨a.val + N, by omega⟩) a ha rfl
+  have h2 := insertSeq_lbl_win s hn t (c := ⟨n + b.val, by omega⟩) b rfl
+  rw [hr] at h1
+  rw [hb] at h2
+  have := h ⟨n + b.val, by omega⟩ ⟨a.val + N, by omega⟩ _ _ (Fin.mk_lt_mk.2 (by omega)) h2 h1
+  rw [Fin.lt_def, oldRed_val_of_lt hrj, cupRed_val] at this
+  simp at this
+  omega
+
+/-! ### The canonical position of the maximum -/
+
+variable (ℓ j) in
+/-- **The canonical position of the maximum** of the cap for the top loading `s`: the position
+of the red strand `λ_{j+1}` (zero-indexed `j`), or the right end if `j = ℓ`. -/
+def capPos (s : Seq (stendhalWeight ℓ ν)) : ℕ :=
+  if h : j < ℓ then (Classical.choose (exists_lbl_eq_inr s ⟨j, h⟩)).val else m
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem capPos_lt {s : Seq (stendhalWeight ℓ ν)} (h : j < ℓ) : capPos ℓ j s < m := by
+  simp only [capPos, h, ↓reduceDIte]; exact Fin.is_lt _
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem capPos_le (s : Seq (stendhalWeight ℓ ν)) : capPos ℓ j s ≤ m := by
+  by_cases h : j < ℓ
+  · exact (capPos_lt h).le
+  · simp only [capPos, h, ↓reduceDIte, le_refl]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem capPos_of_not {s : Seq (stendhalWeight ℓ ν)} (h : ¬ j < ℓ) : capPos ℓ j s = m := by
+  simp only [capPos, h, ↓reduceDIte]
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem lbl_capPos {s : Seq (stendhalWeight ℓ ν)} (h : j < ℓ) :
+    s.lbl ⟨capPos ℓ j s, capPos_lt h⟩ = .inr ⟨j, h⟩ := by
+  have hc : capPos ℓ j s = (Classical.choose (exists_lbl_eq_inr s ⟨j, h⟩)).val := by
+    simp only [capPos, h, ↓reduceDIte]
+  have := Classical.choose_spec (exists_lbl_eq_inr s ⟨j, h⟩)
+  rwa [show (⟨capPos ℓ j s, capPos_lt h⟩ : Fin m) = Classical.choose _ from Fin.ext hc]
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem capPos_eq {s : Seq (stendhalWeight ℓ ν)} (h : j < ℓ) {c : Fin m}
+    (hc : s.lbl c = .inr ⟨j, h⟩) : capPos ℓ j s = c.val :=
+  congrArg Fin.val (lbl_eq_inr_unique (lbl_capPos h) hc)
+
+end Spanning
+
+end Categorification.Stendhal.CupCap

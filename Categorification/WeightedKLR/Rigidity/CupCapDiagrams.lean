@@ -557,7 +557,8 @@ inductive IsRel : FreeCap k Q Λ Λc j hj ν ν₀ L → Prop
   /-- A dot on the top passes below the cap. -/
   | dot (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) (a : Fin m) :
       IsRel (act (topMap k Q Λ ν (KLRAlgebra.x a)) 1 (gen (s, n) v : 𝔽) -
-        act 1 (botMap k Q Λ Λc j hj ν ν₀ (KLRAlgebra.x (dotPos n a))) (gen (s, n) v : 𝔽))
+        act 1 (botMap k Q Λ Λc j hj ν ν₀ (KLRAlgebra.x (dotPos (j := j) (hj := hj) (ν₀ := ν₀) n a)))
+          (gen (s, n) v : 𝔽))
   /-- A crossing of the top on one side of the maximum passes below the cap. -/
   | cross (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) (p : ℕ)
       (hp : p + 1 < n.val ∨ n.val ≤ p) :

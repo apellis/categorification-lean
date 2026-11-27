@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.LastRedStandardCut
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardUnitExt
+import Categorification.WeightedKLR.RedStrands.Prop55CountRedEmpty
 
 /-!
 # Standardization is left adjoint to restriction to a last-red layer
@@ -197,13 +198,6 @@ section Unit
 variable (hQ : KLRSymm Q)
 variable (N : Type) [AddCommGroup N] [Module k N] [Module (parabolicFactorAlgebra Q Λ θ β) N]
   [IsScalarTower k (parabolicFactorAlgebra Q Λ θ β) N]
-
-instance : IsScalarTower k T (ParabolicStandardT Q Λ θ β N hQ) where
-  smul_assoc c t m := by
-    change parabolicStandardAction Q Λ θ β N hQ (c • t) m =
-      c • parabolicStandardAction Q Λ θ β N hQ t m
-    rw [map_smul]
-    rfl
 
 /-- **Standardizations are killed by `J`.** -/
 theorem killedByLevel_parabolicStandardT :

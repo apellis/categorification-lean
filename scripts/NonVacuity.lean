@@ -7589,6 +7589,17 @@ example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
 
+/-- Webster, arXiv:1309.3796v3, Corollary 6.8 (`𝔅 P⁰ ≅ P⁰`, ungraded), for `sl₂`, two red strands
+of weight `ω`, the red orders of any two loadings and any list of black labels: a nonzero `r₀`
+exists, and left multiplication by `r_b` is a bijection of red-first projectives. -/
+example (s t : Seq (stendhalWeight 2 (0 : Multiset Unit))) (b : List Unit) : True := by
+  obtain ⟨r₀, hne, hr₀⟩ := BraidedStendhalAlgebra.exists_ne_zero_of_nil (k := ℚ) (Q := bsQ)
+    (Λ := fun _ : Fin 2 => Finsupp.single () 1) bsSymm s t
+  have := BraidedStendhalAlgebra.bijective_redBraid_mul bsSymm
+    (fun _ w => (TypeA.exists_reduced _ w).choose)
+    (fun _ w => (TypeA.exists_reduced _ w).choose_spec) hr₀ hne b
+  trivial
+
 /-- Webster, arXiv:1309.3796v2, §6: the quotient bimodule `B_e` is the tensor product algebra
 `T^λ` (Definitions 4.6 and 4.7) as rings, for `sl₂`, two red strands of weight `ω` and every
 black weight. -/

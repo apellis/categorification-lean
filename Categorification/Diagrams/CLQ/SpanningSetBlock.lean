@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.CLQ.SpanningSetCaps
+import Categorification.Diagrams.KL3.SpanningSetBlock
 
 /-!
 # The cap block: local moves
@@ -27,45 +28,12 @@ universe w u v
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   {RD : WeightDatum C X Y} {k : Type w} [CommRing k] {sc : CL.CLScalars C k}
 
-theorem capBlk_eq (S : List (Letter I)) (l : Letter I) (d : ℕ) :
-    capBlk S l d = (lmLc S l).map (whL [l.dual] []) ++ List.replicate d ([], .dot l.dual, l :: S) ++
-      [([], .cap l, S)] := rfl
-
 /-- The local interchange law for two blocks. -/
 theorem ichgLoc (ν : X) {s s' t t' : List (Letter I)} {A B : List (LayerData I)}
     (hA : SChain s A s') (hB : SChain t B t') :
     NF.dg (pres RD k sc) ν (s ++ t) (s' ++ t') (A.map (whL [] t) ++ B.map (whL s' [])) =
       NF.dg (pres RD k sc) ν (s ++ t) (s' ++ t') (B.map (whL s []) ++ A.map (whL [] t')) := by
   simpa using NF.dg_interchange (P := pres RD k sc) (μ := ν) (S := s ++ t) (T := s' ++ t') [] [] hA hB
-
-theorem sChain_ichgL {s s' t t' : List (Letter I)} {A B : List (LayerData I)}
-    (hA : SChain s A s') (hB : SChain t B t') :
-    SChain (s ++ t) (A.map (whL [] t) ++ B.map (whL s' [])) (s' ++ t') := by
-  have h₁ := hA.whisk [] t; have h₂ := hB.whisk s' []
-  simp only [List.nil_append, List.append_nil] at h₁ h₂
-  exact h₁.append h₂
-
-theorem sChain_ichgR {s s' t t' : List (Letter I)} {A B : List (LayerData I)}
-    (hA : SChain s A s') (hB : SChain t B t') :
-    SChain (s ++ t) (B.map (whL s []) ++ A.map (whL [] t')) (s' ++ t') := by
-  have h₁ := hB.whisk s []; have h₂ := hA.whisk [] t'
-  simp only [List.nil_append, List.append_nil] at h₁ h₂
-  exact h₁.append h₂
-
-theorem xLay_ne_nil (l₁ l₂ : Letter I) : xLay l₁ l₂ ≠ [] := by
-  obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂ <;> simp [xLay, crosslL, crossrL]
-
-theorem lmLc_pair (S₁ S₂ : List (Letter I)) (a b l : Letter I) :
-    lmLc (S₁ ++ [a, b] ++ S₂) l = (lmLc S₂ l).map (whL (S₁ ++ [a, b]) []) ++
-      (xLay b l).map (whL (S₁ ++ [a]) S₂) ++ (xLay a l).map (whL S₁ (b :: S₂)) ++
-      (lmLc S₁ l).map (whL [] (a :: b :: S₂)) := by
-  rw [List.append_assoc, lmLc_append]
-  simp only [List.cons_append, List.nil_append, lmLc, List.map_append]
-  wnf
-
-theorem mem_of_sub_mem {M : Type*} [AddCommGroup M] [Module k M] {S : Submodule k M} {a b : M}
-    (h : a - b ∈ S) (hb : b ∈ S) : a ∈ S := by
-  simpa using S.add_mem h hb
 
 theorem mem_of_sub_smul_mem {M : Type*} [AddCommGroup M] [Module k M] {S : Submodule k M}
     {a b : M} {c : k} (h : a - c • b ∈ S) (hb : b ∈ S) : a ∈ S :=
@@ -194,14 +162,6 @@ theorem capBlk_crossS (hr : ∀ i, sc.r i = 1) (ν : X) (S₁ S₂ : List (Lette
       (by simp [xLay_ne_nil]) (by simp [capBlk]) (by simp only [capBlk_eq, r3R]; wnf) rfl) ?_
   refine leL_sub_of_eq ?_
   simp only [capBlk_eq]
-  wnf
-
-omit [DecidableEq I] in
-/-- A strand entering the block from the right joins it (exact). -/
-theorem capBlk_enterR (S : List (Letter I)) (e l : Letter I) (d : ℕ) :
-    (xLay e l).map (whL ([l.dual] ++ S) []) ++ (capBlk S l d).map (whL [] [e]) =
-      capBlk (S ++ [e]) l d := by
-  simp only [capBlk_eq, lmLc_snoc, List.map_append]
   wnf
 
 /-- A strand entering the block from the left joins it (modulo lower terms). -/

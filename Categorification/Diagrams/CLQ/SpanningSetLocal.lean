@@ -6,6 +6,7 @@ import Categorification.Diagrams.CLQ.SortDecomp
 import Categorification.Diagrams.CLQ.MixedR3Sl2
 import Categorification.Diagrams.CLQ.SymmetryOmega
 import Categorification.Diagrams.CLQ.Spanning
+import Categorification.Diagrams.KL3.SpanningSetLocal
 import Categorification.Diagrams.CLQ.EndOne
 
 /-!
@@ -57,39 +58,6 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
   {RD : WeightDatum C X Y} {k : Type w} [CommRing k] {sc : CL.CLScalars C k}
 
 /-! ## Crossing counts and lower terms -/
-
-/-- The number of crossing layers of a list of layers. -/
-def ccnt (L : List (LayerData I)) : ℕ := L.countP (fun x => x.2.1.isCross)
-
-@[simp] theorem ccnt_nil : ccnt ([] : List (LayerData I)) = 0 := rfl
-
-theorem ccnt_append (L M : List (LayerData I)) : ccnt (L ++ M) = ccnt L + ccnt M := by
-  unfold ccnt; rw [List.countP_append]
-
-theorem ccnt_cons (x : LayerData I) (L : List (LayerData I)) :
-    ccnt (x :: L) = (if x.2.1.isCross then 1 else 0) + ccnt L := by
-  unfold ccnt; rw [List.countP_cons]; split_ifs <;> simp_all [add_comm]
-
-theorem ccnt_map_whL (L : List (LayerData I)) (u v : List (Letter I)) :
-    ccnt (L.map (whL u v)) = ccnt L := by
-  unfold ccnt; rw [List.countP_map]; rfl
-
-theorem ccnt_replicate_dot (n : ℕ) (a b : List (Letter I)) (l : Letter I) :
-    ccnt (List.replicate n (a, Shape.dot l, b)) = 0 := by
-  unfold ccnt; rw [List.countP_eq_zero]; intro x hx; rw [List.eq_of_mem_replicate hx]
-  simp [Shape.isCross]
-
-@[simp] theorem ccnt_single_cross (a b : List (Letter I)) (ε : Bool) (i j : I) :
-    ccnt [(a, Shape.cross ε i j, b)] = 1 := rfl
-
-@[simp] theorem ccnt_single_dot (a b : List (Letter I)) (l : Letter I) :
-    ccnt [(a, Shape.dot l, b)] = 0 := rfl
-
-@[simp] theorem ccnt_single_cup (a b : List (Letter I)) (l : Letter I) :
-    ccnt [(a, Shape.cup l, b)] = 0 := rfl
-
-@[simp] theorem ccnt_single_cap (a b : List (Letter I)) (l : Letter I) :
-    ccnt [(a, Shape.cap l, b)] = 0 := rfl
 
 variable (RD k sc) in
 /-- Linear combinations of diagrams `E_s 1_ν ⟶ E_t 1_ν` with at most `c` crossings. -/
@@ -202,10 +170,6 @@ theorem isBub_mem_leL {lam : X} {β : End ((pres RD k sc).obj (ob RD lam []))}
 
 /-! ## Rewriting modulo lower terms -/
 
-theorem sub_mem_trans' {M : Type*} [AddCommGroup M] {S : AddSubgroup M} {a b c : M}
-    (h₁ : a - b ∈ S) (h₂ : b - c ∈ S) : a - c ∈ S := by
-  have := S.add_mem h₁ h₂; rwa [sub_add_sub_cancel] at this
-
 theorem leL_sub_trans {ν : X} {s t : List (Letter I)} {c : ℕ} {a b d}
     (h₁ : a - b ∈ LeL RD k sc ν s t c) (h₂ : b - d ∈ LeL RD k sc ν s t c) :
     a - d ∈ LeL RD k sc ν s t c := by
@@ -253,33 +217,6 @@ theorem dg_mem_ctx (μ : X) {s₀ t₀ : List (Letter I)} (pre post : List (Laye
 
 /-! ## The crossing of two strands -/
 
-/-- The crossing `[l₁, l₂] → [l₂, l₁]` of two strands: the upward or downward crossing if the
-orientations agree, otherwise the sideways crossing `crossl` or `crossr`. -/
-def xLay : Letter I → Letter I → List (LayerData I)
-  | (true, i), (true, j) => [([], .cross true i j, [])]
-  | (false, i), (false, j) => [([], .cross false i j, [])]
-  | (true, i), (false, j) => crosslL i j
-  | (false, j), (true, i) => crossrL i j
-
-theorem sChain_xLay (l₁ l₂ : Letter I) : SChain [l₁, l₂] (xLay l₁ l₂) [l₂, l₁] := by
-  obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂ <;>
-    simp only [xLay, crosslL, crossrL] <;> schain
-
-@[simp] theorem ccnt_xLay (l₁ l₂ : Letter I) : ccnt (xLay l₁ l₂) = 1 := by
-  obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂ <;> rfl
-
-theorem length_xLay (l₁ l₂ : Letter I) :
-    (xLay l₁ l₂).length = if l₁.1 = l₂.1 then 1 else 3 := by
-  obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂ <;> rfl
-
-@[simp] theorem xLay_up_up (i j : I) : xLay (up i) (up j) = [([], .cross true i j, [])] := rfl
-@[simp] theorem xLay_dn_dn (i j : I) : xLay (dn i) (dn j) = [([], .cross false i j, [])] := rfl
-@[simp] theorem xLay_up_dn (i j : I) : xLay (up i) (dn j) = crosslL i j := rfl
-@[simp] theorem xLay_dn_up (i j : I) : xLay (dn j) (up i) = crossrL i j := rfl
-
-theorem sub_mem_of_eq_left {M : Type*} [AddCommGroup M] [Module k M] {S : Submodule k M}
-    {a a' b : M} (e : a = a') (h : a' - b ∈ S) : a - b ∈ S := e ▸ h
-
 theorem leL_sub_trans_le {ν : X} {s t : List (Letter I)} {c₁ c : ℕ} {a b d}
     (h₁ : a - b ∈ LeL RD k sc ν s t c₁) (hc : c₁ ≤ c) (h₂ : b - d ∈ LeL RD k sc ν s t c) :
     a - d ∈ LeL RD k sc ν s t c :=
@@ -303,9 +240,6 @@ macro "matQ " n:term:max u:term:max v:term:max E:term:max : tactic => `(tactic| 
   refine sub_mem_of_eq_left (NF.dg_step_at _ $n $u $v $E (by (try dnorm); schain)
     (by (try dnorm); schain) (by dnorm)) ?_
   try dnorm))
-
-theorem mem_of_eq_left {M : Type*} [AddCommGroup M] [Module k M] {S : Submodule k M}
-    {a a' : M} (e : a = a') (h : a' ∈ S) : a ∈ S := e ▸ h
 
 /-- `iswapQ n`: the interchange law at the layers `n`, `n + 1` of the diagram of a goal
 `dg μ s t L ∈ S`. -/
@@ -375,12 +309,6 @@ section Omega
 variable [DecidableEq I]
 
 omit [DecidableEq I] in
-theorem ccnt_wls (L : List (LayerData I)) : ccnt (Omega.wls L) = ccnt L := by
-  unfold ccnt Omega.wls; rw [List.countP_map]
-  apply List.countP_congr; intro x _
-  obtain ⟨a, g, b⟩ := x
-  cases g <;> rfl
-
 omit [DecidableEq I] in
 variable (RD k sc) in
 /-- The class map `LinDiagram k a b → Hom(a, b)` of `U_Q(g)`, as a `k`-linear map. -/
@@ -453,23 +381,6 @@ theorem TRQ_mem_map_iff {a a' b b' : Obj (psig RD)} (ea : a = a') (eb : b = b')
   have : g - f = 0 := by
     rw [← TRQ_eq_zero ea eb, map_sub, e, sub_self]
   rwa [sub_eq_zero.1 this] at hg
-
-theorem sgnS_sq (L : List (LayerData I)) : Sig.sgnS L * Sig.sgnS L = 1 := by
-  unfold Sig.sgnS
-  induction L with
-  | nil => rfl
-  | cons x L ih =>
-    simp only [List.map_cons, List.prod_cons]
-    have : Sig.sgnSh x.2.1 * Sig.sgnSh x.2.1 = 1 := by
-      unfold Sig.sgnSh; split
-      · split_ifs <;> rfl
-      · rfl
-    calc Sig.sgnSh x.2.1 * (List.map (fun x => Sig.sgnSh x.2.1) L).prod *
-          (Sig.sgnSh x.2.1 * (List.map (fun x => Sig.sgnSh x.2.1) L).prod)
-        = (Sig.sgnSh x.2.1 * Sig.sgnSh x.2.1) *
-          ((List.map (fun x => Sig.sgnSh x.2.1) L).prod *
-            (List.map (fun x => Sig.sgnSh x.2.1) L).prod) := by ring
-      _ = 1 := by rw [this, ih, one_mul]
 
 /-- **Transport of a relation modulo lower terms by `ω̃ : U_Q(g) → U_{Q^θ}(g)`**: if two diagrams
 with the same sign agree in `U_Q(g)` modulo diagrams with at most `c` crossings, their
@@ -625,30 +536,6 @@ theorem ds1 (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) :
 end DnDn
 
 /-! ## Reidemeister 2 modulo lower terms -/
-
-theorem ncEval_mem {A : Type*} [Ring A] [Algebra k A] {S : Submodule k A} (h1 : (1 : A) ∈ S)
-    (hmul : ∀ a b, a ∈ S → b ∈ S → a * b ∈ S) {n : ℕ} (y : Fin n → A) (hy : ∀ a, y a ∈ S)
-    (p : MvPolynomial (Fin n) k) : KLR.ncEval y p ∈ S := by
-  unfold KLR.ncEval Finsupp.sum
-  refine Submodule.sum_mem _ fun s _ => ?_
-  dsimp only
-  rw [← Algebra.smul_def]
-  refine Submodule.smul_mem _ _ ?_
-  have hpow : ∀ (a : A) (m : ℕ), a ∈ S → a ^ m ∈ S := by
-    intro a m ha
-    induction m with
-    | zero => rw [pow_zero]; exact h1
-    | succ m ih => rw [pow_succ]; exact hmul _ _ ih ha
-  have hprod : ∀ l : List A, (∀ x ∈ l, x ∈ S) → l.prod ∈ S := by
-    intro l hl
-    induction l with
-    | nil => exact h1
-    | cons x l ih =>
-      rw [List.prod_cons]
-      exact hmul _ _ (hl x List.mem_cons_self) (ih fun y hy => hl y (List.mem_cons_of_mem _ hy))
-  refine hprod _ fun x hx => ?_
-  obtain ⟨a, rfl⟩ := List.mem_ofFn.1 hx
-  exact hpow _ _ (hy a)
 
 theorem leL_comp0 {ν : X} {s t r : List (Letter I)} {f g}
     (hf : f ∈ LeL RD k sc ν s t 0) (hg : g ∈ LeL RD k sc ν t r 0) : f ≫ g ∈ LeL RD k sc ν s r 0 := by
@@ -841,26 +728,6 @@ macro "datSQ " n:term:max u:term:max v:term:max E:term:max : tactic => `(tactic|
   try dnorm
   congr 1))
 
-/-- The left-hand side `X₀ X₁ X₀` of the Reidemeister 3 move on `[l₁, l₂, l₃]`. -/
-def r3L (l₁ l₂ l₃ : Letter I) : List (LayerData I) :=
-  (xLay l₁ l₂).map (whL [] [l₃]) ++ (xLay l₁ l₃).map (whL [l₂] []) ++ (xLay l₂ l₃).map (whL [] [l₁])
-
-/-- The right-hand side `X₁ X₀ X₁` of the Reidemeister 3 move on `[l₁, l₂, l₃]`. -/
-def r3R (l₁ l₂ l₃ : Letter I) : List (LayerData I) :=
-  (xLay l₂ l₃).map (whL [l₁] []) ++ (xLay l₁ l₃).map (whL [] [l₂]) ++ (xLay l₁ l₂).map (whL [l₃] [])
-
-theorem sChain_r3L (l₁ l₂ l₃ : Letter I) : SChain [l₁, l₂, l₃] (r3L l₁ l₂ l₃) [l₃, l₂, l₁] := by
-  unfold r3L
-  refine ((sChain_xLay l₁ l₂).whisk [] [l₃]).append (((sChain_xLay l₁ l₃).whisk [l₂] []).append
-    ?_) |> fun h => by simpa using h
-  simpa using (sChain_xLay l₂ l₃).whisk [] [l₁]
-
-theorem sChain_r3R (l₁ l₂ l₃ : Letter I) : SChain [l₁, l₂, l₃] (r3R l₁ l₂ l₃) [l₃, l₂, l₁] := by
-  unfold r3R
-  refine ((sChain_xLay l₂ l₃).whisk [l₁] []).append (((sChain_xLay l₁ l₃).whisk [] [l₂]).append
-    ?_) |> fun h => by simpa using h
-  simpa using (sChain_xLay l₁ l₂).whisk [l₃] []
-
 theorem r3_EEE (ν : X) (c d e : I) :
     NF.dg (pres RD k sc) ν [up c, up d, up e] [up e, up d, up c] (r3L (up c) (up d) (up e)) -
       NF.dg (pres RD k sc) ν [up c, up d, up e] [up e, up d, up c] (r3R (up c) (up d) (up e)) ∈
@@ -933,17 +800,6 @@ theorem r3_EEF (ν : X) (i k' j : I) :
 section R3Omega
 
 variable [DecidableEq I]
-
-theorem sgnS_append₂ (L M : List (LayerData I)) : Sig.sgnS (L ++ M) = Sig.sgnS L * Sig.sgnS M := by
-  simp [Sig.sgnS, List.map_append, List.prod_append]
-
-theorem sgnS_xLay (l₁ l₂ : Letter I) : Sig.sgnS (xLay l₁ l₂) = if l₁.2 = l₂.2 then -1 else 1 := by
-  obtain ⟨_ | _, i⟩ := l₁ <;> obtain ⟨_ | _, j⟩ := l₂ <;>
-    simp [xLay, crosslL, crossrL, Sig.sgnS, Sig.sgnSh, eq_comm]
-
-theorem sgnS_r3 (l₁ l₂ l₃ : Letter I) : Sig.sgnS (r3L l₁ l₂ l₃) = Sig.sgnS (r3R l₁ l₂ l₃) := by
-  simp only [r3L, r3R, sgnS_append₂, sgnS_map_whL, sgnS_xLay]
-  ring
 
 theorem r3_FFF (hr : ∀ i, sc.r i = 1) (ν : X) (c d e : I) :
     NF.dg (pres RD k sc) ν [dn c, dn d, dn e] [dn e, dn d, dn c] (r3L (dn c) (dn d) (dn e)) -

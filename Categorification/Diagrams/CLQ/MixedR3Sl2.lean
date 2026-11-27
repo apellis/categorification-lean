@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.CLQ.MixedR3
+import Categorification.Diagrams.KL3.MixedR3Sl2
 import Categorification.Diagrams.CLQ.Pitchfork
 import Categorification.Diagrams.CLQ.BubbleSlidesProp
 
@@ -986,9 +987,6 @@ def sigma2Term (g₁ g₂ g₃ g₄ : ℕ) :
           NF.dg (pres RD k sc) lam [up i, dn i, up i] [up i, dn i, up i]
             (List.replicate g₂ ([], .dot (up i), [dn i, up i]))
 
-theorem ip_wt_up_self : ip RD i (wt RD lam [up i]) = ip RD i lam + 2 := by
-  rw [ip_wt_up, A_self]; ring
-
 theorem term1 (hn : -1 ≤ ip RD i lam) :
     -(plcEF RD k sc lam i (sEF RD k sc lam i) ≫
         NF.dg (pres RD k sc) lam [up i, dn i, up i] [up i, dn i, up i] (r3mixR i i i)) =
@@ -1077,25 +1075,6 @@ theorem term4 (hn : ip RD i lam ≤ -2) :
   have h0 : (ip RD i (wt RD lam [up i])).toNat = 0 := by
     rw [ip_wt_up_self]; omega
   rw [sEF, h0, Finset.sum_range_zero, map_zero, Limits.comp_zero]
-
-/-- Reindexing a triple sum over `f ≤ m + 1`, `g ≤ f`, `a ≤ m - f` as a sum over the
-compositions `f₁ + f₂ + f₃ + f₄ = m` (with `f₁ = a`, `f₂ = m - f - a`, `f₃ = f - g`, `f₄ = g`). -/
-theorem sum_reindex4 {M : Type*} [AddCommMonoid M] (F : ℕ → ℕ → ℕ → ℕ → M) (m : ℕ) :
-    ∑ f ∈ Finset.range (m + 2), ∑ g ∈ Finset.range (f + 1),
-        ∑ a ∈ Finset.range (m + 2 - 1 - f), F a (m + 2 - 1 - f - 1 - a) (f - g) g =
-      ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m, ∑ z ∈ Finset.HasAntidiagonal.antidiagonal x.1,
-        ∑ y ∈ Finset.HasAntidiagonal.antidiagonal x.2, F y.1 y.2 z.2 z.1 := by
-  rw [Finset.sum_range_succ, show m + 2 - 1 - (m + 1) = 0 by omega]
-  simp only [Finset.range_zero, Finset.sum_empty, Finset.sum_const_zero, add_zero]
-  rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
-  refine Finset.sum_congr rfl fun f hf => ?_
-  have hf' := Finset.mem_range.1 hf
-  rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
-  refine Finset.sum_congr rfl fun g _ => ?_
-  rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, show m + 2 - 1 - f = (m - f).succ by omega]
-  refine Finset.sum_congr rfl fun a _ => ?_
-  simp only
-  rw [show (m - f).succ - 1 - a = m - f - a by omega]
 
 /-- **KL III Proposition 3.5, equation (3.23)** (label `eq_r3_extra`), case `i = j = k`, repaired
 form (see the module docstring): with `n = ⟨i, λ⟩`,

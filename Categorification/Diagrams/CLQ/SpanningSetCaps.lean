@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.CLQ.SpanningSetLocal
+import Categorification.Diagrams.KL3.SpanningSetCaps
 
 /-!
 # Elimination of caps modulo lower terms
@@ -65,79 +66,6 @@ universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   {RD : WeightDatum C X Y} {k : Type w} [CommRing k] {sc : CL.CLScalars C k}
-
-/-! ## Moves -/
-
-/-- A move: a dot, a crossing of two adjacent strands, or a cup, between the strands `u` and
-`v`. -/
-inductive Mv (I : Type u)
-  | dot (u : List (Letter I)) (l : Letter I) (v : List (Letter I))
-  | cross (u : List (Letter I)) (l₁ l₂ : Letter I) (v : List (Letter I))
-  | cup (u : List (Letter I)) (l : Letter I) (v : List (Letter I))
-
-namespace Mv
-
-/-- The layers of a move. -/
-def lay : Mv I → List (LayerData I)
-  | dot u l v => [(u, .dot l, v)]
-  | cross u l₁ l₂ v => (xLay l₁ l₂).map (whL u v)
-  | cup u l v => [(u, .cup l, v)]
-
-/-- The bottom boundary of a move. -/
-def src : Mv I → List (Letter I)
-  | dot u l v => u ++ [l] ++ v
-  | cross u l₁ l₂ v => u ++ [l₁, l₂] ++ v
-  | cup u _ v => u ++ v
-
-/-- The top boundary of a move. -/
-def tgt : Mv I → List (Letter I)
-  | dot u l v => u ++ [l] ++ v
-  | cross u l₁ l₂ v => u ++ [l₂, l₁] ++ v
-  | cup u l v => u ++ [l, l.dual] ++ v
-
-theorem sChain_lay (m : Mv I) : SChain m.src m.lay m.tgt := by
-  cases m with
-  | dot u l v => exact ⟨rfl, by simp [tgt]⟩
-  | cross u l₁ l₂ v => simpa [src, tgt, lay] using (sChain_xLay l₁ l₂).whisk u v
-  | cup u l v => exact ⟨by simp [src], by simp [tgt]⟩
-
-theorem ccnt_lay (m : Mv I) : ccnt m.lay = match m with | cross .. => 1 | _ => 0 := by
-  cases m <;> simp [lay, ccnt_map_whL]
-
-end Mv
-
-/-- The layers of a list of moves. -/
-def mvLay (ms : List (Mv I)) : List (LayerData I) := (ms.map Mv.lay).flatten
-
-@[simp] theorem mvLay_nil : mvLay ([] : List (Mv I)) = [] := rfl
-
-theorem mvLay_append (ms ns : List (Mv I)) : mvLay (ms ++ ns) = mvLay ms ++ mvLay ns := by
-  simp [mvLay]
-
-theorem mvLay_singleton (m : Mv I) : mvLay [m] = m.lay := by simp [mvLay]
-
-/-- A chain of moves from `s` to `t`. -/
-def MvChain : List (Letter I) → List (Mv I) → List (Letter I) → Prop
-  | s, [], t => s = t
-  | s, m :: ms, t => s = m.src ∧ MvChain m.tgt ms t
-
-theorem MvChain.sChain : ∀ {s t : List (Letter I)} {ms : List (Mv I)}, MvChain s ms t →
-    SChain s (mvLay ms) t
-  | _, _, [], h => h
-  | _, _, m :: ms, ⟨rfl, h⟩ => by
-    simpa [mvLay] using m.sChain_lay.append h.sChain
-
-theorem MvChain.snoc {s : List (Letter I)} {ms : List (Mv I)} {m : Mv I}
-    (h : MvChain s ms m.src) : MvChain s (ms ++ [m]) m.tgt := by
-  induction ms generalizing s with
-  | nil => exact ⟨h, rfl⟩
-  | cons m' ms ih => exact ⟨h.1, ih h.2⟩
-
-theorem MvChain.of_snoc {s t : List (Letter I)} {ms : List (Mv I)} {m : Mv I}
-    (h : MvChain s (ms ++ [m]) t) : MvChain s ms m.src ∧ m.tgt = t := by
-  induction ms generalizing s with
-  | nil => exact ⟨h.1, h.2⟩
-  | cons m' ms ih => obtain ⟨h₁, h₂⟩ := ih h.2; exact ⟨⟨h.1, h₁⟩, h₂⟩
 
 /-! ## Move diagrams and the ideal of diagrams factoring through shorter sequences -/
 
@@ -240,85 +168,6 @@ theorem dg_mem_thruShort {v u : List (Letter I)} (L M : List (LayerData I))
 
 end Closure
 
-/-! ## A strand moving across a block of strands -/
-
-/-- The strand `b` moving left across the strands `S`: `S ++ [b] ⟶ [b] ++ S`. -/
-def lmLc : List (Letter I) → Letter I → List (LayerData I)
-  | [], _ => []
-  | s :: S, b => (lmLc S b).map (whL [s] []) ++ (xLay s b).map (whL [] S)
-
-/-- The strand `a` moving right across the strands `S`: `[a] ++ S ⟶ S ++ [a]`. -/
-def lmRc (a : Letter I) : List (Letter I) → List (LayerData I)
-  | [] => []
-  | s :: S => (xLay a s).map (whL [] S) ++ (lmRc a S).map (whL [s] [])
-
-theorem sChain_lmLc : ∀ (S : List (Letter I)) (b : Letter I), SChain (S ++ [b]) (lmLc S b) (b :: S)
-  | [], _ => rfl
-  | s :: S, b => by
-    unfold lmLc
-    refine (by simpa using (sChain_lmLc S b).whisk [s] [] : SChain ((s :: S) ++ [b])
-      ((lmLc S b).map (whL [s] [])) ([s, b] ++ S)).append ?_
-    simpa using (sChain_xLay s b).whisk [] S
-
-theorem sChain_lmRc (a : Letter I) : ∀ S : List (Letter I), SChain (a :: S) (lmRc a S) (S ++ [a])
-  | [] => rfl
-  | s :: S => by
-    unfold lmRc
-    refine (by simpa using (sChain_xLay a s).whisk [] S : SChain (a :: s :: S)
-      ((xLay a s).map (whL [] S)) (s :: a :: S)).append ?_
-    simpa using (sChain_lmRc a S).whisk [s] []
-
-theorem ccnt_lmLc : ∀ (S : List (Letter I)) (b : Letter I), ccnt (lmLc S b) = S.length
-  | [], _ => rfl
-  | s :: S, b => by
-    simp only [lmLc, ccnt_append, ccnt_map_whL, ccnt_lmLc S b, ccnt_xLay, List.length_cons]
-
-theorem ccnt_lmRc (a : Letter I) : ∀ S : List (Letter I), ccnt (lmRc a S) = S.length
-  | [] => rfl
-  | s :: S => by
-    simp only [lmRc, ccnt_append, ccnt_map_whL, ccnt_lmRc a S, ccnt_xLay, List.length_cons]
-    omega
-
-theorem lmLc_append (b : Letter I) : ∀ S₁ S₂ : List (Letter I),
-    lmLc (S₁ ++ S₂) b = (lmLc S₂ b).map (whL S₁ []) ++ (lmLc S₁ b).map (whL [] S₂)
-  | [], S₂ => by simp [lmLc]
-  | s :: S₁, S₂ => by
-    simp only [List.cons_append, lmLc, lmLc_append b S₁ S₂, List.map_append, List.map_map,
-      List.append_assoc]
-    congr 1
-    · congr 1; funext x; simp [whL]
-    · congr 1
-      · congr 1; funext x; simp [whL]
-      · congr 1; funext x; simp [whL]
-
-theorem lmLc_snoc (S : List (Letter I)) (e b : Letter I) :
-    lmLc (S ++ [e]) b = (xLay e b).map (whL S []) ++ (lmLc S b).map (whL [] [e]) := by
-  rw [lmLc_append]; simp [lmLc]
-
-/-! ## The cap with a block of strands passing over it -/
-
-/-- The cap `l* l ⟶ 1` joining the strands `A = l*` and `B = l`, with `d` dots on `A`, over which
-the strands `S` pass: `B` moves left across `S`, then `d` dots on `A`, then the cap. From
-`[l*] ++ S ++ [l]` to `S`. -/
-def capBlk (S : List (Letter I)) (l : Letter I) (d : ℕ) : List (LayerData I) :=
-  (lmLc S l).map (whL [l.dual] []) ++ List.replicate d ([], .dot l.dual, l :: S) ++
-    [([], .cap l, S)]
-
-theorem sChain_capBlk (S : List (Letter I)) (l : Letter I) (d : ℕ) :
-    SChain ([l.dual] ++ S ++ [l]) (capBlk S l d) S := by
-  unfold capBlk
-  have h1 : SChain ([l.dual] ++ S ++ [l]) ((lmLc S l).map (whL [l.dual] [])) (l.dual :: l :: S) := by
-    simpa using (sChain_lmLc S l).whisk [l.dual] []
-  have h2 : SChain (l.dual :: l :: S) (List.replicate d ([], .dot l.dual, l :: S))
-      (l.dual :: l :: S) :=
-    SChain.replicate_of (x := ([], .dot l.dual, l :: S)) (s := l.dual :: l :: S) ⟨rfl, rfl⟩ d
-  have h3 : SChain (l.dual :: l :: S) [([], .cap l, S)] S := ⟨rfl, rfl⟩
-  exact (h1.append h2).append h3
-
-theorem ccnt_capBlk (S : List (Letter I)) (l : Letter I) (d : ℕ) :
-    ccnt (capBlk S l d) = S.length := by
-  simp [capBlk, ccnt_append, ccnt_map_whL, ccnt_lmLc, ccnt_replicate_dot]
-
 /-! ## Tools: interchange in context, rewriting modulo lower terms -/
 
 /-- **Interchange law for blocks in context**: a block `A` acting on the strands `s` and a block `B`
@@ -335,18 +184,6 @@ theorem dg_ichg {μ : X} {s₀ t₀ : List (Letter I)} (pre post : List (LayerDa
   wnf
   exact E
 
-
-theorem sChain_map_whL_iff {s t : List (Letter I)} {A : List (LayerData I)} (hA : SChain s A t)
-    (hne : A ≠ []) (u v s' t' : List (Letter I)) :
-    SChain s' (A.map (whL u v)) t' ↔ s' = u ++ s ++ v ∧ t' = u ++ t ++ v := by
-  constructor
-  · intro h
-    have h₀ := hA.whisk u v
-    obtain ⟨x, A', rfl⟩ := List.exists_cons_of_ne_nil hne
-    have e : s' = u ++ s ++ v := h.1.trans h₀.1.symm
-    subst e
-    exact ⟨rfl, SChain.eq_target h h₀⟩
-  · rintro ⟨rfl, rfl⟩; exact hA.whisk u v
 
 /-- **A local equation in any context**, without typing hypotheses on the context. -/
 theorem dg_step_free {μ : X} {s₀ t₀ : List (Letter I)} (pre post : List (LayerData I))

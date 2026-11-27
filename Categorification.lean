@@ -20,10 +20,12 @@ import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorAdditive
 import Categorification.Algebra.CornerTensorCutLift
+import Categorification.Algebra.CornerTensorDerived
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorCompComparison
 import Categorification.Algebra.DerivedTensorCoproducts
 import Categorification.Algebra.DerivedTensorCoefficient
 import Categorification.Algebra.DerivedTensorCoefficientExact
@@ -42,6 +44,7 @@ import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
 import Categorification.Algebra.ExactDerivedTensor
 import Categorification.Algebra.ProjectiveKProjective
+import Categorification.Algebra.ResolutionAdjunction
 import Categorification.Algebra.ProjectiveFlat
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
@@ -1158,6 +1161,7 @@ import Categorification.WeightedKLR.KLR.SpacedSurjective
 import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
+import Categorification.WeightedKLR.RedStrands.BraidingFunctorComp
 import Categorification.WeightedKLR.RedStrands.BraidingBimoduleLoadingFiltration
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading

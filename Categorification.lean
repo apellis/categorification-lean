@@ -2021,6 +2021,8 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeCoe
 import Categorification.WeightedKLR.Rigidity.CupCapLemma719KFlip
+import Categorification.WeightedKLR.Rigidity.CupCapLemma719KGen
+import Categorification.WeightedKLR.Rigidity.CupCapLemma719KOneStepLift
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeProjective
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftFreeViolated
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation

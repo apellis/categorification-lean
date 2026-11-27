@@ -31,6 +31,14 @@ open scoped DG.DegreeZero
 
 universe u w
 
+/-- An equivalence between preadditive categories with binary products preserves compact
+objects. -/
+theorem isCompact_obj_of_isEquivalence {𝒞 𝒟 : Type*} [Category 𝒞] [Category 𝒟] [Preadditive 𝒞]
+    [Preadditive 𝒟] (F : 𝒞 ⥤ 𝒟) (hA : F.Additive) (hE : F.IsEquivalence) {X : 𝒞}
+    (hX : IsCompact.{w} X) : IsCompact.{w} (F.obj X) :=
+  have : F.asEquivalence.functor.Additive := hA
+  hX.map_of_equivalence F.asEquivalence
+
 section Corner
 
 variable {k : Type*} {A : Type u} [Field k] [Ring A] [Algebra k A]
@@ -86,6 +94,27 @@ theorem isEquivalence_diagramCornerWeightDerivedRightTensor :
   exact isEquivalence_diagramWeightDerivedTensor (A := he'.Cornerᵐᵒᵖ) (B := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G) (cornerWeight_left_mem' G he') (cornerWeight_right_mem' G he)
 
+/-- The graded derived corner tensor is additive. -/
+theorem diagramCornerWeightDerivedRightTensor_additive :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := Graded.cornerGradedAlgebra G he' he'0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraInternalGrading (oppositeGrade R)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+    [CatModule.HasDerivedCategory.{u,u} (WeightCategory he.Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory.{u,u} (WeightCategory he'.Cornerᵐᵒᵖ)] →
+    (diagramCornerWeightDerivedRightTensor G he he' he0 he'0).Additive := by
+  let := Graded.cornerGradedAlgebra G he he0
+  let := Graded.cornerGradedAlgebra G he' he'0
+  let := gradedAlgebraInternalGrading (oppositeGrade L)
+  let := gradedAlgebraInternalGrading (oppositeGrade R)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade R)
+  intro _ _
+  exact diagramWeightDerivedTensor_additive (A := he'.Cornerᵐᵒᵖ) (B := he.Cornerᵐᵒᵖ)
+    (diagramCornerWeight G) (cornerWeight_left_mem' G he') (cornerWeight_right_mem' G he)
+
 end Corner
 
 end Categorification
@@ -104,6 +133,32 @@ variable {I : Type u} {k : Type u} [DecidableEq I] [Field k] {ℓ : ℕ}
 local notation "V" => violAuxiliaryGrade (ν := ν) G
 local notation "hE" => isIdempotentElem_violMk_redProj k Q Λ ν
 local notation "S" => fun κ => Graded.oppositeGrade (Graded.cornerGrading V (hE κ))
+
+/-- The graded braiding functors are additive. -/
+theorem auxiliaryGradedBraidingFunctor_additive (κ' κ : List (Fin ℓ)) :
+    letI := Graded.cornerGradedAlgebra V (hE κ')
+      (redProj_mem_violAuxiliaryGrade G κ')
+    letI := Graded.cornerGradedAlgebra V (hE κ)
+      (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading (S κ')
+    letI := gradedAlgebraInternalGrading (S κ)
+    letI := gradedAlgebraBigradedDGRing (S κ')
+    letI := gradedAlgebraBigradedDGRing (S κ)
+    [CatModule.HasDerivedCategory.{u,u} (WeightCategory (hE κ').Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory.{u,u} (WeightCategory (hE κ).Cornerᵐᵒᵖ)] →
+    Functor.Additive
+      (C := CatModule.DerivedCategory.{u,u} (WeightCategory (hE κ').Cornerᵐᵒᵖ))
+      (D := CatModule.DerivedCategory.{u,u} (WeightCategory (hE κ).Cornerᵐᵒᵖ))
+      (auxiliaryGradedBraidingFunctor G κ' κ) := by
+  let := Graded.cornerGradedAlgebra V (hE κ') (redProj_mem_violAuxiliaryGrade G κ')
+  let := Graded.cornerGradedAlgebra V (hE κ) (redProj_mem_violAuxiliaryGrade G κ)
+  let := gradedAlgebraInternalGrading (S κ')
+  let := gradedAlgebraInternalGrading (S κ)
+  let := gradedAlgebraBigradedDGRing (S κ')
+  let := gradedAlgebraBigradedDGRing (S κ)
+  intro _ _
+  exact diagramCornerWeightDerivedRightTensor_additive V (hE κ') (hE κ)
+    (redProj_mem_violAuxiliaryGrade G κ') (redProj_mem_violAuxiliaryGrade G κ)
 
 /-- **A graded braiding functor is an equivalence when the ungraded one is** (Webster,
 arXiv:1309.3796v3, Definition 6.6 and Theorem 6.15): if `𝔅(κ', κ) = - ⊗ᴸ B(κ', κ)` is an

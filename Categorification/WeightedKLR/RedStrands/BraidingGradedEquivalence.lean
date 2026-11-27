@@ -90,6 +90,44 @@ theorem isEquivalence_auxiliaryGradedBraidingFunctor (Λ : Fin (ℓ + 1) → I �
   exact isEquivalence_auxiliaryGradedBraidingFunctor_of_isEquivalence G κ' κ
     (isEquivalence_braidingFunctor C hQ hR H Λ ν wt hwt h' h)
 
+include hQ hR H in
+/-- **Webster, Lemma 6.13, for the graded braiding functors** (arXiv:1309.3796v3): every graded
+braiding functor `𝔅(κ', κ)` sends compact objects to compact objects. Here this follows from
+Theorem 6.15 (`isEquivalence_auxiliaryGradedBraidingFunctor`), with its route hypothesis;
+Webster's argument goes through the standard filtration of `B(κ', κ)`. -/
+theorem isCompact_auxiliaryGradedBraidingFunctor_obj (Λ : Fin (ℓ + 1) → I →₀ ℕ)
+    (ν : Multiset I) (wt : Fin (ℓ + 1) → LieLean.QuantumGroup.GrandLoop.Dom R)
+    (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i)) {κ' κ : List (Fin (ℓ + 1))}
+    (h' : κ'.Perm fin) (h : κ.Perm fin) (G : KLR.GradingDatum (stendhalQ QL Λ)) :
+    letI := Graded.cornerGradedAlgebra (violAuxiliaryGrade (ν := ν) G)
+      (isIdempotentElem_violMk_redProj k QL Λ ν κ') (redProj_mem_violAuxiliaryGrade G κ')
+    letI := Graded.cornerGradedAlgebra (violAuxiliaryGrade (ν := ν) G)
+      (isIdempotentElem_violMk_redProj k QL Λ ν κ) (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading (Graded.oppositeGrade (Graded.cornerGrading
+      (violAuxiliaryGrade (ν := ν) G) (isIdempotentElem_violMk_redProj k QL Λ ν κ')))
+    letI := gradedAlgebraInternalGrading (Graded.oppositeGrade (Graded.cornerGrading
+      (violAuxiliaryGrade (ν := ν) G) (isIdempotentElem_violMk_redProj k QL Λ ν κ)))
+    letI := gradedAlgebraBigradedDGRing (Graded.oppositeGrade (Graded.cornerGrading
+      (violAuxiliaryGrade (ν := ν) G) (isIdempotentElem_violMk_redProj k QL Λ ν κ')))
+    letI := gradedAlgebraBigradedDGRing (Graded.oppositeGrade (Graded.cornerGrading
+      (violAuxiliaryGrade (ν := ν) G) (isIdempotentElem_violMk_redProj k QL Λ ν κ)))
+    [CatModule.HasDerivedCategory.{0, 0}
+      (WeightCategory (isIdempotentElem_violMk_redProj k QL Λ ν κ').Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory.{0, 0}
+      (WeightCategory (isIdempotentElem_violMk_redProj k QL Λ ν κ).Cornerᵐᵒᵖ)] →
+    ∀ X : CatModule.DerivedCategory.{0, 0}
+        (WeightCategory (isIdempotentElem_violMk_redProj k QL Λ ν κ').Cornerᵐᵒᵖ),
+      IsCompact.{0} X →
+      IsCompact.{0} (Functor.obj
+        (C := CatModule.DerivedCategory.{0, 0}
+          (WeightCategory (isIdempotentElem_violMk_redProj k QL Λ ν κ').Cornerᵐᵒᵖ))
+        (D := CatModule.DerivedCategory.{0, 0}
+          (WeightCategory (isIdempotentElem_violMk_redProj k QL Λ ν κ).Cornerᵐᵒᵖ))
+        (auxiliaryGradedBraidingFunctor G κ' κ) X) := by
+  intro _ _ X hX
+  exact isCompact_obj_of_isEquivalence _ (auxiliaryGradedBraidingFunctor_additive G κ' κ)
+    (isEquivalence_auxiliaryGradedBraidingFunctor C hQ hR H Λ ν wt hwt h' h G) hX
+
 end KhovanovLauda
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

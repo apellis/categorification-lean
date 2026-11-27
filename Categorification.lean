@@ -2519,3 +2519,4 @@ import Categorification.WeightedKLR.RedStrands.StandardSplitFiltration
 import Categorification.WeightedKLR.RedStrands.EiFiltrationStatement
 import Categorification.Algebra.AlgebraFamilyCastEquiv
 import Categorification.WeightedKLR.RedStrands.EiCasts
+import Categorification.WeightedKLR.RedStrands.EiInductionAction

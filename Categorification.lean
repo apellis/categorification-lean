@@ -948,6 +948,7 @@ import Categorification.TwoRep.RouqCyclicCross
 import Categorification.TwoRep.RouqModel
 import Categorification.TwoRep.RouqRestrict
 import Categorification.TwoRep.RouqRestrictSig
+import Categorification.TwoRep.RouqRestrictScalars
 import Categorification.TwoRep.RouqInterp
 import Categorification.TwoRep.RouqUpKLR
 import Categorification.TwoRep.RouqKLRAction

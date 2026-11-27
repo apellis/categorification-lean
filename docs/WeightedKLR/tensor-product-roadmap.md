@@ -1360,6 +1360,17 @@ Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); t
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).
 
+In v3 numbering: Cor 6.8 (`𝔅 P⁰ ≅ P⁰`) is proved for all red orders with no extra hypothesis
+(`bijective_redBraid_mul`, `RedFirstBraiding.lean`); Lemma 6.12 (composites,
+`braidingFunctorCompIsoOfLengthAdd`) and Lemma 6.13 (compactness, `isCompact_braidingFunctor_obj`)
+are proved under the hypotheses of Lemma 6.11. For Thm 6.15 the generic inputs are proved: a
+coproduct-preserving triangulated functor which is bijective on the shifted Homs of a compact
+generating family and sends it to a compact generating family is an equivalence
+(`isEquivalence_of_compactlyGenerates`), and the vanishing form of Ext–Tor duality over a field
+(`hom_dualModule_shift_eq_zero`). Remaining, in Webster's order: self-duality of `𝔅_τ P` through
+the trace on `P⁰`, `ι`, `π` and Cor 6.8 (Thm 6.14), hence vanishing of the higher Ext between the
+`𝔅_τ P`; the dimension count from Cor 6.11 with injectivity from Lemma 5.25; generation.
+
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric
 parameters (`intervalConcat_injective`). Its image is the span of shifted

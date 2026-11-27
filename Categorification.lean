@@ -88,6 +88,7 @@ import Categorification.Algebra.Graded.Restriction
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
+import Categorification.Algebra.CommutingFamilySingle
 import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorAdjunction
 import Categorification.Algebra.LinearMapRingEquiv

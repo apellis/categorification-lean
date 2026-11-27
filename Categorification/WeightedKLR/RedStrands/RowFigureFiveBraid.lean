@@ -175,7 +175,8 @@ theorem braidConcentrated_rightRowStandard (u : Fin (n + 2 + m) → List I)
     (uncrossedLoading_lbl_zero _) (uncrossedLoading_lbl_one _) (edgeBraid_crossedLoading _)
     (redWord_crossedLoading _) (redWord_uncrossedLoading _) (rowL u) (weightSum_rowBlocks u hu)
     (rowBlockLoadings u (crossedLoading _)) (not_violated_rowCrossed u) (redWord_rowCrossed u hu)
-    (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
+    (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m)
+    (finRange_eq_rowBlocks u)
     (map_pairSwap_finRange u) H.filtration H.injective
   exact braidConcentrated_rightStandard_congr.{w} _ hQ.klrSymm _ hQ
     (rowLoading_eq_rowCrossed u hu).symm _ _ key
@@ -222,7 +223,8 @@ def rightRowStandardBraidIso (u : Fin (n + 2 + m) → List I) (hu : u (rightPos 
     (uncrossedLoading_lbl_zero _) (uncrossedLoading_lbl_one _) (edgeBraid_crossedLoading _)
     (redWord_crossedLoading _) (redWord_uncrossedLoading _) (rowL u) (weightSum_rowBlocks u hu)
     (rowBlockLoadings u (crossedLoading _)) (not_violated_rowCrossed u) (redWord_rowCrossed u hu)
-    (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
+    (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m)
+    (finRange_eq_rowBlocks u)
     (map_pairSwap_finRange u) (redWord_swappedRowLoading u) (redPerm_swappedRowLoading_eq u hu)
 
 end Categorification.Stendhal.FirstWeight

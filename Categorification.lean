@@ -2556,10 +2556,15 @@ import Categorification.WeightedKLR.Rigidity.CupCapDiagrams
 import Categorification.WeightedKLR.Rigidity.CupCapEndBlock
 import Categorification.WeightedKLR.Rigidity.CupCapEndDescent
 import Categorification.WeightedKLR.Rigidity.CupCapEndModel
+import Categorification.WeightedKLR.Rigidity.CupCapEndNull
 import Categorification.WeightedKLR.Rigidity.CupCapFunctor
 import Categorification.WeightedKLR.Rigidity.CupCapInducedMaps
+import Categorification.WeightedKLR.Rigidity.CupCapLeftBlock
+import Categorification.WeightedKLR.Rigidity.CupCapLeftDescent
+import Categorification.WeightedKLR.Rigidity.CupCapPairPassage
 import Categorification.WeightedKLR.Rigidity.CupCapPassage
 import Categorification.WeightedKLR.Rigidity.CupCapPullOff
+import Categorification.WeightedKLR.Rigidity.CupCapPullOffLeft
 import Categorification.WeightedKLR.Rigidity.CupCapSliding
 import Categorification.WeightedKLR.Rigidity.CupCapSpanning
 import Categorification.WeightedKLR.Rigidity.CupCapTrace

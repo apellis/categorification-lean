@@ -2604,8 +2604,17 @@ import Categorification.WeightedKLR.Rigidity.CupCapLeftBlock
 import Categorification.WeightedKLR.Rigidity.CupCapLeftDescent
 import Categorification.WeightedKLR.Rigidity.CupCapLeftLoop
 import Categorification.WeightedKLR.Rigidity.CupCapMidAction
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerBasis
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerCorner
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerFactor
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerFree
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerIndex
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerTopBasis
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerWindow
+import Categorification.WeightedKLR.Rigidity.CupCapMidCornerWords
 import Categorification.WeightedKLR.Rigidity.CupCapMidDescent
 import Categorification.WeightedKLR.Rigidity.CupCapMidGenerators
+import Categorification.WeightedKLR.Rigidity.CupCapMidKLR
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftLoop
 import Categorification.WeightedKLR.Rigidity.CupCapMidModule
 import Categorification.WeightedKLR.Rigidity.CupCapMidNull

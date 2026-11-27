@@ -2769,3 +2769,4 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDotInsideQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDotRightQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapEdgesQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapPitchforkQ
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownBijectiveQ

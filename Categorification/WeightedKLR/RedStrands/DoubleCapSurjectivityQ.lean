@@ -16,8 +16,8 @@ two all-down ordered loadings belongs to the span of ordinary diagrams in
 the violating quotient. The crossing-count induction checks every placement
 of a dot, cup or admissible crossing relative to the terminal cap. Entrywise
 spanning gives surjectivity of the ordinary algebra homomorphism.
-The cap presentation includes the reflected KL III black relations. A comparison
-of that normalization with general Webster black parameters is still open.
+The cap presentation includes the reflected black relations of `U_Q(g)`, for arbitrary
+Cautis–Lauda scalars; the pitchforks then hold up to units, which the spans absorb.
 
 This is the version of `DoubleCapSurjectivity` in which the black strands carry the relations of
 Cautis–Lauda's `U_Q(g)` (arXiv:1111.1431v3, Definition 1.1, `r = 1`; `CLQ.pres RD k sc`) instead

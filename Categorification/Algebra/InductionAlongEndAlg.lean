@@ -78,6 +78,51 @@ theorem IndK.map_comm_apply {g : N →ₗ[A] N} {g' : N' →ₗ[A] N'} {e : N �
 
 end Comm
 
+section LeftFactorMap
+
+open scoped TensorProduct
+
+variable {k : Type*} [CommRing k] {A : Type u} [Ring A] [Algebra k A] {C : Type u} [Ring C]
+  [Algebra k C] {B : Type u} [Ring B] [Algebra k B] (φ : A →ₙ+* B)
+  (hφ : ∀ (c : k) (t : A), φ (c • t) = c • φ t)
+  (ψ : A ⊗[k] C →ₙ+* B ⊗[k] C) (hψ : ∀ (a : A) (c : C), ψ (a ⊗ₜ c) = φ a ⊗ₜ c)
+  {N N₂ : Type w} [AddCommGroup N] [Module k N] [Module (A ⊗[k] C) N]
+  [IsScalarTower k (A ⊗[k] C) N] [AddCommGroup N₂] [Module k N₂] [Module (A ⊗[k] C) N₂]
+  [IsScalarTower k (A ⊗[k] C) N₂]
+
+/-- A map of `A ⊗ C`-modules as a map of the restrictions to `A`. -/
+def leftFactorResMap (g : N →ₗ[A ⊗[k] C] N₂) :
+    LeftFactorRes k A C N →ₗ[A] LeftFactorRes k A C N₂ where
+  toFun x := (show N₂ from g (show N from x))
+  map_add' x y := g.map_add (show N from x) (show N from y)
+  map_smul' a x := g.map_smul (a ⊗ₜ[k] (1 : C)) (show N from x)
+
+/-- **`indLeftFactorEquiv` is natural.** -/
+theorem indLeftFactorEquiv_map (g : N →ₗ[A ⊗[k] C] N₂) (x : IndK k N ψ) :
+    indLeftFactorEquiv φ hφ ψ hψ (IndK.map g x) =
+      IndK.map (leftFactorResMap g) (indLeftFactorEquiv φ hφ ψ hψ x) := by
+  induction x using Ind.induction_on with
+  | zero =>
+    exact (congrArg (indLeftFactorEquiv φ hφ ψ hψ) (map_zero (IndK.map (k := k) g))).trans
+      ((map_zero _).trans ((map_zero (IndK.map (k := k) (leftFactorResMap g))).symm.trans
+        (congrArg _ (map_zero (indLeftFactorEquiv φ hφ ψ hψ)).symm)))
+  | tmul z n =>
+    change leftFactorFwdLin φ hφ z.1 (g n) =
+      IndK.map (leftFactorResMap g) (leftFactorFwdLin φ hφ z.1 n)
+    induction z.1 using TensorProduct.inductionOn with
+    | tmul b c =>
+      rw [leftFactorFwdLin_tmul, leftFactorFwdLin_tmul, IndK.map_tmul]
+      congr 1
+      exact (g.map_smul ((1 : A) ⊗ₜ[k] c) n).symm
+    | add y y' hy hy' =>
+      rw [map_add, LinearMap.add_apply, hy, hy', map_add, LinearMap.add_apply, map_add]
+  | add s t hs ht =>
+    exact (congrArg (indLeftFactorEquiv φ hφ ψ hψ) (map_add (IndK.map (k := k) g) s t)).trans
+      ((map_add _ _ _).trans ((congrArg₂ (· + ·) hs ht).trans
+        ((map_add _ _ _).symm.trans (congrArg _ (map_add _ s t).symm))))
+
+end LeftFactorMap
+
 end InductionAlong
 
 end Categorification

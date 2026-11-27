@@ -7,6 +7,7 @@ import Categorification.WeightedKLR.RedStrands.BlockAlgebraSplit
 import Categorification.WeightedKLR.RedStrands.EiInductionAction
 import Categorification.Algebra.InductionAlongTensorFactorAction
 import Categorification.Algebra.InductionAlongTransportNaturality
+import Categorification.Algebra.InductionAlongTensorSplit
 
 /-!
 # `ₖFᵢ` commutes with restriction to the first red strands
@@ -17,7 +18,9 @@ black strand of colour `i` added to the block `κ + 1`, `κ < ℓ`. Through the 
 `B(b') ≅ B'(b') ⊗ R^{λ_{ℓ+1}}(b'_{ℓ+1})` and `B(b) ≅ B'(b) ⊗ R^{λ_{ℓ+1}}(b'_{ℓ+1})` of the block
 algebras (`blockSplit`), the map `B(b') → B(b)` of `ₖFᵢ` is `ₖFᵢ ⊗ 1`
 (`splitBig_blockBlackRes`). Hence, for a right `B(b')`-module `M`, induction along it is
-induction along `B'(b') → B'(b)` of the restriction of `M` (`initBlackIndEquiv`).
+induction along `B'(b') → B'(b)` of the restriction of `M` (`initBlackIndEquiv`), naturally in
+`M` (`initBlackIndEquiv_natural`) and compatibly with the last cyclotomic factor
+(`initBlackIndEquiv_lastFactorEnd`).
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -142,88 +145,23 @@ section Module
 variable (M : Type) [AddCommGroup M] [Module k M] [Module (BlockAlgebra k Q Λ b')ᵐᵒᵖ M]
   [IsScalarTower k (BlockAlgebra k Q Λ b')ᵐᵒᵖ M]
 
-/-- A right module over the block algebra of `b'` as a module over the split algebra. -/
-@[nolint unusedArguments]
-def SplitModule (_Q : I → I → MvPolynomial (Fin 2) k) (_Λ : Fin (ℓ + 1) → I →₀ ℕ)
-    (_b' : Fin (ℓ + 2) → Multiset I) (M : Type) : Type := M
-
-instance : AddCommGroup (SplitModule Q Λ b' M) := inferInstanceAs (AddCommGroup M)
-instance : Module k (SplitModule Q Λ b' M) := inferInstanceAs (Module k M)
-instance : Module (B₁'ᵐᵒᵖ ⊗[k] Cyc'ᵐᵒᵖ) (SplitModule Q Λ b' M) :=
-  Module.compHom M (splitSmallOp Q Λ (b' := b')).symm.toRingEquiv.toRingHom
-
-theorem splitModule_smul (t : B₁'ᵐᵒᵖ ⊗[k] Cyc'ᵐᵒᵖ) (m : SplitModule Q Λ b' M) :
-    t • m = (show SplitModule Q Λ b' M from
-      ((splitSmallOp Q Λ (b' := b')).symm t • (show M from m))) := rfl
-
-instance : IsScalarTower k (B₁'ᵐᵒᵖ ⊗[k] Cyc'ᵐᵒᵖ) (SplitModule Q Λ b' M) where
-  smul_assoc c t m := by
-    change (splitSmallOp Q Λ (b' := b')).symm (c • t) • (show M from m) =
-      c • ((splitSmallOp Q Λ (b' := b')).symm t • (show M from m))
-    rw [map_smul]
-    exact smul_assoc c ((splitSmallOp Q Λ (b' := b')).symm t) (show M from m)
-
-/-- The identity `M → SplitModule M`. -/
-def toSplitModule : M ≃+ SplitModule Q Λ b' M := AddEquiv.refl M
-
-theorem toSplitModule_smul (t : (BlockAlgebra k Q Λ b')ᵐᵒᵖ) (m : M) :
-    toSplitModule Q Λ (b' := b') M (t • m) =
-      (splitSmallOp Q Λ (b' := b')).toRingEquiv t • toSplitModule Q Λ (b' := b') M m := by
-  change t • m = (splitSmallOp Q Λ (b' := b')).symm (splitSmallOp Q Λ t) • m
-  rw [AlgEquiv.symm_apply_apply]
-
-/-- The restriction of the split module to the first factor is the restriction of `M`. -/
-def leftFactorSplitEquiv :
-    LeftFactorRes k B₁'ᵐᵒᵖ Cyc'ᵐᵒᵖ (SplitModule Q Λ b' M) ≃ₗ[B₁'ᵐᵒᵖ]
-      InitRestrict Q Λ b' M where
-  toFun m := initRestrictOf Q Λ b' (show M from m)
-  invFun m := (show LeftFactorRes k B₁'ᵐᵒᵖ Cyc'ᵐᵒᵖ (SplitModule Q Λ b' M) from
-    (initRestrictOf Q Λ b').symm m)
-  map_add' _ _ := rfl
-  map_smul' a m := by
-    induction a using MulOpposite.rec' with | _ x =>
-    rw [RingHom.id_apply, op_smul_initRestrictOf]
-    change initRestrictOf Q Λ b' ((splitSmallOp Q Λ (b' := b')).symm (op x ⊗ₜ op 1) •
-      (show M from m)) = _
-    rw [splitSmallOp_symm_tmul, map_one, mul_one]
-  left_inv _ := rfl
-  right_inv _ := rfl
-
 local notation "φ₁" => blockBlackResOp Q (Λ ∘ Fin.castSucc) i κ (b := initBlocks b)
   (b' := initBlocks b') h0 (initBlocks_rightBlock_of_ne κ hr) hκ
 local notation "φ" => blockBlackResOp Q Λ i κ.castSucc h0 hr hκ
 
-/-- The transport of `ₖFᵢ M` to the split algebras. -/
-def splitIndTransport :
-    IndK k M φ ≃+ IndK k (SplitModule Q Λ b' M) (splitRes Q Λ i κ h0 hr hκ) :=
-  Ind.transport (splitSmallOp Q Λ (b' := b')).toRingEquiv (splitBigOp Q Λ κ hr).toRingEquiv
-    (splitRes_splitSmallOp Q Λ i κ h0 hr hκ) (toSplitModule Q Λ (b' := b') M) fun t m => by
-      change t • m = (splitSmallOp Q Λ (b' := b')).symm (splitSmallOp Q Λ t) • m
-      rw [AlgEquiv.symm_apply_apply]
-
-theorem splitIndTransport_smul (t : (BlockAlgebra k Q Λ b)ᵐᵒᵖ) (w : IndK k M φ) :
-    splitIndTransport Q Λ i κ h0 hr hκ M (t • w) =
-      splitBigOp Q Λ κ hr t • splitIndTransport Q Λ i κ h0 hr hκ M w :=
-  Ind.transport_smul _ _ _ _ _ t w
-
-/-- Induction along `ₖFᵢ ⊗ 1` as induction along `ₖFᵢ` of the first factor. -/
-abbrev splitLeftEquiv :
-    IndK k (SplitModule Q Λ b' M) (splitRes Q Λ i κ h0 hr hκ) ≃ₗ[k]
-      IndK k (LeftFactorRes k B₁'ᵐᵒᵖ Cyc'ᵐᵒᵖ (SplitModule Q Λ b' M)) φ₁ :=
-  indLeftFactorEquiv φ₁ (blockBlackResOp_smul Q (Λ ∘ Fin.castSucc) i κ h0
-    (initBlocks_rightBlock_of_ne κ hr) hκ) (splitRes Q Λ i κ h0 hr hκ) (fun _ _ => rfl)
-
-theorem splitLeftEquiv_tmul_one_smul (a : B₁ᵐᵒᵖ)
-    (w : IndK k (SplitModule Q Λ b' M) (splitRes Q Λ i κ h0 hr hκ)) :
-    splitLeftEquiv Q Λ i κ h0 hr hκ M ((a ⊗ₜ 1 : B₁ᵐᵒᵖ ⊗[k] Cyc'ᵐᵒᵖ) • w) =
-      a • splitLeftEquiv Q Λ i κ h0 hr hκ M w :=
-  indLeftFactorEquiv_tmul_one_smul _ _ _ _ a w
+theorem initRestrictOf_splitSmallOp_symm_tmul_one (x : B₁'ᵐᵒᵖ) (m : M) :
+    initRestrictOf Q Λ b' ((splitSmallOp Q Λ (b' := b')).symm
+      ((x ⊗ₜ (1 : Cyc'ᵐᵒᵖ) : B₁'ᵐᵒᵖ ⊗[k] Cyc'ᵐᵒᵖ)) • m) = x • initRestrictOf Q Λ b' m := by
+  induction x using MulOpposite.rec' with | _ x =>
+  rw [op_smul_initRestrictOf, show (1 : Cyc'ᵐᵒᵖ) = op 1 from rfl, splitSmallOp_symm_tmul,
+    map_one, mul_one]
 
 /-- **`ₖFᵢ M ≅ ₖFᵢ(M|_{B'})` as additive groups**, through the splittings. -/
 def initIndFwd : IndK k M φ ≃+ IndK k (InitRestrict Q Λ b' M) φ₁ :=
-  ((splitIndTransport Q Λ i κ h0 hr hκ M).trans
-    (splitLeftEquiv Q Λ i κ h0 hr hκ M).toAddEquiv).trans
-    (Ind.mapEquiv (leftFactorSplitEquiv Q Λ M)).toAddEquiv
+  splitInd (splitSmallOp Q Λ (b' := b')) (splitBigOp Q Λ κ hr) φ φ₁
+    (blockBlackResOp_smul Q (Λ ∘ Fin.castSucc) i κ h0 (initBlocks_rightBlock_of_ne κ hr) hκ)
+    (splitRes_splitSmallOp Q Λ i κ h0 hr hκ) (initRestrictOf Q Λ b' (M := M)).toAddEquiv
+    (initRestrictOf_splitSmallOp_symm_tmul_one Q Λ M)
 
 theorem splitBigOp_op_initBlockAlgHom (x : B₁) :
     splitBigOp Q Λ κ hr (op (initBlockAlgHom Q Λ b x)) = op x ⊗ₜ 1 := by
@@ -232,16 +170,99 @@ theorem splitBigOp_op_initBlockAlgHom (x : B₁) :
   rw [splitBig_initBlockAlgHom, Algebra.TensorProduct.opAlgEquiv_symm_tmul]
   rfl
 
+/-- **`initIndFwd` is linear over the first `ℓ` red strands.** -/
 theorem initIndFwd_smul (x : B₁) (w : IndK k M φ) :
     initIndFwd Q Λ i κ h0 hr hκ M (op (initBlockAlgHom Q Λ b x) • w) =
       op x • initIndFwd Q Λ i κ h0 hr hκ M w := by
-  rw [initIndFwd, AddEquiv.trans_apply, AddEquiv.trans_apply, splitIndTransport_smul,
+  rw [← (splitBigOp Q Λ κ hr).symm_apply_apply (op (initBlockAlgHom Q Λ b x)),
     splitBigOp_op_initBlockAlgHom]
-  change Ind.mapEquiv (leftFactorSplitEquiv Q Λ M) (splitLeftEquiv Q Λ i κ h0 hr hκ M
-      ((op x ⊗ₜ 1 : B₁ᵐᵒᵖ ⊗[k] Cyc'ᵐᵒᵖ) • splitIndTransport Q Λ i κ h0 hr hκ M w)) =
-    op x • Ind.mapEquiv (leftFactorSplitEquiv Q Λ M) (splitLeftEquiv Q Λ i κ h0 hr hκ M
-      (splitIndTransport Q Λ i κ h0 hr hκ M w))
-  rw [splitLeftEquiv_tmul_one_smul, map_smul]
+  exact splitInd_smul _ _ _ _ _ _ _ _ (op x) w
+
+/-- **`initIndFwd` is natural** in endomorphisms of `M`. -/
+theorem initIndFwd_map (g : Module.End (BlockAlgebra k Q Λ b')ᵐᵒᵖ M) (w : IndK k M φ) :
+    initIndFwd Q Λ i κ h0 hr hκ M (IndK.map g w) =
+      IndK.map (initRestrictEnd Q Λ b' g) (initIndFwd Q Λ i κ h0 hr hκ M w) :=
+  splitInd_map _ _ _ _ _ _ _ _ g (initRestrictEnd Q Λ b' g) (fun _ => rfl) w
+
+theorem splitBigOp_op_lastBlockAlgHom (y : Cyc') :
+    splitBigOp Q Λ κ hr (op (lastBlockAlgHom Q Λ b (CyclotomicAction.castCyc Q
+      (redCyc Λ (Fin.last ℓ)) (lastBlock_eq_of_castSucc hr) y))) = 1 ⊗ₜ op y := by
+  change (Algebra.TensorProduct.opAlgEquiv k k B₁ Cyc').symm
+    (op (splitBig Q Λ κ hr (lastBlockAlgHom Q Λ b _))) = _
+  rw [splitBig_lastBlockAlgHom, Algebra.TensorProduct.opAlgEquiv_symm_tmul]
+  rfl
+
+/-- **`initIndFwd` intertwines the last factors.** -/
+theorem initIndFwd_last (z : Cyc') (w : IndK k M φ) :
+    initIndFwd Q Λ i κ h0 hr hκ M (op (lastBlockAlgHom Q Λ b
+        (CycKLR.flip (redCyc Λ (Fin.last ℓ)) (rightBlock b (Fin.last ℓ))
+          (CyclotomicAction.castCyc Q (redCyc Λ (Fin.last ℓ)) (lastBlock_eq_of_castSucc hr) z)))
+          • w) =
+      IndK.map (lastFactorEnd Q Λ b' z) (initIndFwd Q Λ i κ h0 hr hκ M w) := by
+  rw [cycFlip_castCyc, ← (splitBigOp Q Λ κ hr).symm_apply_apply (op (lastBlockAlgHom Q Λ b _)),
+    splitBigOp_op_lastBlockAlgHom]
+  refine splitInd_one_tmul_smul _ _ _ _ _ _ _ _ _ (lastFactorEnd Q Λ b' z) (fun m => ?_) w
+  change initRestrictOf Q Λ b' ((splitSmallOp Q Λ (b' := b')).symm
+    ((1 : B₁'ᵐᵒᵖ) ⊗ₜ op (CycKLR.flip (redCyc Λ (Fin.last ℓ)) (rightBlock b' (Fin.last ℓ)) z)) •
+      m) = _
+  rw [show (1 : B₁'ᵐᵒᵖ) = op 1 from rfl, splitSmallOp_symm_tmul, map_one, one_mul]
+  rfl
+
+local notation "Fκ" => BlockBlackInd Q Λ i κ.castSucc h0 hr hκ M
+
+theorem initIndFwd_symm_smul (x : B₁) (w : IndK k (InitRestrict Q Λ b' M) φ₁) :
+    (initIndFwd Q Λ i κ h0 hr hκ M).symm (op x • w) =
+      op (initBlockAlgHom Q Λ b x) • (initIndFwd Q Λ i κ h0 hr hκ M).symm w := by
+  apply (initIndFwd Q Λ i κ h0 hr hκ M).injective
+  rw [initIndFwd_smul, AddEquiv.apply_symm_apply, AddEquiv.apply_symm_apply]
+
+/-- **`ₖFᵢ` commutes with the restriction to the first `ℓ` red strands**, `κ < ℓ`:
+`ₖFᵢ(M|_{B'}) ≅ (ₖFᵢ M)|_{B}` as right modules over the block algebra of the first `ℓ` red
+strands of `b`. -/
+def initBlackIndEquiv :
+    IndK k (InitRestrict Q Λ b' M) φ₁ ≃ₗ[B₁ᵐᵒᵖ] InitRestrict Q Λ b Fκ where
+  toFun w := initRestrictOf Q Λ b ((initIndFwd Q Λ i κ h0 hr hκ M).symm w)
+  invFun y := initIndFwd Q Λ i κ h0 hr hκ M ((initRestrictOf Q Λ b).symm y)
+  map_add' w w' := by rw [map_add, map_add]
+  map_smul' a w := by
+    induction a using MulOpposite.rec' with | _ x =>
+    rw [RingHom.id_apply, op_smul_initRestrictOf, initIndFwd_symm_smul]
+  left_inv w := by
+    change initIndFwd Q Λ i κ h0 hr hκ M ((initRestrictOf Q Λ b).symm
+      (initRestrictOf Q Λ b _)) = w
+    rw [LinearEquiv.symm_apply_apply, AddEquiv.apply_symm_apply]
+  right_inv y := by
+    change initRestrictOf Q Λ b ((initIndFwd Q Λ i κ h0 hr hκ M).symm
+      (initIndFwd Q Λ i κ h0 hr hκ M _)) = y
+    rw [AddEquiv.symm_apply_apply, LinearEquiv.apply_symm_apply]
+
+theorem initBlackIndEquiv_symm_apply (y : InitRestrict Q Λ b Fκ) :
+    (initBlackIndEquiv Q Λ i κ h0 hr hκ M).symm y =
+      initIndFwd Q Λ i κ h0 hr hκ M ((initRestrictOf Q Λ b).symm y) := rfl
+
+/-- **Naturality of `initBlackIndEquiv`** in endomorphisms of `M`. -/
+theorem initBlackIndEquiv_natural (g : Module.End (BlockAlgebra k Q Λ b')ᵐᵒᵖ M)
+    (w : IndK k (InitRestrict Q Λ b' M) φ₁) :
+    initBlackIndEquiv Q Λ i κ h0 hr hκ M (IndK.map (initRestrictEnd Q Λ b' g) w) =
+      initRestrictEnd Q Λ b (IndK.map g) (initBlackIndEquiv Q Λ i κ h0 hr hκ M w) := by
+  apply (initBlackIndEquiv Q Λ i κ h0 hr hκ M).symm.injective
+  rw [LinearEquiv.symm_apply_apply, initBlackIndEquiv_symm_apply]
+  change _ = initIndFwd Q Λ i κ h0 hr hκ M (IndK.map g
+    ((initIndFwd Q Λ i κ h0 hr hκ M).symm w))
+  rw [initIndFwd_map, AddEquiv.apply_symm_apply]
+
+/-- **`initBlackIndEquiv` intertwines the actions of the last cyclotomic factor.** -/
+theorem initBlackIndEquiv_lastFactorEnd (z : Cyc') (w : IndK k (InitRestrict Q Λ b' M) φ₁) :
+    initBlackIndEquiv Q Λ i κ h0 hr hκ M (IndK.map (lastFactorEnd Q Λ b' z) w) =
+      lastFactorEnd Q Λ b (CyclotomicAction.castCyc Q (redCyc Λ (Fin.last ℓ))
+        (lastBlock_eq_of_castSucc hr) z) (initBlackIndEquiv Q Λ i κ h0 hr hκ M w) := by
+  apply (initBlackIndEquiv Q Λ i κ h0 hr hκ M).symm.injective
+  rw [LinearEquiv.symm_apply_apply, initBlackIndEquiv_symm_apply]
+  change _ = initIndFwd Q Λ i κ h0 hr hκ M (op (lastBlockAlgHom Q Λ b
+    (CycKLR.flip (redCyc Λ (Fin.last ℓ)) (rightBlock b (Fin.last ℓ))
+      (CyclotomicAction.castCyc Q (redCyc Λ (Fin.last ℓ)) (lastBlock_eq_of_castSucc hr) z))) •
+    (initIndFwd Q Λ i κ h0 hr hκ M).symm w)
+  rw [initIndFwd_last, AddEquiv.apply_symm_apply]
 
 end Module
 

@@ -21,6 +21,9 @@ along a coresolution of a dual standard module and along the resolution of `L_λ
 * `Ext.subsingleton_X₃_succ`: `Extⁿ(X₁, Y) = 0` and `Extⁿ⁺¹(X₂, Y) = 0` give
   `Extⁿ⁺¹(X₃, Y) = 0`.
 * `Ext.subsingleton_X₃_zero`: `Hom(X₂, Y) = 0` gives `Hom(X₃, Y) = 0`.
+* `Ext.subsingleton_X₂`: `Extⁿ(X₁, Y) = 0` and `Extⁿ(X₃, Y) = 0` give `Extⁿ(X₂, Y) = 0`.
+* `Ext.subsingleton_of_isZero`, `Ext.subsingleton_of_iso`: `Ext` out of a zero object vanishes, and
+  vanishing is invariant under isomorphism.
 -/
 
 universe w
@@ -75,5 +78,26 @@ theorem subsingleton_X₃_zero (Y : C) [Subsingleton (Ext S.X₂ Y 0)] :
   apply precomp_mk₀_injective_of_epi Y S.g
   rw [Subsingleton.elim ((mk₀ S.g).precomp Y (zero_add 0) x)
     ((mk₀ S.g).precomp Y (zero_add 0) 0)]
+
+include hS in
+/-- `Extⁿ(X₁, Y) = 0` and `Extⁿ(X₃, Y) = 0` give `Extⁿ(X₂, Y) = 0`. -/
+theorem subsingleton_X₂ (Y : C) (n : ℕ) [Subsingleton (Ext S.X₁ Y n)]
+    [Subsingleton (Ext S.X₃ Y n)] : Subsingleton (Ext S.X₂ Y n) := by
+  refine subsingleton_of_forall_eq 0 fun x => ?_
+  obtain ⟨y, rfl⟩ := contravariant_sequence_exact₂ hS Y x (Subsingleton.elim _ _)
+  rw [Subsingleton.elim y 0, comp_zero]
+
+/-- `Ext` out of a zero object vanishes. -/
+theorem subsingleton_of_isZero {X : C} (hX : IsZero X) (Y : C) (n : ℕ) :
+    Subsingleton (Ext X Y n) := by
+  refine subsingleton_of_forall_eq 0 fun x => ?_
+  rw [← mk₀_id_comp x, hX.eq_of_src (𝟙 X) 0, mk₀_zero, zero_comp]
+
+/-- Vanishing of `Ext` is invariant under isomorphism in the first variable. -/
+theorem subsingleton_of_iso {X X' : C} (e : X ≅ X') (Y : C) (n : ℕ)
+    (h : Subsingleton (Ext X' Y n)) : Subsingleton (Ext X Y n) := by
+  refine subsingleton_of_forall_eq 0 fun x => ?_
+  rw [← mk₀_id_comp x, ← e.hom_inv_id, ← mk₀_comp_mk₀_assoc,
+    Subsingleton.elim ((mk₀ e.inv).comp x (zero_add n)) 0, comp_zero]
 
 end CategoryTheory.Abelian.Ext

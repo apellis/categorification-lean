@@ -20,10 +20,10 @@ modules. Since `𝔅_w` categorifies the permutation of the tensor factors at `q
 `dim D = Σ_φ dim S_φ`, so all these surjections are isomorphisms.
 
 Here `Φ` is `loadingMono` of `t` (`finrank_braidF_rightSequence`), and `S_φ`, for the monomial
-`φ = (d, u)`, is the loading standard at the row loading of `u ∘ w` (`rowSeq`). The diagram
-filtration with its surjections is the input `BraidDiagramFiltration`, an interim hypothesis of
-this step; from it and the class map of `𝔅_w`, `D` has a standard filtration
-(`hasCornerStandardFiltration_braidF_rightSequence`).
+`φ = (d, u)`, is the loading standard at the row loading of `u ∘ w` (`rowSeq`). This file
+supplies the dimension bookkeeping (dimensions through the scalars of an algebra, of the row
+standards and of the loading monomials); the filtration itself is assembled in
+`BraidColumnCutFiltration` (`hasCornerStandardFiltration_braidF_rightSequence`).
 -/
 
 noncomputable section
@@ -151,99 +151,5 @@ theorem blockContent_comp_of_mem_loadingMono (w : Equiv.Perm (Fin ℓ)) {ν : Mu
     (t : Seq (stendhalWeight ℓ ν)) {p : ℤ × (Fin ℓ → List I)}
     (hp : p ∈ loadingMono wt (Seq.toList t)) : blockContent (p.2 ∘ w) = ν := by
   rw [blockContent_comp_equiv, blockContent_of_mem_loadingMono _ wt hp, blackLetters_toList]
-
-omit [Finite I] in
-/-- **The diagram filtration of `𝔅_w (e(t) T^λ)`** (Webster, arXiv:1309.3796v2, proof of
-Lemma 6.11, step `p_n → f_n`): a filtration of `𝔅_w (e(t) T^λ)`, as a right module over the
-corner at the identity red order of `λ ∘ w`, indexed by the monomials `φ = (d, u)` of `t`, with a
-surjection onto the `φ`-th factor from the loading standard at the row loading of `u ∘ w`.
-Webster constructs it from the images of the diagrams `y_φ`; here it is an interim hypothesis
-of the step `p_n → f_n`, tracked for removal. -/
-def BraidDiagramFiltration (w : Equiv.Perm (Fin ℓ)) : Prop :=
-  ∀ (ν : Multiset I) (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t),
-    ∃ D : {p // p ∈ loadingMono wt (Seq.toList t)} →
-        ModuleCat.{0} (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν)
-          (List.finRange ℓ))ᵐᵒᵖ,
-      HasFiltration D (loadingMono wt (Seq.toList t)).attach
-        (ModuleCat.of (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν)
-          (List.finRange ℓ))ᵐᵒᵖ (CornerRes (stendhalGradingDatum (Λ ∘ w) hQ.gradingDatum (fun i => C.dot i i / 2) (dotDegree C hQ)) (isReducedChoice_canChoice ν)
-          hQ.klrSymm (braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ
-            hQ.gradingDatum (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin))) ∧
-      ∀ c, ∃ d : ModuleCat.of (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν)
-          (List.finRange ℓ))ᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ ∘ w)
-          (rowSeq (c.1.2 ∘ w) (blockContent_comp_of_mem_loadingMono C wt w t c.2)).1
-          (List.finRange ℓ)) →ₗ[(ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν)
-          (List.finRange ℓ))ᵐᵒᵖ] D c, Function.Surjective d
-
-/-- **`f_n` from the class map** (Webster, arXiv:1309.3796v2, proof of Lemma 6.11, step
-`p_n → f_n`): if the class map of `𝔅_w` is `x ↦ B(f x, -)` with `f` congruent at `v = 1` to the
-permutation of the tensor factors by `w`, and `𝔅_w (e(t) T^λ)` has the diagram filtration with
-surjective standard factors (`BraidDiagramFiltration`, an interim hypothesis), then
-`𝔅_w (e(t) T^λ)` has a standard filtration. -/
-theorem hasCornerStandardFiltration_braidF_rightSequence (w : Equiv.Perm (Fin ℓ))
-    (f : TensorSpace wt →ₗ[𝕂] TensorSpace (wt ∘ w))
-    (hf : VOneCongr f (tensorPermute wt w).toLinearMap)
-    (hcls : braidClass C hQ hR Λ wt hwt w = (formDual hR (wt ∘ w)).comp f)
-    (hD : BraidDiagramFiltration C hQ Λ wt w)
-    {ν : Multiset I} (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t) :
-    HasCornerStandardFiltration (Λ ∘ w) ν (isReducedChoice_canChoice ν) hQ.klrSymm hQ
-      (braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
-        (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin) := by
-  obtain ⟨D, hfilt, hd⟩ := hD ν t ht
-  choose d hd using hd
-  set N := braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
-    (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin
-  let s : {p // p ∈ loadingMono wt (Seq.toList t)} → {s : Seq (stendhalWeight ℓ ν) //
-      redWord s = List.finRange ℓ ∧ ¬ IsViolated s} := fun c =>
-    rowSeq (c.1.2 ∘ w) (blockContent_comp_of_mem_loadingMono C wt w t c.2)
-  have hN : ∀ (c : k) (x : CornerRes (stendhalGradingDatum (Λ ∘ w) hQ.gradingDatum (fun i => C.dot i i / 2) (dotDegree C hQ))
-      (isReducedChoice_canChoice ν) hQ.klrSymm N),
-      algebraMap k (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν)
-        (List.finRange ℓ))ᵐᵒᵖ c • x = c • x := fun c x => by
-    rw [MulOpposite.algebraMap_apply]
-    exact CornerRes.op_algebraMap_smul (isReducedChoice_canChoice ν) hQ.klrSymm N c x
-  have hS := fun (c : {p // p ∈ loadingMono wt (Seq.toList t)}) (a : k)
-      (x : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ ∘ w) (s c).1 (List.finRange ℓ)) =>
-    algebraMap_smul_loadingStandard (s c).1 (List.finRange ℓ) a x
-  have : FiniteDimensional k (CornerRes (stendhalGradingDatum (Λ ∘ w) hQ.gradingDatum
-      (fun i => C.dot i i / 2) (dotDegree C hQ)) (isReducedChoice_canChoice ν) hQ.klrSymm N) :=
-    N.finiteDimensional
-  have := finiteDimensional_algebraModule (Y := ModuleCat.of
-      (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν) (List.finRange ℓ))ᵐᵒᵖ
-      (CornerRes (stendhalGradingDatum (Λ ∘ w) hQ.gradingDatum (fun i => C.dot i i / 2)
-        (dotDegree C hQ)) (isReducedChoice_canChoice ν) hQ.klrSymm N))
-    (AddEquiv.refl _) hN
-  have hDim := finrank_braidF_rightSequence C hQ hR Λ wt hwt w f hf hcls t ht
-  have h := HasFiltration.of_surjective_factors (k := k) hfilt d
-    (fun c => by
-      have := finiteDimensional_rowSeq C hQ (Λ ∘ w) (c.1.2 ∘ w)
-        (blockContent_comp_of_mem_loadingMono C wt w t c.2)
-      exact finiteDimensional_algebraModule (Y := ModuleCat.of
-        (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν) (List.finRange ℓ))ᵐᵒᵖ
-        (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ ∘ w) (s c).1 (List.finRange ℓ)))
-        (AddEquiv.refl _) (hS c))
-    hd (by
-      rw [finrank_algebraModule (Y := ModuleCat.of
-      (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ ∘ w) (ν := ν) (List.finRange ℓ))ᵐᵒᵖ
-      (CornerRes (stendhalGradingDatum (Λ ∘ w) hQ.gradingDatum (fun i => C.dot i i / 2)
-        (dotDegree C hQ)) (isReducedChoice_canChoice ν) hQ.klrSymm N))
-        (AddEquiv.refl _) hN]
-      change Module.finrank k N.carrier = _
-      rw [hDim, ← List.attach_map_val (l := loadingMono wt (Seq.toList t)) (f := fun p =>
-        Module.finrank k (rightRowStandard C hQ (Λ ∘ w) (p.2 ∘ w)).carrier)]
-      congr 1
-      refine List.map_congr_left fun c _ => ?_
-      rw [finrank_algebraModule (Y := ModuleCat.of (ViolOrderCorner (k := k) (Q := Q)
-        (Λ := Λ ∘ w) (ν := ν) (List.finRange ℓ))ᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q)
-          (Λ := Λ ∘ w) (s c).1 (List.finRange ℓ))) (AddEquiv.refl _) (hS c)]
-      exact (finrank_rowSeq C hQ (Λ ∘ w) (c.1.2 ∘ w)
-        (blockContent_comp_of_mem_loadingMono C wt w t c.2)).symm)
-  have h3 : ∀ c, HasFiltration (fun s => ModuleCat.of (ViolOrderCorner (k := k) (Q := Q)
-      (Λ := Λ ∘ w) (ν := ν) (List.finRange ℓ))ᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q)
-        (Λ := Λ ∘ w) s.1 (List.finRange ℓ))) [s c] (ModuleCat.of (ViolOrderCorner (k := k)
-          (Q := Q) (Λ := Λ ∘ w) (ν := ν) (List.finRange ℓ))ᵐᵒᵖ (ViolLoadingStandard (k := k)
-            (Q := Q) (Λ := Λ ∘ w) (s c).1 (List.finRange ℓ))) := fun c =>
-    HasFiltration.single (LinearEquiv.refl _ _)
-  exact ⟨_, h.bind h3⟩
 
 end Categorification.Stendhal.FirstWeight

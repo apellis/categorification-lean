@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.WeightedKLR.RedStrands.BraidSequenceStandardFiltration
+import Categorification.WeightedKLR.RedStrands.BraidColumnCutFiltration
 import Categorification.WeightedKLR.RedStrands.BraidAdjacentClassCongr
 import Categorification.WeightedKLR.RedStrands.GradedBraidComposeClass
 import Categorification.WeightedKLR.RedStrands.BraidRightSequenceCut
@@ -24,8 +24,7 @@ adjacent braidings, congruent at `v = 1` to the permutation of the tensor factor
 (`hasCongruentBraidClass`).
 
 Route hypotheses: those of Corollary 6.10 (`AllFiniteDeltaInjective`,
-`RowFigureFiveHypotheses`) and the diagram filtration of the step `p_n → f_n`
-(`BraidDiagramFiltration`).
+`RowFigureFiveHypotheses`).
 -/
 
 noncomputable section
@@ -214,15 +213,12 @@ variable [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I), Module.Finite k
 /-- **The class map along a reduced word** (Webster, arXiv:1309.3796v2, proof of Lemma 6.11,
 induction around `p_n → f_n → s_n → p_{n+1}`): for every `w ≠ 1`, the class map of `𝔅_w` is
 `x ↦ B(f x, -)` with `f` congruent at `v = 1` to the permutation of the tensor factors by `w`.
-Route hypotheses: `AllFiniteDeltaInjective` and `RowFigureFiveHypotheses` (Corollary 6.10), and
-`BraidDiagramFiltration` (the diagram filtration of the step `p_n → f_n`). -/
+Route hypotheses: `AllFiniteDeltaInjective` and `RowFigureFiveHypotheses` (Corollary 6.10). -/
 theorem hasCongruentBraidClass
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
-      RowFigureFiveHypotheses C hQ Ω u hu)
-    (hD : ∀ (Λ : Fin ℓ → I →₀ ℕ) (wt : Fin ℓ → Dom R) (w : Perm (Fin ℓ)),
-      BraidDiagramFiltration C hQ Λ wt w) :
+      RowFigureFiveHypotheses C hQ Ω u hu) :
     ∀ w : Perm (Fin ℓ), w ≠ 1 → HasCongruentBraidClass C hQ hR w := by
   have hadj : ∀ (n m : ℕ) (h : n + 2 + m = ℓ), HasCongruentBraidClass C hQ hR (swapAt n m h) :=
     fun n m h Λ wt hwt => exists_braidClass_swapAt.{w} C hQ hR n m h Λ wt hwt hall (H n m h)
@@ -257,7 +253,7 @@ theorem hasCongruentBraidClass
     obtain ⟨f₁, hf₁, hcls₁⟩ := hadj n m h ((Λ ∘ τ) ∘ s) ((wt ∘ τ) ∘ s) (fun r i => hwt (τ (s r)) i)
     rw [hs, swapAt_inv]
     exact hasCornerStandardFiltration_braidF_rightSequence C hQ hR ((Λ ∘ τ) ∘ s) ((wt ∘ τ) ∘ s)
-      (fun r i => hwt (τ (s r)) i) s f₁ hf₁ hcls₁ (hD _ _ s) t ht
+      (fun r i => hwt (τ (s r)) i) s f₁ hf₁ hcls₁ t ht
   have hN : ∀ (ν : Multiset I) (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t),
       BraidConcentrated.{w} (Λ ∘ τ) ν (isReducedChoice_canChoice ν) hQ.klrSymm s hQ
         (braidF C hQ Λ τ ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
@@ -269,7 +265,7 @@ theorem hasCongruentBraidClass
             t ht).toGFin) (Ps.map GProj.toGFin)) := by
     intro ν t ht
     have hF := hasCornerStandardFiltration_braidF_rightSequence C hQ hR Λ wt hwt τ fτ hfτ hτcls
-      (hD Λ wt τ) t ht
+      t ht
     obtain ⟨l, hl⟩ := hB ν
     exact ⟨braidConcentrated_of_hasCornerStandardFiltration (Λ := Λ ∘ τ)
         (isReducedChoice_canChoice ν) hQ.klrSymm hQ s hall hl hF,
@@ -288,23 +284,19 @@ include hR in
 the graded braid functor `𝔅_w` sends each sequence projective `e(t) T^λ` to a module with a
 standard filtration. The case `w = 1` is the standard filtration of the projective itself
 (Proposition 5.20). Route hypotheses: `AllFiniteDeltaInjective` and `RowFigureFiveHypotheses`
-(Corollary 6.10), and `BraidDiagramFiltration` (the diagram filtration of the step `p_n → f_n`),
-tracked for removal. -/
+(Corollary 6.10), tracked for removal. -/
 theorem hasCornerStandardFiltration_braidF
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
-    (hD : ∀ (Λ : Fin ℓ → I →₀ ℕ) (wt : Fin ℓ → Dom R) (w : Perm (Fin ℓ)),
-      BraidDiagramFiltration C hQ Λ wt w)
     (w : Perm (Fin ℓ)) (hw : w ≠ 1) (Λ : Fin ℓ → I →₀ ℕ) (wt : Fin ℓ → Dom R)
     (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i))
     {ν : Multiset I} (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t) :
     HasCornerStandardFiltration (Λ ∘ w) ν (isReducedChoice_canChoice ν) hQ.klrSymm hQ
       (braidF C hQ Λ w ν (rightSequenceProj (stendhalGradingDatum Λ hQ.gradingDatum
         (fun i => C.dot i i / 2) (dotDegree C hQ)) t ht).toGFin) := by
-  obtain ⟨f, hf, hcls⟩ := hasCongruentBraidClass.{w} C hQ hR hall H hD w hw Λ wt hwt
-  exact hasCornerStandardFiltration_braidF_rightSequence C hQ hR Λ wt hwt w f hf hcls
-    (hD Λ wt w) t ht
+  obtain ⟨f, hf, hcls⟩ := hasCongruentBraidClass.{w} C hQ hR hall H w hw Λ wt hwt
+  exact hasCornerStandardFiltration_braidF_rightSequence C hQ hR Λ wt hwt w f hf hcls t ht
 
 end Categorification.Stendhal.FirstWeight

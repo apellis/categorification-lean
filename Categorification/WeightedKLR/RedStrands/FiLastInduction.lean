@@ -50,10 +50,9 @@ variable {I : Type} [DecidableEq I] {k : Type} [Field k] {ℓ : ℕ}
 local notation "Cyc" β => CycKLR k Q (redCyc Λ (Fin.last ℓ)) β
 local notation "E" => blockBlackRes Q Λ i (Fin.last ℓ) (b := c) (b' := b) h0 hr hκ
 local notation "B₁" => BlockAlgebra k Q (Λ ∘ Fin.castSucc) (initBlocks b)
-local notation "β" => rightBlock b (Fin.last ℓ)
+local notation "β" => lastBlock b
 local notation "Si" => (Singleton.singleton i : Multiset I)
-local notation "cL" => AbsentColour.cyclotomicLast Q i (redCyc Λ (Fin.last ℓ))
-  (rightBlock b (Fin.last ℓ))
+local notation "cL" => AbsentColour.cyclotomicLast Q i (redCyc Λ (Fin.last ℓ)) (lastBlock b)
 local notation "fl" => CycKLR.flip (redCyc Λ (Fin.last ℓ))
 
 include h0 hr in
@@ -93,6 +92,7 @@ theorem splitLastBig_blockBlackRes (x : B₁) (y : Cyc β) :
     blockBlackRes_lastBlockAlgHom_last, map_mul, splitLastBig_initBlockAlgHom,
     splitLastBig_lastBlockAlgHom, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul,
     blockAlgebraCast_symm_cast, castCyc_symm_castCyc]
+  rfl
 
 /-- The splitting of the opposite block algebra of `b`, with the last factor first. -/
 def splitLastSmallOp : (BlockAlgebra k Q Λ b)ᵐᵒᵖ ≃ₐ[k] (Cyc β) ⊗[k] B₁ᵐᵒᵖ :=
@@ -342,8 +342,9 @@ theorem lastBlackIndEquiv_lastSmul (y : Cyc (Si + β)) (w : IndK k (LastCycRes Q
           (toLastBlackRes Q Λ i h0 hr hκ M).symm (lastBlackIndEquiv Q Λ i h0 hr hκ M w)) := by
   apply (lastBlackIndEquiv Q Λ i h0 hr hκ M).symm.injective
   rw [LinearEquiv.symm_apply_apply, lastBlackIndEquiv_symm_apply, LinearEquiv.symm_apply_apply,
-    cycFlip_castCyc, lastIndSplit_lastSmul]
-  change _ = y • ι ((toLastBlackRes Q Λ i h0 hr hκ M).symm (toLastBlackRes Q Λ i h0 hr hκ M
+    cycFlip_castCyc]
+  refine Eq.trans ?_ (lastIndSplit_lastSmul Q Λ i h0 hr hκ M y _).symm
+  change y • w = y • ι ((toLastBlackRes Q Λ i h0 hr hκ M).symm (toLastBlackRes Q Λ i h0 hr hκ M
     ((ι).symm w)))
   rw [LinearEquiv.symm_apply_apply, AddEquiv.apply_symm_apply]
 

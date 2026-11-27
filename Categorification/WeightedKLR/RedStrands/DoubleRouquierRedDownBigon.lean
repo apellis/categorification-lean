@@ -337,4 +337,102 @@ theorem downEndAlg_D1_ri (s : X) (i : I) (r : Fin ℓ)
   case hd => intro _ _; double_single
   case he => intro _ _; double_single
 
+section Bigon
+
+omit [AddCommGroup X] in
+theorem ncEval_X_pow_two {A : Type*} [Ring A] [Algebra k A] (y : Fin 2 → A) (j : Fin 2) (n : ℕ) :
+    KLR.ncEval y (MvPolynomial.X j ^ n : MvPolynomial (Fin 2) k) = y j ^ n := by
+  rw [MvPolynomial.X_pow_eq_monomial]
+  unfold KLR.ncEval
+  change (Finsupp.single _ _).sum _ = _
+  rw [Finsupp.sum_single_index (by simp), map_one, one_mul]
+  fin_cases j <;> simp [List.ofFn_succ, Finsupp.single_apply]
+
+omit [∀ a b : B, Preadditive (a ⟶ b)] [AdditiveWhiskering B] in
+theorem whiskerLeft_pow {a b c : B} (f : a ⟶ b) {g : b ⟶ c} (γ : g ⟶ g) (n : ℕ) :
+    (show End (f ≫ g) from f ◁ γ) ^ n = f ◁ ((show End g from γ) ^ n) := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [pow_succ, pow_succ, End.mul_def, End.mul_def, ih, whiskerLeft_comp]
+
+omit [∀ a b : B, Preadditive (a ⟶ b)] [AdditiveWhiskering B] in
+theorem whiskerRight_pow {a b c : B} {f : a ⟶ b} (γ : f ⟶ f) (g : b ⟶ c) (n : ℕ) :
+    (show End (f ≫ g) from γ ▷ g) ^ n = ((show End f from γ) ^ n) ▷ g := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [pow_succ, pow_succ, End.mul_def, End.mul_def, ih, comp_whiskerRight]
+
+/-- **The red/black bigons**, the downward form of (4.2): the composites of the red/down
+crossings `a′` and `b′` are powers of the dot, with exponent `n r i` (`⟨α_i^∨, λ_r⟩` in
+Webster's cyclotomic setting). -/
+def DownBigon (n : Fin ℓ → I → ℕ) : Prop :=
+  ∀ (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁) (h₂ : μ + Λ r = μ₂)
+    (h₃ : μ₁ + Λ r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃),
+    redDownQuot S red upIso r i h₁ h₂ h₃ h₄ ≫ redDownDot S red upIso r i h₁ h₂ h₃ h₄ =
+        red r h₂ ◁ ((show End (S.E i h₁) from S.dot i h₁) ^ n r i) ∧
+      redDownDot S red upIso r i h₁ h₂ h₃ h₄ ≫ redDownQuot S red upIso r i h₁ h₂ h₃ h₄ =
+        ((show End (S.E i h₄) from S.dot i h₄) ^ n r i) ▷ red r h₃
+
+/-- **The bigon `[i, r]`** (downward form of (4.2) with the black strand on the left) is killed
+by the generator images. -/
+theorem admissibleMap_sqNe_ir (n : Fin ℓ → I → ℕ) (hB : DownBigon S red upIso n)
+    (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k) (i : I) (r : Fin ℓ)
+    (hQ : Q (.inl i) (.inr r) = MvPolynomial.X 0 ^ n r i) (m : X) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inr r])))
+    (hb : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inr r]))) :
+    admissibleMap (genImg S red upIso Sc) ha hb (downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.sqNe (.inl i) (.inr r) Sum.inl_ne_inr))) = 0 := by
+  obtain rfl : m = x := ha.2.2
+  obtain rfl : (m + (wD i)) + Λ r = y := ha.2.1
+  have hm : Cond m ((m + (wD i)) + Λ r)
+      (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inr r, .inl i])) :=
+    ⟨colours_ok .., add_right_comm m (Λ r) (wD i), rfl⟩
+  have h₁ : (m + (wD i)) + RD.iX i = m := by double_regions
+  have h₄ : ((m + (wD i)) + Λ r) + RD.iX i = m + Λ r := by double_regions
+  have he : (m + Λ r) + (wD i) = (m + (wD i)) + Λ r := by double_regions
+  rw [relation_sqNe]
+  rw [map_sub, map_sub, sub_eq_zero, LinDiagram.of_comp, downLinear_comp]
+  erw [admissibleMap_comp _ ha hm hb]
+  erw [admissibleMap_X2_ir S red upIso Sc m i r rfl he ha hm h₁ h₄ (𝟙 _) (𝟙 _),
+    admissibleMap_X2_ri S red upIso Sc m i r rfl he hm hb h₁ h₄ (𝟙 _) (𝟙 _)]
+  change _ = downEndAlg (genImg S red upIso Sc) m [.inl i, .inr r] ha _
+  rw [KLR.Diagram.lpoly, AlgHom.map_ncEval, hQ, ncEval_X_pow_two]
+  simp only [Matrix.cons_val_zero]
+  rw [downEndAlg_D0_ir S red upIso Sc m i r ha h₁ (𝟙 _) (𝟙 _)]
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp]
+  erw [Category.comp_id, Category.comp_id, Category.comp_id, (hB r i h₁ rfl rfl h₄).1]
+  exact (whiskerLeft_pow _ _ _).symm
+
+/-- **The bigon `[r, i]`** (downward form of (4.2) with the black strand on the right) is
+killed by the generator images. -/
+theorem admissibleMap_sqNe_ri (n : Fin ℓ → I → ℕ) (hB : DownBigon S red upIso n)
+    (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k) (i : I) (r : Fin ℓ)
+    (hQ : Q (.inr r) (.inl i) = MvPolynomial.X 1 ^ n r i) (m : X) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inr r, .inl i])))
+    (hb : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inr r, .inl i]))) :
+    admissibleMap (genImg S red upIso Sc) ha hb (downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.sqNe (.inr r) (.inl i) Sum.inr_ne_inl))) = 0 := by
+  obtain rfl : m = x := ha.2.2
+  obtain rfl : (m + Λ r) + (wD i) = y := ha.2.1
+  have hR : (m + (wD i)) + Λ r = (m + Λ r) + (wD i) := add_right_comm m (wD i) (Λ r)
+  have hm : Cond m ((m + Λ r) + (wD i))
+      (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inr r])) :=
+    ⟨colours_ok .., hR, rfl⟩
+  have h₁ : (m + (wD i)) + RD.iX i = m := by double_regions
+  have h₄ : ((m + Λ r) + (wD i)) + RD.iX i = m + Λ r := by double_regions
+  rw [relation_sqNe]
+  rw [map_sub, map_sub, sub_eq_zero, LinDiagram.of_comp, downLinear_comp]
+  erw [admissibleMap_comp _ ha hm hb]
+  erw [admissibleMap_X2_ri S red upIso Sc m i r hR rfl ha hm h₁ h₄ (𝟙 _) (𝟙 _),
+    admissibleMap_X2_ir S red upIso Sc m i r hR rfl hm hb h₁ h₄ (𝟙 _) (𝟙 _)]
+  change _ = downEndAlg (genImg S red upIso Sc) m [.inr r, .inl i] ha _
+  rw [KLR.Diagram.lpoly, AlgHom.map_ncEval, hQ, ncEval_X_pow_two]
+  simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
+  erw [downEndAlg_D1_ri S red upIso Sc m i r ha h₄ (𝟙 _) (𝟙 _)]
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp]
+  erw [Category.comp_id, Category.comp_id, Category.comp_id, (hB r i h₁ hR rfl h₄).2]
+  exact (whiskerRight_pow _ _ _).symm
+
+end Bigon
+
 end Categorification.Stendhal.DoubleDiagram

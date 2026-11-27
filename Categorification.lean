@@ -737,6 +737,7 @@ import Categorification.KLR.CyclotomicTerminalSymmetric
 import Categorification.KLR.CyclotomicSaturatedProjective
 import Categorification.WeightedKLR.RedStrands.SingleRedSaturatedProjective
 import Categorification.KLR.Spanning
+import Categorification.KLR.StrandCoset
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
 import Categorification.KLR.TensorForm

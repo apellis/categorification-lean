@@ -999,9 +999,14 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 maintainer chose the graded form of Def 6.6 (2026-11-27). The graded braiding functor is
 the derived right tensor over the weight categories of the corners with their auxiliary
 grading (`diagramCornerWeightDerivedRightTensor`, `Algebra/DiagramWeightCorner.lean`, used so
-far for the fundamental braid in §7). Open: package it as `𝔅_w` for all red orders, compare
-it with the ungraded functor after forgetting the grading, and carry the §6 results over to
-the graded functor.
+far for the fundamental braid in §7). For all red orders it is
+`auxiliaryGradedBraidingFunctor κ' κ` (`RedStrands/BraidingAuxiliaryDerived.lean`); Webster's
+degree on `B(κ', κ)` is the auxiliary degree plus the constant offset `redWordOffset`.
+Forgetting the weights is a functor of derived categories (`weightForgetDerived`,
+`Algebra/WeightForgetDerived.lean`) that carries the graded functor to the ungraded one
+(`auxiliaryGradedBraidingFunctorForgetIso`, `RedStrands/BraidingForgetDerived.lean`, through
+`diagramWeightForgetDerivedIso`). Open: carry the §6 results (Lemmas 6.12–6.13, Theorem 6.15)
+over to the graded functor.
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of

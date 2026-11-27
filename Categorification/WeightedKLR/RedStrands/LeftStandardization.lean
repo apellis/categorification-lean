@@ -74,7 +74,8 @@ variable (hα : RootNonViolated (ν := ν) (blockRoot b))
 instance : AddCommGroup (BlockLeftStandard Q Λ b hb hα) := inferInstanceAs (AddCommGroup L)
 instance : Module k (BlockLeftStandard Q Λ b hb hα) := inferInstanceAs (Module k L)
 instance : Module T (BlockLeftStandard Q Λ b hb hα) := inferInstanceAs (Module T L)
-instance : IsScalarTower k T (BlockLeftStandard Q Λ b hb hα) := inferInstanceAs (IsScalarTower k T L)
+instance : IsScalarTower k T (BlockLeftStandard Q Λ b hb hα) :=
+  inferInstanceAs (IsScalarTower k T L)
 
 instance : Module Bᵐᵒᵖᵐᵒᵖ (BlockLeftStandard Q Λ b hb hα) :=
   Module.compHom L ((leftBlockActionOf Q Λ b hb hα).toRingHom.comp
@@ -82,7 +83,8 @@ instance : Module Bᵐᵒᵖᵐᵒᵖ (BlockLeftStandard Q Λ b hb hα) :=
 
 theorem op_op_smul_blockLeftStandard (x : B) (v : BlockLeftStandard Q Λ b hb hα) :
     (op (op x) : Bᵐᵒᵖᵐᵒᵖ) • v =
-      (show BlockLeftStandard Q Λ b hb hα from leftBlockActionOf Q Λ b hb hα x (show L from v)) :=
+      (show BlockLeftStandard Q Λ b hb hα from
+        leftBlockActionOf Q Λ b hb hα x (show L from v)) :=
   rfl
 
 instance : SMulCommClass T Bᵐᵒᵖᵐᵒᵖ (BlockLeftStandard Q Λ b hb hα) where
@@ -105,7 +107,8 @@ variable (hα : RootNonViolated (ν := blockPrefix b (ℓ + 1)) (blockRoot b))
 
 variable {M : Type*} [AddCommGroup M] [Module k M] [Module (BlockAlgebra k Q Λ b)ᵐᵒᵖ M]
 
-theorem rootReflectEquiv_op_smul (a : Bᵐᵒᵖ) (v : rootStandard (ν := blockPrefix b (ℓ + 1)) Q Λ (blockRoot b)) :
+theorem rootReflectEquiv_op_smul (a : Bᵐᵒᵖ)
+    (v : rootStandard (ν := blockPrefix b (ℓ + 1)) Q Λ (blockRoot b)) :
     rootReflectEquiv Q Λ hα (op a • v) =
       (op a • (show BlockLeftStandard Q Λ b rfl hα from rootReflectEquiv Q Λ hα v) :
         BlockLeftStandard Q Λ b rfl hα) := by
@@ -119,15 +122,18 @@ variable (Q Λ b M) in
 def standardizationReflectEquiv :
     Standardization Q Λ b M ≃ₗ[k] LeftStandardization Q Λ b rfl hα M :=
   BalancedTensor.changeRingEquiv (RingEquiv.refl (BlockAlgebra k Q Λ b)ᵐᵒᵖ)
-    (show rootStandard (ν := blockPrefix b (ℓ + 1)) Q Λ (blockRoot b) ≃ₗ[k] BlockLeftStandard Q Λ b rfl hα from rootReflectEquiv Q Λ hα)
+    (show rootStandard (ν := blockPrefix b (ℓ + 1)) Q Λ (blockRoot b) ≃ₗ[k]
+      BlockLeftStandard Q Λ b rfl hα from rootReflectEquiv Q Λ hα)
     (LinearEquiv.refl k M) (fun a v => rootReflectEquiv_op_smul hα a v) (fun _ _ => rfl)
 
-theorem standardizationReflectEquiv_tmul (v : rootStandard (ν := blockPrefix b (ℓ + 1)) Q Λ (blockRoot b)) (m : M) :
+theorem standardizationReflectEquiv_tmul
+    (v : rootStandard (ν := blockPrefix b (ℓ + 1)) Q Λ (blockRoot b)) (m : M) :
     standardizationReflectEquiv Q Λ b hα M (BalancedTensor.tmul v m) =
       BalancedTensor.tmul (show BlockLeftStandard Q Λ b rfl hα from rootReflect Q Λ v) m :=
   rfl
 
-/-- The right action of `a ∈ T̃^λ` on `S(M)` is the left action of `flip(a)` on `M ⊗_B S^L_α`. -/
+/-- The right action of `a ∈ T̃^λ` on `S(M)` is the left action of `flip(a)` on
+`M ⊗_B S^L_α`. -/
 theorem standardizationReflectEquiv_smul (a : StendhalAlgebra k Q Λ (blockPrefix b (ℓ + 1)))
     (z : Standardization Q Λ b M) :
     standardizationReflectEquiv Q Λ b hα M (op a • z) =

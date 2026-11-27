@@ -162,6 +162,35 @@ theorem map_exact {Y'' : Type*} [AddCommGroup Y''] [Module (A₁ ⊗[k] (A₂ �
     Function.Exact (map (k := k) (A₁ := A₁) (A₂ := A₂) (C := C) f)
       (map (k := k) (A₁ := A₁) (A₂ := A₂) (C := C) g) := h
 
+section TensorAct
+
+variable {X : Type*} [AddCommGroup X] [Module k X] [Module A₁ X] [IsScalarTower k A₁ X]
+  (ρ : A₂ ⊗[k] C →ₐ[k] Module.End A₁ X)
+
+theorem tmul_one_smul_of_of (a : A₁) (x : X) :
+    ((a ⊗ₜ[k] (1 : A₂) : A₁ ⊗[k] A₂) •
+        of (k := k) (A₁ := A₁) (A₂ := A₂) (C := C) (TensorAct.of (ρ := ρ) x) :
+        SplitLeft k A₁ A₂ C (TensorAct k A₁ (A₂ ⊗[k] C) ρ)) =
+      of (TensorAct.of (ρ := ρ) (a • x)) := by
+  rw [smul_of, splitLeftHom_tmul, TensorAct.tmul_smul_of, ← Algebra.TensorProduct.one_def,
+    map_one]
+  rfl
+
+theorem one_tmul_smul_of_of (c : A₂) (x : X) :
+    (((1 : A₁) ⊗ₜ[k] c : A₁ ⊗[k] A₂) •
+        of (k := k) (A₁ := A₁) (A₂ := A₂) (C := C) (TensorAct.of (ρ := ρ) x) :
+        SplitLeft k A₁ A₂ C (TensorAct k A₁ (A₂ ⊗[k] C) ρ)) =
+      of (TensorAct.of (ρ := ρ) (ρ (c ⊗ₜ 1) x)) := by
+  rw [smul_of, splitLeftHom_tmul, TensorAct.tmul_smul_of, one_smul]
+
+theorem action_of_of (c : C) (x : X) :
+    action (TensorAct k A₁ (A₂ ⊗[k] C) ρ) c
+        (of (k := k) (A₁ := A₁) (A₂ := A₂) (C := C) (TensorAct.of (ρ := ρ) x)) =
+      of (TensorAct.of (ρ := ρ) (ρ (1 ⊗ₜ c) x)) := by
+  rw [action_of, splitRightHom_apply, TensorAct.tmul_smul_of, one_smul]
+
+end TensorAct
+
 end SplitLeft
 
 end

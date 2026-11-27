@@ -41,7 +41,8 @@ variable (b : Fin (ℓ + 2) → Multiset I)
   [IsScalarTower k (BlockAlgebra k Q Λ b)ᵐᵒᵖ M]
 
 local notation "B'" => BlockAlgebra k Q (Λ ∘ Fin.castSucc) (initBlocks b)
-local notation "Cyc" β => CycKLR k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β
+local notation "Cyc" β =>
+  CycKLR k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β
 
 /-- The last cyclotomic factor acting on the restriction of `M`, as a map of algebras. -/
 def lastFactorEndAlg : (Cyc (lastBlock b)) →ₐ[k] Module.End B'ᵐᵒᵖ (InitRestrict Q Λ b M) where

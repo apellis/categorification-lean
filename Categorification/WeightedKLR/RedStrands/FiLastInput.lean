@@ -175,8 +175,8 @@ theorem fiLastCast_mapRight (g : Module.End (BlockAlgebra k Q (Λ ∘ Fin.castSu
 theorem fiLastY_smul (t : Tθ) (y : Cyc (Si + β)) (v : XLc) :
     ((t ⊗ₜ y : parabolicFactorAlgebra Q Λ (initWeight b) (Si + lastBlock b)) •
       (show Y from v) : Y) =
-      (show Y from (castTensorProductAlgebra Q (Λ ∘ Fin.castSucc) (initWeight_lastBig h0 hr).symm t •
-        (BalancedTensor.mapRight (lastFactorEnd Q Λ c
+      (show Y from (castTensorProductAlgebra Q (Λ ∘ Fin.castSucc) (initWeight_lastBig h0 hr).symm t
+        • (BalancedTensor.mapRight (lastFactorEnd Q Λ c
           (CyclotomicAction.castCyc Q (redCyc Λ (Fin.last ℓ)) hκ y)) : XLc →ₗ[Tfam (initWeight c)]
             XLc) v)) := by
   rw [factorCast_smul, castFactor_symm_tmul, factorCast_smul, castFactor_symm_tmul]
@@ -238,6 +238,53 @@ def fiLastInputEquiv : Fr ≃ₗ[Dl] Y :=
     (F).bijective
 
 theorem fiLastInputEquiv_apply (x : Fr) : fiLastInputEquiv Q Λ i h0 hr hκ M hα₁ hαc x = F x :=
+  rfl
+
+/-- An endomorphism of `M` on `LastCycRes M`, over the first red strands. -/
+def lastCycResEndR (g : Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M) :
+    LastCycRes Q Λ b M →ₗ[B₁ᵐᵒᵖ] LastCycRes Q Λ b M :=
+  initRestrictEnd Q Λ b g
+
+theorem lastBlackIndEquiv_natural' (g : Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M)
+    (w : IndK k (LastCycRes Q Λ b M) φc) :
+    lastBlackIndEquiv Q Λ i h0 hr hκ M (IndK.map (lastCycResEnd Q Λ M g) w) =
+      castBlockModuleMap (initBlocks_lastBig h0 hr)
+        (initRestrictEnd Q Λ c (IndK.map g : Mf →ₗ[(BlockAlgebra k Q Λ c)ᵐᵒᵖ] Mf))
+        (lastBlackIndEquiv Q Λ i h0 hr hκ M w) :=
+  lastBlackIndEquiv_natural Q Λ i h0 hr hκ M g w
+
+theorem twoPieceLastCycRes_map (g : Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M) (x : Xr) :
+    twoPieceLastCycRes Q Λ M hα₁ (rightFactorResMap (twoPieceEnd Q Λ b hα₁ g) x) =
+      BalancedTensor.mapRight (lastCycResEndR Q Λ M g) (twoPieceLastCycRes Q Λ M hα₁ x) :=
+  rfl
+
+theorem fiLastBalanced_natural (g : Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M) (w : IndK k Xr φc) :
+    fiLastBalanced Q Λ i h0 hr hκ M hα₁
+        (IndK.map (rightFactorResMap (twoPieceEnd Q Λ b hα₁ g)) w) =
+      BalancedTensor.mapRight (castBlockModuleMap (initBlocks_lastBig h0 hr)
+        (initRestrictEnd Q Λ c (IndK.map g : Mf →ₗ[(BlockAlgebra k Q Λ c)ᵐᵒᵖ] Mf)))
+        (fiLastBalanced Q Λ i h0 hr hκ M hα₁ w) :=
+  indBalancedEquiv_natural (lastCycHom_smul Q Λ i) (lastCycResFactor Q Λ M) (fun _ _ => rfl)
+    (twoPieceLastCycRes Q Λ M hα₁) (twoPieceLastCycRes_smul Q Λ M hα₁)
+    (lastBlackIndEquiv Q Λ i h0 hr hκ M) (lastBlackIndEquiv_rSmul' Q Λ i h0 hr hκ M)
+    (rightFactorResMap (twoPieceEnd Q Λ b hα₁ g)) (lastCycResEnd Q Λ M g)
+    (lastCycResEndR Q Λ M g) (fun _ => rfl) (twoPieceLastCycRes_map Q Λ M hα₁ g) _
+    (lastBlackIndEquiv_natural' Q Λ i h0 hr hκ M g) w
+
+/-- **Naturality of `fiLastInputEquiv`** in endomorphisms of `M`. -/
+theorem fiLastInputEquiv_natural (g : Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M) (x : Fr) :
+    fiLastInputEquiv Q Λ i h0 hr hκ M hα₁ hαc (IndK.map (twoPieceEnd Q Λ b hα₁ g) x) =
+      factorCastMap Q Λ (initWeight_lastBig h0 hr) rfl (factorCastMap Q Λ rfl
+        (lastBlock_lastBig i hκ) (twoPieceEnd Q Λ c hαc
+          (blockBlackIndEnd Q Λ i (Fin.last ℓ) h0 hr hκ M g)))
+        (fiLastInputEquiv Q Λ i h0 hr hκ M hα₁ hαc x) := by
+  rw [fiLastInputEquiv_apply, fiLastInputEquiv_apply]
+  change fiLastCast Q Λ i h0 hr hκ M hα₁ hαc (fiLastBalanced Q Λ i h0 hr hκ M hα₁
+    (fiLastIndRight Q Λ i M hα₁ (show Rr from IndK.map (twoPieceEnd Q Λ b hα₁ g) x))) = _
+  rw [show fiLastIndRight Q Λ i M hα₁ (show Rr from IndK.map (twoPieceEnd Q Λ b hα₁ g) x) =
+    IndK.map (rightFactorResMap (twoPieceEnd Q Λ b hα₁ g)) (fiLastIndRight Q Λ i M hα₁ x) from
+      indRightFactorEquivB_map _ _ _ _ (twoPieceEnd Q Λ b hα₁ g) x,
+    fiLastBalanced_natural, fiLastCast_mapRight]
   rfl
 
 end StendhalAlgebra

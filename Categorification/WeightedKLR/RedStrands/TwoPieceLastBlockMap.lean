@@ -181,6 +181,27 @@ theorem suffixBlockMap_ψ_mul (T : Finset (Seq (stendhalWeight ℓ θ))) {l : �
     rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul]
   rw [h, concat_mul, concat_one_tmul_ψ hl, mul_assoc, oneConcat_mul_concat, map_mul, castKLR_ψ]
 
+/-- `flip(e_T ⊠ w · e(t λ u)) e(t'' λ u'') = ι(e(t) e_T e(t'') ⊗ e(λ u) flip(w) e(λ u''))`. -/
+theorem hflip_suffixBlockMap_mul_e_mul_e (T : Finset (Seq (stendhalWeight ℓ θ)))
+    (w : KLRAlgebra k S δ) (t t'' : Seq (stendhalWeight ℓ θ)) (u u'' : Seq β) :
+    hflip (suffixBlockMap Q Λ θ β T w * e (twoPieceLoading θ β t u)) *
+        e (twoPieceLoading θ β t'' u'') =
+      castKLR S H (concat S A δ (relabelEquiv ρ (e t * eSum S' T * e t'') ⊗ₜ
+        (e (Seq.map lc (SingleRed.insertWord β u)) * hflip w *
+          e (Seq.map lc (SingleRed.insertWord β u''))))) := by
+  rw [e_twoPieceLoading, e_twoPieceLoading, suffixBlockMap_apply, ← map_mul, ← concat_mul,
+    Algebra.TensorProduct.tmul_mul_tmul, ← map_mul (relabelEquiv ρ), hflip_castKLR',
+    hflip_concat_tmul_tmul, relabelEquiv_apply, hflip_relabelHom, ← relabelEquiv_apply, hflip_mul,
+    hflip_mul, hflip_e, hflip_e, hflip_eSum, ← map_mul, ← concat_mul,
+    Algebra.TensorProduct.tmul_mul_tmul, ← map_mul (relabelEquiv ρ)]
+
+/-- `ι(1 ⊗ V) e(t λ u) = ι(e(t) ⊗ V e(λ u))`. -/
+theorem concat_one_tmul_mul_e (V : KLRAlgebra k S δ) (t : Seq (stendhalWeight ℓ θ)) (u : Seq β) :
+    castKLR S H (concat S A δ (1 ⊗ₜ V)) * e (twoPieceLoading θ β t u) =
+      castKLR S H (concat S A δ (relabelEquiv ρ (e t) ⊗ₜ
+        (V * e (Seq.map lc (SingleRed.insertWord β u))))) := by
+  rw [e_twoPieceLoading, ← map_mul, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, one_mul]
+
 omit [DecidableEq I] in
 /-- The labels of `t λ_{ℓ+1} u` at the positions of `u` are those of `u`. -/
 theorem twoPieceLoading_apply_of_val_eq_last (t : Seq (stendhalWeight ℓ θ)) (u : Seq β)
@@ -224,7 +245,8 @@ theorem suffixBlockMap_lastBlackMap (a : KLRAlgebra k Q (lastBlock b)) :
     suffixBlockMap Q Λ θb βb (StendhalAlgebra.rootSet θb (blockRoot (initBlocks b)))
         (lastBlackMap Q Λ βb a) =
       ((D).hom S (blackReindex Q Λ (b ⟨ℓ + 1, Nat.lt_succ_self (ℓ + 1)⟩) a)).val := by
-  let C : KLRAlgebra k S (R₁ + Multiset.map (Sum.inl : I → I ⊕ Fin (ℓ + 1)) βb) →ₙₐ[k] KLRAlgebra k S (stendhalWeight (ℓ + 1) (θb + βb)) :=
+  let C : KLRAlgebra k S (R₁ + Multiset.map (Sum.inl : I → I ⊕ Fin (ℓ + 1)) βb) →ₙₐ[k]
+      KLRAlgebra k S (stendhalWeight (ℓ + 1) (θb + βb)) :=
     (suffixBlockMap Q Λ θb βb (StendhalAlgebra.rootSet θb (blockRoot (initBlocks b)))).comp
       (castKLR S (lastRedBlackWeight (ℓ := ℓ) βb)).toAlgHom.toNonUnitalAlgHom
   have hC : ∀ y : KLRAlgebra k Q βb, C (((blockR R₁ (Multiset.map Sum.inl βb)).hom S

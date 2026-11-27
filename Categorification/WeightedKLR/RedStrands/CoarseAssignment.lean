@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.AdjacentBlockRoot
 /-!
 # Coarse block assignments
 
-Part of the proof of Webster, arXiv:1309.3796v2, §6.1, Lemma 6.8: the kernel of a loading
+Part of the proof of Webster, arXiv:1309.3796v3, §6.1, Lemma 6.8: the kernel of a loading
 projective onto its partial standard is filtered by partial standards at higher loadings. The
 partial standardization keeps every red cut except the cut at one red strand `λ_j`, so the two
 blocks `j` (between `λ_{j-1}` and `λ_j`) and `j + 1` (right of `λ_j`) merge.
@@ -20,7 +20,7 @@ bottom `u = φ_g • s`, which moves black strands only from block `j + 1` to bl
 `φ_f = φ_{f'} φ_g` (`phiPerm_eq_mul`), the inversions of `φ_g` are inversions of `φ_f`
 (`invSet_phiPerm_coarsen_subset`), and the bottoms agree. This gives a bijection between the
 block assignments of `s` and the pairs of a coarse assignment `g` and a local assignment of
-`φ_g • s` (`coarseLocalEquiv`).
+`φ_g • s`, in the form of a sum (`sum_assignments_eq_sum_coarse_local`).
 
 The black counts of the bottom of an assignment are read off the assignment
 (`blackCount_phiBottom`): a black strand ends left of `λ_r` exactly when its new block is at most
@@ -569,31 +569,6 @@ theorem sum_assignments_eq_sum_coarse_local {β : Type*} [AddCommMonoid β] {s :
   · intro f hf
     rw [phiBottom_eq_phiBottom_localPart (j := j) (List.mem_toFinset.1 hf)]
 
-omit [DecidableEq I] in
-/-- The trivial block assignment. -/
-theorem redsBefore_mem_assignments (lbl : Fin m → I ⊕ Fin ℓ) :
-    redsBefore lbl ∈ assignments lbl :=
-  mem_assignments_iff.2 fun _ => ⟨fun _ => rfl, fun _ => le_rfl⟩
-
-omit [DecidableEq I] in
-/-- The trivial assignment moves nothing. -/
-theorem phiPerm_redsBefore (s : Seq μ) : phiPerm s (redsBefore s.lbl) = 1 := by
-  refine perm_eq_of_lt_iff fun p q => ?_
-  rw [keyPerm_lt_iff, Perm.one_apply, Perm.one_apply]
-  constructor
-  · rintro (h | ⟨-, h⟩)
-    · by_contra hn
-      exact absurd (baseKey_le s.lbl (not_lt.1 hn)) (not_le.2 h)
-    · exact h
-  · intro h
-    rcases (baseKey_le s.lbl h.le).lt_or_eq with h' | h'
-    · exact Or.inl h'
-    · exact Or.inr ⟨h', h⟩
-
-omit [DecidableEq I] in
-theorem isCoarse_redsBefore (s : Seq μ) : IsCoarse j s (redsBefore s.lbl) :=
-  fun _ _ h => h
-
 /-- A loading lies below the bottom of each of its block assignments. -/
 theorem stendhalLE_phiBottom {s : Seq μ} (hs : IsRedOrdered s) {f : Fin m → ℕ}
     (hf : f ∈ assignments s.lbl) : StendhalLE s (phiBottom s f) := by
@@ -650,24 +625,6 @@ theorem exists_blackCount_ne_of_not_isLocal {u : Seq μ} (hu : IsRedOrdered u) {
     exact ⟨⟨j + 1, by omega⟩, by simp, blackCount_lt_phiBottom hu hf' hi (by simp; omega)
       (by simp; omega)⟩
   · exact ⟨⟨f' p, by omega⟩, hfj, blackCount_lt_phiBottom hu hf' hi le_rfl (by simp; omega)⟩
-
-/-- A nontrivial coarse assignment moves a black strand across a red strand other than
-`λ_j`. -/
-theorem exists_blackCount_ne_of_isCoarse {s : Seq μ} (hs : IsRedOrdered s) {g : Fin m → ℕ}
-    (hg : g ∈ assignments s.lbl) (hc : IsCoarse j s g) (hne : g ≠ redsBefore s.lbl) :
-    ∃ r : Fin ℓ, (r : ℕ) ≠ j ∧ blackCount s r ≠ blackCount (phiBottom s g) r := by
-  obtain ⟨p, hp⟩ := Function.ne_iff.1 hne
-  have h := mem_assignments_iff.1 hg p
-  rcases Bool.eq_false_or_eq_true (s.lbl p).isRight with hb | hb
-  · exact absurd (h.1 hb) hp
-  obtain ⟨i, hi⟩ : ∃ i, s.lbl p = .inl i := by
-    rcases h' : s.lbl p with i | r
-    · exact ⟨i, rfl⟩
-    · simp [h'] at hb
-  have hle := h.2 hb
-  have hcard := redsBefore_le_card hs p
-  have hgj : g p ≠ j := fun hgj => hp (by rw [hgj, hc p hb hgj])
-  exact ⟨⟨g p, by omega⟩, hgj, blackCount_lt_phiBottom hs hg hi le_rfl (by simp; omega)⟩
 
 end Factor
 

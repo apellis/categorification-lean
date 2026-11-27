@@ -172,6 +172,7 @@ import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
+import Categorification.Algebra.TiltingSummand
 import Categorification.Algebra.TwistedVectorDual
 import Categorification.Algebra.ReflectedVectorDual
 import Categorification.Algebra.UniqueSimpleQuotient

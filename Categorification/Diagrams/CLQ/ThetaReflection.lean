@@ -207,6 +207,22 @@ theorem thetaScalars_t_of_ne {i j : I} (h : i ≠ j) :
 @[simp] theorem thetaScalars_r (i : I) : (thetaScalars RD sc).r i = 1 := by
   simp [thetaScalars, thetaDatum, sc.t_self]
 
+/-- `Q ↦ Q^θ` is an involution on the scalars with `r = 1`. -/
+theorem thetaScalars_thetaScalars (hr : ∀ i, sc.r i = 1) :
+    thetaScalars RD (thetaScalars RD sc) = sc := by
+  refine CL.CLScalars.ext (funext fun i => funext fun j => ?_)
+    (funext fun i => funext fun j => funext fun p => funext fun q => ?_) (funext fun i => ?_)
+  · by_cases h : i = j
+    · subst h; rw [CL.CLScalars.t_self, CL.CLScalars.t_self]
+    · rw [thetaScalars_t_of_ne _ h, thetaScalars_t_of_ne _ (Ne.symm h), inv_inv]
+  · by_cases h : i = j
+    · subst h
+      simp only [thetaScalars_s, CL.CLScalars.t_self, mul_one, inv_one, Units.val_one, one_mul]
+    · simp only [thetaScalars_s, thetaScalars_t_of_ne _ h, thetaScalars_t_of_ne _ (Ne.symm h),
+        ← mul_assoc, ← Units.val_mul, ← mul_inv, mul_comm (sc.t j i)⁻¹, ← mul_inv_rev]
+      simp
+  · rw [thetaScalars_r, hr]
+
 /-- The reflection with inverted orientations of a linear combination of diagrams between
 normal-form objects that vanishes in `U_Q(g)` vanishes in `U_{Q^θ}(g)`. -/
 theorem lin_thetaLin_eq_zero_of_ob (μ : X) {s t : List (Letter I)}

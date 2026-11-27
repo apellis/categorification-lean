@@ -2102,6 +2102,8 @@ import Categorification.Algebra.DiagramWeightLocalizedCohomology
 import Categorification.Algebra.DiagramWeightInternalShift
 import Categorification.Algebra.WeightCoendReindex
 import Categorification.Algebra.WeightCoendRelabel
+import Categorification.Algebra.WeightForget
+import Categorification.Algebra.WeightForgetDerived
 import Categorification.Algebra.WeightRingDerivedRestriction
 import Categorification.Algebra.DiagramWeightTensorInternal
 import Categorification.Algebra.DiagramWeightTensorShift

@@ -252,13 +252,6 @@ universe u v w w'
 
 variable {A : Type u} [Ring A] {ι : Type w} {ι' : Type w'}
 
-/-- A filtration whose labels are relabelled. -/
-theorem map {L : ι' → ModuleCat.{v} A} (F : ι → ι') {m : List ι} {Y : ModuleCat.{v} A}
-    (h : HasFiltration (fun c => L (F c)) m Y) : HasFiltration L (m.map F) Y := by
-  induction h with
-  | zero hY => exact .zero hY
-  | cons f g m c hf hfg hg _ hZ ih => exact .cons f g (m.map F) (F c) hf hfg hg ih hZ
-
 /-- A filtration with layers replaced by isomorphic ones along its labels. -/
 theorem mono_of_mem {L L' : ι → ModuleCat.{v} A} {m : List ι} {Y : ModuleCat.{v} A}
     (h : HasFiltration L m Y) (hL : ∀ c ∈ m, Nonempty (L c ≃ₗ[A] L' c)) :

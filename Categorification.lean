@@ -2528,3 +2528,4 @@ import Categorification.WeightedKLR.RedStrands.EiCaseBoth
 import Categorification.WeightedKLR.RedStrands.EiInitLayer
 import Categorification.WeightedKLR.RedStrands.EiLastLayer
 import Categorification.WeightedKLR.RedStrands.EiRightTerm
+import Categorification.WeightedKLR.RedStrands.EiStepBoth

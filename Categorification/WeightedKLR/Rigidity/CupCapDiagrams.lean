@@ -269,7 +269,8 @@ theorem sadj_insertPos_inr_new {q : ℕ} (hq : q + 1 < N) (b : Fin N) :
   have := b.2
   ext
   simp only [sadj_val, insertPos_inr_val, swapNat]
-  split_ifs <;> omega
+  by_cases h1 : b.val = q <;> by_cases h2 : b.val = q + 1 <;>
+    simp [h1, h2, hq, show n + q + 1 = n + (q + 1) by omega] <;> omega
 
 theorem sadj_insertPos_inl_new {q : ℕ} (hq : q + 1 < N) (a : Fin m) :
     sadj (m + N) (n + q) (insertPos m N n hn (.inl a)) = insertPos m N n hn (.inl a) := by
@@ -504,7 +505,6 @@ def Env : Type _ :=
 
 noncomputable instance : Ring (Env k Q Λ Λc j hj ν ν₀) := Algebra.TensorProduct.instRing
 
-noncomputable instance : Algebra k (Env k Q Λ Λc j hj ν ν₀) := Algebra.TensorProduct.leftAlgebra
 
 variable {k Q Λ Λc j hj ν ν₀} in
 /-- The element `a ⊗ bᵒᵖ` of `T̃^λ ⊗ (T̃^{λ⁺})ᵐᵒᵖ`, acting by `z ↦ a z b`. -/
@@ -517,20 +517,16 @@ variable (ℓ) in
 /-- The cap generators: a loading of `λ` and the number of its strands left of the maximum. -/
 abbrev CapIdx := Seq (stendhalWeight ℓ ν) × Fin (Multiset.card (stendhalWeight ℓ ν) + 1)
 
-variable (L : Type*) [AddCommGroup L] [Module k L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L]
-  [IsScalarTower k (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L]
+variable (L : Type*) [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L]
 
-/-- The free bimodule on the cap generators. -/
-abbrev FreeCap := Env k Q Λ Λc j hj ν ν₀ ⊗[k] (CapIdx ℓ ν → L)
-
-/-- `FreeCap` is a module over `T̃^λ ⊗ (T̃^{λ⁺})ᵐᵒᵖ`. -/
-noncomputable instance : Module (Env k Q Λ Λc j hj ν ν₀) (FreeCap k Q Λ Λc j hj ν ν₀ L) :=
-  TensorProduct.leftModule
+/-- The free `T̃^λ ⊗ (T̃^{λ⁺})ᵐᵒᵖ`-module on the pairs of a cap generator index and an element
+of `L`; additivity in `L` is imposed by the relations. -/
+abbrev FreeCap := (CapIdx ℓ ν × L) →₀ Env k Q Λ Λc j hj ν ν₀
 
 variable {k Q Λ Λc j hj ν ν₀ L}
 
 /-- The cap generator `cap s n v`. -/
-def gen (σ : CapIdx ℓ ν) (v : L) : FreeCap k Q Λ Λc j hj ν ν₀ L := 1 ⊗ₜ Pi.single σ v
+def gen (σ : CapIdx ℓ ν) (v : L) : FreeCap k Q Λ Λc j hj ν ν₀ L := Finsupp.single (σ, v) 1
 
 /-- `a · z · b`. -/
 def act (a : StendhalAlgebra k Q Λ ν) (b : StendhalAlgebra k Q (plusLabels Λ Λc j hj) (ν + ν₀))
@@ -546,6 +542,9 @@ variable (k Q Λ Λc j hj ν ν₀ L) in
 /-- **The relations of `K̃^{λ⁺}_λ`** (arXiv:1309.3796v3, Definition 7.15), see the module
 docstring. -/
 inductive IsRel : FreeCap k Q Λ Λc j hj ν ν₀ L → Prop
+  /-- `cap s n v` is additive in `v`. -/
+  | add (σ : CapIdx ℓ ν) (v w : L) :
+      IsRel ((gen σ (v + w) : 𝔽) - gen σ v - gen σ w)
   /-- The top of `cap s n v` is `s`. -/
   | idem (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) :
       IsRel (act (topMap k Q Λ ν (KLRAlgebra.e s)) 1 (gen (s, n) v : 𝔽) - (gen (s, n) v : 𝔽))
@@ -569,7 +568,7 @@ inductive IsRel : FreeCap k Q Λ Λc j hj ν ν₀ L → Prop
   | over (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) (i : I) (hn : 0 < n.val)
       (hi : s.lbl ⟨n - 1, by omega⟩ = .inl i) :
       IsRel (act 1 (botMap k Q Λ Λc j hj ν ν₀ (underRight N (n - 1))) (gen (s, n) v : 𝔽) -
-        cupScalar Q ν₀ i • (gen (s, ⟨n - 1, by omega⟩) v : 𝔽))
+        act (algebraMap k _ (cupScalar Q ν₀ i)) 1 (gen (s, ⟨n - 1, by omega⟩) v : 𝔽))
   /-- (max2): the black strand right of the maximum, pulled under the cap to the left. -/
   | under (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) (i : I) (hn : n.val < m)
       (hi : s.lbl ⟨n, hn⟩ = .inl i) :

@@ -2089,6 +2089,7 @@ import Categorification.Algebra.Graded.CornerBimoduleGrading
 import Categorification.Algebra.Graded.RectBimodTensor
 import Categorification.Algebra.Graded.CyclicGenerator
 import Categorification.Algebra.Graded.EulerCharacteristic
+import Categorification.Algebra.Graded.ExtEuler
 import Categorification.Algebra.Graded.ExtensionK0
 import Categorification.Algebra.Graded.FiniteResolution
 import Categorification.Algebra.Graded.HomFormEquiv
@@ -2529,6 +2530,7 @@ import Categorification.WeightedKLR.RedStrands.BraidAdjacentClassCongr
 import Categorification.WeightedKLR.RedStrands.BraidFiltrationDimension
 import Categorification.WeightedKLR.RedStrands.BraidSequenceStandardFiltration
 import Categorification.WeightedKLR.RedStrands.BraidLengthInduction
+import Categorification.WeightedKLR.RedStrands.BraidEquivalenceDimension
 import Categorification.WeightedKLR.RedStrands.BraidColumnFiltration
 import Categorification.WeightedKLR.RedStrands.BraidColumnDiagramFiltration
 import Categorification.WeightedKLR.RedStrands.LoadingChoiceExpansion

@@ -2770,3 +2770,4 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDotRightQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapEdgesQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapPitchforkQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownBijectiveQ
+import Categorification.WeightedKLR.RedStrands.DoubleCLMoritaQ

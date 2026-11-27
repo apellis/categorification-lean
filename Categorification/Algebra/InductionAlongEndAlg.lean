@@ -61,6 +61,23 @@ def IndK.endAlg : Module.End A N →ₐ[k] Module.End B (IndK k N φ) where
 @[simp] theorem IndK.endAlg_apply (g : Module.End A N) :
     IndK.endAlg φ N hφ g = IndK.map g := rfl
 
+section Comm
+
+variable {k : Type*} [CommRing k] {A : Type u} [Ring A] {B : Type u} [Ring B] [Algebra k B]
+  {φ : A →ₙ+* B} {N N' : Type w} [AddCommGroup N] [Module A N] [AddCommGroup N'] [Module A N']
+
+/-- **Induction of a commuting square**: if `e ∘ g = g' ∘ e`, then the same holds after
+induction. -/
+theorem IndK.map_comm_apply {g : N →ₗ[A] N} {g' : N' →ₗ[A] N'} {e : N →ₗ[A] N'}
+    (h : ∀ n, e (g n) = g' (e n)) (x : IndK k N φ) :
+    IndK.map (k := k) e (IndK.map (k := k) g x) = IndK.map (k := k) g' (IndK.map (k := k) e x) :=
+  LinearMap.congr_fun (show (Ind.map (φ := φ) e).comp (Ind.map g) =
+      (Ind.map (φ := φ) g').comp (Ind.map e) from Ind.ext fun z n => by
+    rw [LinearMap.comp_apply, LinearMap.comp_apply, Ind.map_tmul, Ind.map_tmul, Ind.map_tmul,
+      Ind.map_tmul, h]) x
+
+end Comm
+
 end InductionAlong
 
 end Categorification

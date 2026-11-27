@@ -2537,3 +2537,4 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndNatural
 import Categorification.Algebra.InductionAlongEndAlg
 import Categorification.WeightedKLR.RedStrands.FiSequence
 import Categorification.WeightedKLR.RedStrands.FiFiltrationStatement
+import Categorification.WeightedKLR.RedStrands.FiTopEquiv

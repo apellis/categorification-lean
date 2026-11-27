@@ -125,7 +125,7 @@ def factorCastRfl :
 variable (hQ : KLRSymm Q)
 
 /-- The scalar tower `k → T(θ + β) → S N`. -/
-instance parabolicStandardT_isScalarTower {θ β : Multiset I} (N : Type*)
+instance parabolicStandardT_isScalarTower_factorCast {θ β : Multiset I} (N : Type*)
     [AddCommGroup N] [Module k N] [Module (parabolicFactorAlgebra Q Λ θ β) N]
     [IsScalarTower k (parabolicFactorAlgebra Q Λ θ β) N] :
     IsScalarTower k (TensorProductAlgebra k Q Λ (θ + β)) (ParabolicStandardT Q Λ θ β N hQ) :=

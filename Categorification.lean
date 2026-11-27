@@ -45,6 +45,7 @@ import Categorification.Algebra.ExtShortExact
 import Categorification.Algebra.DerivedTensorTwoFiltrations
 import Categorification.Algebra.DerivedTensorRingEquiv
 import Categorification.Algebra.DerivedTensorTwist
+import Categorification.Algebra.FittingSummand
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -172,6 +173,7 @@ import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
+import Categorification.Algebra.TiltingSummand
 import Categorification.Algebra.TwistedVectorDual
 import Categorification.Algebra.ReflectedVectorDual
 import Categorification.Algebra.UniqueSimpleQuotient

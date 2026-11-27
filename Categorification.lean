@@ -795,6 +795,7 @@ import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutParaboli
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutRightZero
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutTransfer
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationSingSplit
+import Categorification.WeightedKLR.RedStrands.PartialStandardizationSingStepAssoc
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationSingStepFirst
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationSpectatorAssoc
 import Categorification.WeightedKLR.RedStrands.PrependRedAssignments
@@ -1200,6 +1201,7 @@ import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.CentralPolynomials
 import Categorification.WeightedKLR.CentralFinite
 import Categorification.WeightedKLR.Arrangement
+import Categorification.WeightedKLR.RedStrands.TildeFlip
 import Categorification.WeightedKLR.RedStrands.TildeLayerIso
 import Categorification.WeightedKLR.RedStrands.TildePhiCount
 import Categorification.WeightedKLR.RedStrands.TildePhiGradedLayers
@@ -1210,6 +1212,7 @@ import Categorification.WeightedKLR.RedStrands.TildeStandardStratification
 import Categorification.WeightedKLR.RedStrands.TildeStratumIdeal
 import Categorification.WeightedKLR.RedStrands.TildeViolatedTor
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlock
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFlip
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFree
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockWords
 import Categorification.WeightedKLR.Reflection

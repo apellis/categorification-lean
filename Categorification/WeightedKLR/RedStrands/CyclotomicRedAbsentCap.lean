@@ -106,7 +106,7 @@ def cyclotomicOppositeCap : Corner Q i c β →ₗ[k] CycKLR k Q c β :=
     he ▸ (CornerTrace.trace Q i (β.erase i) c hsym hQ hc RD highest hhighest hdeg).restrictScalars k
   else oppositeCap Q i β c hsym hQ hc RD highest hhighest hdeg hi
 
-private theorem cyclotomicOppositeCap_present (γ : Multiset I) :
+theorem cyclotomicOppositeCap_present (γ : Multiset I) :
     cyclotomicOppositeCap Q i ({i} + γ) hsym hQ RD hdeg c hc highest hhighest =
       (CornerTrace.trace Q i γ c hsym hQ hc RD highest hhighest hdeg).restrictScalars k := by
   unfold cyclotomicOppositeCap

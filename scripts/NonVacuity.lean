@@ -2593,6 +2593,20 @@ example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_red
   ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
   (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
 
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `F̃_i^*`, same data. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_leftLower
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `Ĩ_λ^*`, same data. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_leftRed
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
 /-- Webster, Proposition 4.39 with the compatibility (4.40) for `F̃_i`, same data. -/
 example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_lower
   (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
@@ -2995,6 +3009,30 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
   isCompact_braidingFunctor_obj D params regular hall H levelThree (factors 3) levelThree_eq ν
     (Equiv.swap 0 1) DG.DerivedCategory.isCompact_Q_self
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, proof of Theorem 6.14 (injectivity of `ι`), for three red `sl₂`
+strands of weight `ω` and the reversed bottom red order `(2, 1, 0)`: `e(t) V e_κ` is isomorphic to
+`y · e(t⁰) V e_κ`, with no injectivity input. The route hypotheses (`BaseCrossing`,
+`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
+noncomputable example (hbase : Stendhal.BaseCrossing (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)))
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit)
+    (t : KLR.Seq (Stendhal.stendhalWeight 3 ν)) (ht : Stendhal.IsRedOrdered t) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ) := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  Stendhal.FirstWeight.halfTwistInclusionEquiv D params regular hbase hall H levelThree
+    (factors 3) levelThree_eq ν (Equiv.swap 0 2) (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
 
 end TwoFundamentalLowerings
 
@@ -6167,6 +6205,18 @@ example (ν : Multiset Unit) :=
 weight `ω`, and every black weight. -/
 noncomputable example (ν : Multiset Unit) :=
   redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v3, proof of Thm. 6.14 (the symmetric pairing on `P⁰`), for `sl₂`,
+two red strands of weight `ω`, and every black weight. -/
+example (ν : Multiset Unit) :=
+  redFirstIdem_symmetricPairing rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v3, proof of Thm. 6.14 (self-duality of `y T^λ`), for `sl₂`, two
+red strands of weight `ω`, every black weight and `y = e⁰`. -/
+noncomputable example (ν : Multiset Unit) :=
+  redFirstSelfDualEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+    (redFirstIdem _ (fun _ : Fin 2 => Finsupp.single () 1) ν) (by
+      rw [(isIdempotentElem_redFirstIdem _ _ ν).eq, (isIdempotentElem_redFirstIdem _ _ ν).eq])
 
 end RedFirstEnd
 
@@ -12311,3 +12361,12 @@ example : websterWords ([] : List (Unit ⊕ Fin 1)) [(), ()] 1 =
   decide
 
 end NonVacuity.WebsterStandardResolution
+
+/-! ### Webster, KIaHRT (arXiv:1309.3796v3), Theorem 4.25 -/
+
+/-- The representation of `𝒯` on the region categories, for `sl₂` with one red line of weight
+`1` and the Khovanov–Lauda parameters. -/
+noncomputable example :=
+  Stendhal.regionTensorPseudofunctor.{0, 0, 0, 0} UDot.sl2RootDatum (fun _ : Fin 1 => (1 : ℤ))
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (fun i j h => absurd (Subsingleton.elim i j) h)
+    (fun _ => Finsupp.single () 1) (fun _ _ => by simp [UDot.sl2RootDatum])

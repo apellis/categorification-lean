@@ -160,6 +160,7 @@ import Categorification.Diagrams.BicatInterpAdmissiblePseudo
 import Categorification.Diagrams.BicatInterpAdmissibleLinear
 import Categorification.Diagrams.BicatInterpAdmissiblePull
 import Categorification.Diagrams.BicatInterpChain
+import Categorification.Diagrams.BicatInterpConj
 import Categorification.Diagrams.BicatInterpMate
 import Categorification.Diagrams.BicatInterpMirror
 import Categorification.Diagrams.BicatInterpPull
@@ -2219,6 +2220,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedBlack
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedCup
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedContext
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDown
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedDownBigon
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUpSlide
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUpSlideContext

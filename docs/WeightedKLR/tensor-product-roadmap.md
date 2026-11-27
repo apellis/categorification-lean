@@ -741,8 +741,10 @@ from which the full one is obtained by iterating):
   `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). The
   intermediate lemmas take a base presentation with `CoverRelsNegligible` and well-founded
   domain; the presentation with no relations (`noRelations`) satisfies both vacuously, so the
-  headline results carry no presentation hypothesis. **Roadmap item:** extend the count to
-  general scalars `Q`.
+  headline results carry no presentation hypothesis. **Done for general `Q`:** the count holds
+  for every Rouquier `Q` with symmetric parameters (`RedStrands/Prop55Dimension*Q.lean`, from
+  Thm 4.31 at general `Q`; `finrank_firstIndF_eq_addQ`, `firstIndDeltaInjective_of_rouquier`,
+  `allFiniteDeltaInjective_of_rouquier`, `hasFiltration_loadingProj_of_rouquier`).
 
 * Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
   factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along
@@ -865,14 +867,14 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   induction hypothesis (`fiSubEquiv`, `fiInitLayerStandardEquiv`). Route hypothesis:
   `AllDeltaInjective` for every sequence of highest weights (injectivity of the first map),
   tracked for removal below. For finite-dimensional `M` (Webster's setting) and Rouquier `Q`,
-  `fiFiltration_finite` needs only `AllFiniteDeltaInjective`, and at the standard Khovanov–Lauda
-  parameters `fiFiltration_finite_std` holds with no route hypothesis
-  (`allFiniteDeltaInjective_std`).
+  `fiFiltration_finite` needs only `AllFiniteDeltaInjective`, which is Webster's dimension count
+  (`allFiniteDeltaInjective_of_rouquier`), so `fiFiltration_finite_of_rouquier` holds with no
+  route hypothesis (at the standard Khovanov–Lauda parameters, `fiFiltration_finite_std`).
 
-Open: injectivity in the `Fᵢ`-part of Prop 5.5 for general `Q` (the dimension count at general
-`Q`, which needs Thm 4.31 at general `Q`; removes the route hypothesis `AllFiniteDeltaInjective`
-of `fiFiltration_finite` and of Props 5.20/5.21), the passage from finite-dimensional to
-arbitrary modules (removes `AllDeltaInjective` of `fiFiltration`), Prop 5.6,
+Open: substituting `allFiniteDeltaInjective_of_rouquier` for the route hypothesis
+`AllFiniteDeltaInjective` in the downstream results at general `Q` (Props 5.20/5.21, Cor 5.22,
+Lemma 5.25, §6), the passage from finite-dimensional to arbitrary modules (removes
+`AllDeltaInjective` of `fiFiltration`; not needed for Webster's statement), Prop 5.6,
 and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:
@@ -922,8 +924,8 @@ Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crysta
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.23,
 Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorification); Thm 5.25 (finite
 projective resolutions); self-dual projectives and double centralizer
-(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30); Thm 5.31 (for `sl_n`, blocks of cyclotomic
-`q`-Schur algebras). Open except as listed above.
+(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
+Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
 
 ### Phase D: §6, braiding functors
 
@@ -993,8 +995,13 @@ Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
 modules over the corners of the violated quotient, built on dg-lean's derived categories of dg
 modules over rings in degree `0`, computed on K-projective resolutions (`derivedTensor`,
 `derivedRightTensor`, `Algebra/DerivedTensor.lean`; the bimodule `e A e'` is
-`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
-graded version and the restriction to `D⁻` are open roadmap items.
+`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`. The
+maintainer chose the graded form of Def 6.6 (2026-11-27). The graded braiding functor is
+the derived right tensor over the weight categories of the corners with their auxiliary
+grading (`diagramCornerWeightDerivedRightTensor`, `Algebra/DiagramWeightCorner.lean`, used so
+far for the fundamental braid in §7). Open: package it as `𝔅_w` for all red orders, compare
+it with the ungraded functor after forgetting the grading, and carry the §6 results over to
+the graded functor.
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of
@@ -1462,8 +1469,9 @@ canonical position at the top and every strand passing under it (`CupCap.midCapB
 Removal item: Lemma 7.16 and its mirror for `L_μ` (needs Thm 4.30).
 The projectivity of `coe^{λ⁺}_λ` as a left `T^λ`-module, asserted after Lemma 7.19, is proved
 for a cap at the right end (`j = ℓ`, `CupCap.projective_capBimodule`) when the pieces `L e(t)`
-are free over `k` (removal item: projective pieces, by a split-summand argument); the case
-`j < ℓ` is in progress (`CupCap.leftMackeyEquiv` is its one-sided Mackey step).
+are free over `k`, and for a cap after any `λ_j` (`CupCap.projective_midCapBimodule`) when the
+pieces `L e(t)` are finitely generated and projective over `k` (true for `L_μ` over a field;
+removal item: drop finite generation for general `L`), under the route hypotheses of Lemma 7.17.
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants
@@ -1473,21 +1481,27 @@ minuscule tangles (Prop 8.3); the unknot for `sl₂` (Prop 8.4); independence of
 projection (Thm 8.6, Lemma 8.7); ribbon elements (Prop 8.8); minuscule duality
 (Thm 8.11). All open.
 
-### Phase G: §9, comparisons
+### Phase G (optional): §9 comparisons and their inputs
 
-Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
-Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
-and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
-homologies (Props 9.18, 9.20, 9.21). All open.
+Optional item (maintainer, 2026-11-27): skipped for now, to be taken up only on request. It
+covers the comparisons with other categories and everything only they need:
+
+* Thm 5.31 (v3: Thm 5.34): for `sl_n`, the algebras `T^λ` and blocks of cyclotomic
+  `q`-Schur algebras.
+* Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
+  Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
+  and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
+  homologies (Props 9.18, 9.20, 9.21).
+
+All open. The external inputs below are recorded for when the item is taken up.
 
 ### Inputs from other works (maintainer decisions)
 
 * Prop 9.6 and Thm 9.16 are the Brundan–Kleshchev isomorphism (arXiv:0808.2032),
   which is not in the library. Options: formalize it, or take it as a stated
-  hypothesis of the §9 results.
-* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`. On
-  2026-11-15 the maintainer excluded the Cherednik and `q`-Schur comparisons for
-  the weighted KLR work. This needs confirming for 1309.3796.
+  hypothesis of the §9 results (Phase G, optional).
+* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`;
+  they are in the optional Phase G (maintainer, 2026-11-27).
 * Prop 9.14 (Koszulity) and Props 9.18–9.21 rest on results of other papers (for
   example Enright–Shelton equivalences). These are flagged in the same way when
   they are reached.

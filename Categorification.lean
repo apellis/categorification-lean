@@ -619,6 +619,7 @@ import Categorification.KLR.IndFirstSlideQuad
 import Categorification.KLR.IndLastStrand
 import Categorification.KLR.IndLastStrandBij
 import Categorification.KLR.IndLastStrandDescent
+import Categorification.KLR.IndLastStrandNatural
 import Categorification.KLR.IndLastStrandExact
 import Categorification.KLR.IndLastStrandFirstFactor
 import Categorification.KLR.IndLastStrandOneSided

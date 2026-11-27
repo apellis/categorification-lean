@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamiliesQ
-import Categorification.WeightedKLR.RedStrands.DoubleCapPresentation
+import Categorification.WeightedKLR.RedStrands.DoubleCapPresentationQ
 import Categorification.WeightedKLR.RedStrands.DoubleWFDom
 
 /-!
@@ -35,19 +35,6 @@ variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
   {k : Type w} [CommRing k] (𝔅 : Presentation.{w, max u v} (psig RD) k)
   (P : Presentation.{w, max u v} (signature RD Λ) k)
   (Q : I → I → MvPolynomial (Fin 2) k) (exponents : Fin ℓ → I →₀ ℕ) (t : I → I → k)
-
-/-- The presentation in which real and fake bubbles adjacent to red are normalized by the
-reflected relations of a black presentation `𝔅`. -/
-abbrev signedCapBubblePresentationOf : Presentation.{w, max u v} (signature RD Λ) k :=
-  addDownRelations RD Λ (affineCoverQ Q exponents)
-    (addRedUpRelations RD Λ k
-      (addRedCapRelations RD Λ (addRedCupRelations RD Λ (addBlackRelationsOf RD Λ 𝔅 P))))
-
-/-- The common signed cap presentation with the reflected relations of a black presentation
-`𝔅` (for `𝔅` the KL III presentation this is `signedCapKLPresentation`). -/
-abbrev signedCapPresentationOf : Presentation.{w, max u v} (signature RD Λ) k :=
-  (signedCapPresentation RD Λ P Q exponents t).union
-    (signedCapBubblePresentationOf RD Λ 𝔅 P Q exponents)
 
 variable {RD Λ 𝔅 P}
 

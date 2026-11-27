@@ -2651,3 +2651,7 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebraAction
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardization
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardizationEquiv
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension
+import Categorification.Algebra.CompactModules
+import Categorification.Algebra.Graded.CompactResolution
+import Categorification.WeightedKLR.RedStrands.LoadingGenerators
+import Categorification.WeightedKLR.RedStrands.HalfTwistFullyFaithful

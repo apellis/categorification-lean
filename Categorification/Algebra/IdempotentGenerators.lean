@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DerivedTensorFiltration
-import Categorification.WeightedKLR.Induction.Restriction
+import Categorification.Algebra.IdempotentEquiv
 import DG.Derived.Perfect
 
 set_option backward.isDefEq.respectTransparency false

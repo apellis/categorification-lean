@@ -89,4 +89,33 @@ theorem of_surjective_factors {m : List ι} {Y : ModuleCat A}
     exact .cons f g m c hf hfg hg (ih fun a ha => hranks a (List.mem_cons_of_mem _ ha))
       ⟨e.trans (LinearEquiv.ofBijective (d c) hbij).symm⟩
 
+/-- **The dimension comparison, as an inequality.** If the pieces of a finite-dimensional
+filtration are surjective images of the proposed standards and the standards have total
+dimension at most that of the filtered module, the filtration has those standards as its
+pieces. -/
+theorem of_surjective_factors_of_le {m : List ι} {Y : ModuleCat A}
+    (h : HasFiltration P m Y) [FiniteDimensional k Y]
+    (d : ∀ c, S c →ₗ[A] P c) (hs : ∀ c, FiniteDimensional k (S c))
+    (hd : ∀ c, Function.Surjective (d c))
+    (hDim : (m.map fun c => finrank k (S c)).sum ≤ finrank k Y) :
+    HasFiltration S m Y := by
+  refine h.of_surjective_factors d hs hd (le_antisymm ?_ hDim)
+  rw [h.finrank_filtered (k := k) inferInstance]
+  clear hDim
+  induction m with
+  | nil => simp
+  | cons c m ih =>
+    simp only [List.map_cons, List.sum_cons]
+    have := hs c
+    refine Nat.add_le_add
+      (LinearMap.finrank_le_finrank_of_surjective (f := (d c).restrictScalars k) (hd c)) ?_
+    clear h ih
+    induction m with
+    | nil => simp
+    | cons c' m ih' =>
+      simp only [List.map_cons, List.sum_cons]
+      have := hs c'
+      exact Nat.add_le_add
+        (LinearMap.finrank_le_finrank_of_surjective (f := (d c').restrictScalars k) (hd c')) ih'
+
 end Categorification.ModuleFiltration.HasFiltration

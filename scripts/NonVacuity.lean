@@ -6136,6 +6136,13 @@ noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs :
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     hs g
 
+/-- Webster, arXiv:1309.3796v3, Lemma 5.25 (filtered form), for `sl₂`, two red strands of
+weight `ω`, every black weight and red-ordered loading, at the standard Khovanov–Lauda scalars:
+the cokernel of `θ_s` is filtered by standard modules. -/
+example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) :=
+  exists_hasFiltration_shuffleCokernel_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+    s hs
+
 end NonVacuity.RedBlackCrossing
 
 namespace NonVacuity.WebsterCoevaluationWord

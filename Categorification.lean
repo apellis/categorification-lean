@@ -2494,6 +2494,7 @@ import Categorification.WeightedKLR.Rigidity.GradedMiddleResolution
 import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
 import Categorification.WeightedKLR.Rigidity.CupCapDiagrams
 import Categorification.WeightedKLR.Rigidity.CupCapFunctor
+import Categorification.WeightedKLR.Rigidity.CupCapSpanning
 import Categorification.WeightedKLR.SimpleDots
 import Categorification.WeightedKLR.SimpleGrading
 import Categorification.WeightedKLR.ZeroWeightSimple

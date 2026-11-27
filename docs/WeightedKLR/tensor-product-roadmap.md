@@ -565,24 +565,22 @@ To remove this restriction, either extend the black-relation comparison
 the result along the crossing rescaling `tensorRescale` combined with a
 rescaling of the cover action.
 
-**Theorem 4.25 for general black parameters.** `regionTensorPseudofunctor` is
-stated for the standard Khovanov–Lauda black parameters, because the black
-relations of `tensorTwoCatPresentation` are the reflected KL III relations
-(`addBlackKLRelations`, compared with `presCL` through `presCL_kkScalars_of_kl`)
-and its cup pitchforks are taken at `t = 1`. The region family itself is built
-for every `Q` of Webster's form. To remove the restriction, impose the black
-relations of `presCL` at the scalars of `Q` and the pitchforks at the matching
-coefficients, and check them with the same double-model lemmas.
-Done so far: the reflection with inverted orientations maps the relations of
-`U_Q(g)` (`r = 1`) to those of `U_{Q^θ}(g)`, `t^θ_{ij} = t_{ji}^{-1}`,
-`s^θ = (t_{ij} t_{ji})^{-1} s` (`CLQ.lin_thetaLin_eq_zero`, via `ψ̃` for all
-scalars, `CLQ.psiUQ`, and the rotation of every diagram of `U_Q(g)`,
-`CL.rotC_dgCL`), so the reflected relations of `U_{Sc^θ}(g)` act by zero in the
-double model of a Rouquier family with Cautis–Lauda scalars `Sc`, for every `Sc`
-(`DoubleDiagram.admissibleMap_blackMirror_relQ`). Open: the presentation of `𝒯`
-with these black relations, the mixed black relations, the black biadjunction
-and the cup pitchforks at the scalars of `Q`, and the comparison of `Q^θ` with
-Webster's normalization of `U` (§2.1).
+**Theorem 4.25 for general black parameters.** Done for every Rouquier
+polynomial family `Q` (`Stendhal.regionTensorPseudofunctorQ`). The region
+categories carry the action of `U_Sc(g)` with the Kang–Kashiwara scalars
+`Sc = cyclotomicScalars` of `Q`. The reflection with inverted orientations maps
+the relations of `U_Sc(g)` (`r = 1`) to those of `U_{Sc^θ}(g)`, with
+`t^θ_{ij} = t_{ji}^{-1}` and `s^θ = (t_{ij} t_{ji})^{-1} s`
+(`CLQ.lin_thetaLin_eq_zero`, via `ψ̃` for all scalars, `CLQ.psiUQ`, and the
+rotation of every diagram of `U_Q(g)`, `CL.rotC_dgCL`). So `𝒯` is presented
+with the reflected relations of `U_{Sc^θ}(g)`, the mixed black relations (2.3c),
+(2.4a) at `t^θ` and the cup pitchforks at `t^θ_{ji}` (`j` the through colour,
+`i` the cup colour) (`DoubleDiagram.tensorTwoCatPresentationQ`), and every
+Rouquier family with red lines acts on it
+(`DoubleDiagram.tensorTwoCatPseudofunctorQ`). With `r = 1`, `Sc ↦ Sc^θ` is an
+involution (`CLQ.thetaScalars_thetaScalars`), and at `t = 1` it fixes `Sc`.
+Open: the comparison of `Sc^θ` with Webster's normalization of `U` (§2.1),
+which agrees with it at `t = 1`.
 
 ## The rest of arXiv:1309.3796v2
 

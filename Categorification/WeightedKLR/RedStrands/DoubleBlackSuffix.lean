@@ -32,14 +32,14 @@ local notation "cut" => (fun (w : List (Letter I)) => endWeight RD Λ μ (u ++ b
 local notation "tail" => colours RD Λ τ v
 local notation "head" => (Obj.nil μ : Obj T)
 
-private theorem blackSuffix_ok (hs : cut s = τ) :
+theorem blackSuffix_ok (hs : cut s = τ) :
     (obj RD Λ μ (u ++ blackWord s ++ [])).WhiskerOK head tail := by
   refine ⟨trivial, rfl, ?_⟩
   change (T).ok ((T).endR μ (colours RD Λ μ (u ++ blackWord s ++ []))) tail
   rw [colours_endR, List.append_nil, ← hs]
   exact colours_ok ..
 
-private theorem blackSuffix_obj (hs : cut s = τ) :
+theorem blackSuffix_obj (hs : cut s = τ) :
     (obj RD Λ μ (u ++ blackWord s ++ [])).whisker head tail =
       obj RD Λ μ (u ++ blackWord s ++ v) := by
   apply Obj.ext (x := (obj RD Λ μ (u ++ blackWord s ++ [])).whisker head tail)
@@ -50,7 +50,7 @@ private theorem blackSuffix_obj (hs : cut s = τ) :
     rw [List.append_nil, ← hs]
     exact (colours_append RD Λ μ (u ++ blackWord s) v).symm
 
-private theorem blackSuffix_diag {t : List (Letter I)} (hs : cut s = τ) (ht : cut t = τ)
+theorem blackSuffix_diag {t : List (Letter I)} (hs : cut s = τ) (ht : cut t = τ)
     (d : ob RD ν s ⟶ ob RD ν t) :
     Diagram.cast (Diagram.whisker (blackDiagram RD Λ μ u [] d)
       head tail (blackSuffix_ok RD Λ μ u v s hs)) (blackSuffix_obj RD Λ μ u v s hs)
@@ -80,7 +80,7 @@ private theorem blackSuffix_diag {t : List (Letter I)} (hs : cut s = τ) (ht : c
   · change colours RD Λ ρ (blackWord a ++ []) ++ tail = colours RD Λ ρ (blackWord a ++ v)
     rw [List.append_nil, colours_append, hρ, ← hs]
 
-private theorem blackSuffix_linear {t : List (Letter I)} (hs : cut s = τ) (ht : cut t = τ)
+theorem blackSuffix_linear {t : List (Letter I)} (hs : cut s = τ) (ht : cut t = τ)
     (f : LinDiagram k (ob RD ν s) (ob RD ν t)) :
     LinDiagram.cast (LinDiagram.whisker (blackLinear RD Λ k μ u [] f)
       head tail (blackSuffix_ok RD Λ μ u v s hs)) (blackSuffix_obj RD Λ μ u v s hs)

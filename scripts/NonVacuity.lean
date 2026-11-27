@@ -12553,3 +12553,13 @@ noncomputable example :=
   Stendhal.regionTensorPseudofunctor.{0, 0, 0, 0} UDot.sl2RootDatum (fun _ : Fin 1 => (1 : ℤ))
     (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (fun i j h => absurd (Subsingleton.elim i j) h)
     (fun _ => Finsupp.single () 1) (fun _ _ => by simp [UDot.sl2RootDatum])
+
+/-- The representation of `𝒯` on the region categories, for `sl₂` with one red line of weight
+`1` and an arbitrary Rouquier polynomial family (here the zero family, for which every condition
+on `i ≠ j` is vacuous). -/
+noncomputable example :=
+  Stendhal.regionTensorPseudofunctorQ.{0, 0, 0, 0} UDot.sl2RootDatum (fun _ : Fin 1 => (1 : ℤ))
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+    ⟨fun i j h => absurd (Subsingleton.elim i j) h, fun i j h => absurd (Subsingleton.elim i j) h,
+      fun i j h => absurd (Subsingleton.elim i j) h⟩
+    (fun _ => Finsupp.single () 1) (fun _ _ => by simp [UDot.sl2RootDatum])

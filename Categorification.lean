@@ -2603,6 +2603,9 @@ import Categorification.WeightedKLR.Rigidity.CupCapInducedMaps
 import Categorification.WeightedKLR.Rigidity.CupCapLeftBlock
 import Categorification.WeightedKLR.Rigidity.CupCapLeftDescent
 import Categorification.WeightedKLR.Rigidity.CupCapLeftLoop
+import Categorification.WeightedKLR.Rigidity.CupCapLeftProjective
+import Categorification.WeightedKLR.Rigidity.CupCapLeftProjectiveGen
+import Categorification.WeightedKLR.Rigidity.CupCapLeftProjectiveViolated
 import Categorification.WeightedKLR.Rigidity.CupCapMidAction
 import Categorification.WeightedKLR.Rigidity.CupCapMidCapBasis
 import Categorification.WeightedKLR.Rigidity.CupCapMidCapBasisApply
@@ -2619,6 +2622,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapMidGenerators
 import Categorification.WeightedKLR.Rigidity.CupCapMidKLR
 import Categorification.WeightedKLR.Rigidity.CupCapMidKLRAll
 import Categorification.WeightedKLR.Rigidity.CupCapMidLeftLoop
+import Categorification.WeightedKLR.Rigidity.CupCapMidLeftMackey
 import Categorification.WeightedKLR.Rigidity.CupCapMidModelMap
 import Categorification.WeightedKLR.Rigidity.CupCapMidModelMapCross
 import Categorification.WeightedKLR.Rigidity.CupCapMidModelMapDiagrams

@@ -2747,6 +2747,9 @@ import Categorification.WeightedKLR.RedStrands.EiTopOneBlock
 import Categorification.WeightedKLR.RedStrands.EiStepOne
 import Categorification.WeightedKLR.RedStrands.EiFiltration
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndNatural
+import Categorification.WeightedKLR.RedStrands.PartialStandardizationAction
+import Categorification.WeightedKLR.RedStrands.PartialStandardizationDescent
+import Categorification.WeightedKLR.RedStrands.PartialStandardizationExact
 import Categorification.Algebra.InductionAlongEndAlg
 import Categorification.WeightedKLR.RedStrands.FiSequence
 import Categorification.WeightedKLR.RedStrands.FiFiltrationStatement

@@ -69,9 +69,10 @@ theorem leftStandardizationFamilyCast_mapRight (h' : ν = ν') (hb : blockPrefix
     (hb' : blockPrefix c (ℓ + 1) = ν') (hα : RootNonViolated (ν := ν) (blockRoot c))
     (hα' : RootNonViolated (ν := ν') (blockRoot c)) (g : N →ₗ[(BlockAlgebra k Q Λ c)ᵐᵒᵖ] N')
     (x : LeftStandardization Q Λ c hb' hα' N) :
-    (leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N' h' hb hb' hα hα' (BalancedTensor.mapRight g x) :
-        LeftStandardization Q Λ c hb hα N') =
-      BalancedTensor.mapRight g (leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N h' hb hb' hα hα' x :
+    (leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N' h' hb hb' hα hα'
+        (BalancedTensor.mapRight g x) : LeftStandardization Q Λ c hb hα N') =
+      BalancedTensor.mapRight g
+        (leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N h' hb hb' hα hα' x :
         LeftStandardization Q Λ c hb hα N) := by
   subst h'
   rfl
@@ -85,8 +86,8 @@ theorem leftStandardizationFamilyCast_symm_mapRight (h' : ν = ν')
         (show FamilyCast (TensorProductAlgebra k Q Λ) h' (LeftStandardization Q Λ c hb hα N') from
           BalancedTensor.mapRight g x) =
       BalancedTensor.mapRight g ((leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N h' hb hb' hα
-        hα').symm (show FamilyCast (TensorProductAlgebra k Q Λ) h' (LeftStandardization Q Λ c hb hα N)
-          from x)) := by
+        hα').symm (show FamilyCast (TensorProductAlgebra k Q Λ) h'
+          (LeftStandardization Q Λ c hb hα N) from x)) := by
   subst h'
   rfl
 
@@ -422,7 +423,8 @@ theorem lastBlackInputHom_injective :
   intro x y hxy
   have h := congrArg Res.val hxy
   rw [lastBlackInputHom_val, lastBlackInputHom_val] at h
-  exact lastBlackInputIncl_injective Q Λ i h0 hr hκ M hα' hα'' ((twoPieceInputOf Q Λ b M hα').injective h)
+  exact lastBlackInputIncl_injective Q Λ i h0 hr hκ M hα' hα''
+    ((twoPieceInputOf Q Λ b M hα').injective h)
 
 theorem lastBlackInputHom_surjective :
     Function.Surjective (lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'') := by

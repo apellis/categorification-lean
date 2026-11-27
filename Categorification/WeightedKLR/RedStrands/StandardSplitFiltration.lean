@@ -51,16 +51,21 @@ def splitStandard (Y : ModuleCat.{0} (SplitAlg Q Λ θ β C)) : ModuleCat.{0} (T
 
 variable {θ β C}
 
-theorem splitStandardAction_apply (Y : Type) [AddCommGroup Y] [Module (SplitAlg Q Λ θ β C) Y] (c : C) :
-    splitStandardAction Q Λ hQ Y c = parabolicStandardMapT Q Λ hQ (SplitLeft.action (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) Y c) := rfl
+theorem splitStandardAction_apply (Y : Type) [AddCommGroup Y] [Module (SplitAlg Q Λ θ β C) Y]
+    (c : C) :
+    splitStandardAction Q Λ hQ Y c = parabolicStandardMapT Q Λ hQ
+      (SplitLeft.action (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) Y c) := rfl
 
 theorem splitStandardMapT_comp_action {Y Y' : Type} [AddCommGroup Y] [Module (SplitAlg Q Λ θ β C) Y]
-    [AddCommGroup Y'] [Module (SplitAlg Q Λ θ β C) Y'] (f : Y →ₗ[SplitAlg Q Λ θ β C] Y') (c : C) :
-    (parabolicStandardMapT Q Λ hQ (SplitLeft.map (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) f) :
+    [AddCommGroup Y'] [Module (SplitAlg Q Λ θ β C) Y'] (f : Y →ₗ[SplitAlg Q Λ θ β C] Y')
+    (c : C) :
+    (parabolicStandardMapT Q Λ hQ
+        (SplitLeft.map (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) f) :
         ParabolicStandardT Q Λ θ β (SplitLeft k Told Cyc C Y) hQ →ₗ[T]
           ParabolicStandardT Q Λ θ β (SplitLeft k Told Cyc C Y') hQ).comp
         (splitStandardAction Q Λ hQ Y c) =
-      (splitStandardAction Q Λ hQ Y' c).comp (parabolicStandardMapT Q Λ hQ (SplitLeft.map (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) f)) := by
+      (splitStandardAction Q Λ hQ Y' c).comp (parabolicStandardMapT Q Λ hQ
+        (SplitLeft.map (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) f)) := by
   rw [splitStandardAction_apply Q Λ hQ, splitStandardAction_apply Q Λ hQ,
     ← parabolicStandardMapT_comp,
     ← parabolicStandardMapT_comp]
@@ -68,16 +73,18 @@ theorem splitStandardMapT_comp_action {Y Y' : Type} [AddCommGroup Y] [Module (Sp
     (LinearMap.ext fun y => SplitLeft.map_action f c y)
 
 /-- Standardization on maps of modules over `T^{λ'}(θ) ⊗ (R^{λ_ℓ}(β) ⊗ C)`. -/
-def splitStandardMap {Y Y' : Type} [AddCommGroup Y] [Module (SplitAlg Q Λ θ β C) Y] [AddCommGroup Y']
-    [Module (SplitAlg Q Λ θ β C) Y'] (f : Y →ₗ[SplitAlg Q Λ θ β C] Y') :
+def splitStandardMap {Y Y' : Type} [AddCommGroup Y] [Module (SplitAlg Q Λ θ β C) Y]
+    [AddCommGroup Y'] [Module (SplitAlg Q Λ θ β C) Y'] (f : Y →ₗ[SplitAlg Q Λ θ β C] Y') :
     TensorAct k T C (splitStandardAction Q Λ hQ Y) →ₗ[T ⊗[k] C]
       TensorAct k T C (splitStandardAction Q Λ hQ Y') :=
-  TensorAct.map (parabolicStandardMapT Q Λ hQ (SplitLeft.map (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) f))
+  TensorAct.map (parabolicStandardMapT Q Λ hQ
+      (SplitLeft.map (k := k) (A₁ := Told) (A₂ := Cyc) (C := C) f))
     (fun c x => LinearMap.congr_fun (splitStandardMapT_comp_action Q Λ hQ f c) x)
 
 /-- **Standardization with a commuting action transports filtrations** (Webster,
 arXiv:1309.3796v3, proof of Proposition 5.5). -/
-theorem hasFiltration_splitStandard {ι : Type} {L : ι → ModuleCat.{0} (SplitAlg Q Λ θ β C)} {m : List ι}
+theorem hasFiltration_splitStandard {ι : Type} {L : ι → ModuleCat.{0} (SplitAlg Q Λ θ β C)}
+    {m : List ι}
     {Y : ModuleCat.{0} (SplitAlg Q Λ θ β C)} (hY : HasFiltration L m Y) :
     HasFiltration (fun c => splitStandard Q Λ hQ θ β C (L c)) m
       (splitStandard Q Λ hQ θ β C Y) :=

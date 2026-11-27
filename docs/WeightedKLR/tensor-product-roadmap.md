@@ -819,8 +819,20 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   (`splitStandardEquiv`): this is the reduction of the proof of Prop 5.5 to two tensor
   factors, for Def 5.4's standardization.
 
-Open: the `Eᵢ`/`Fᵢ` filtrations of Prop 5.5 for the Def 5.4 standardization from
-`splitStandardEquiv` by induction on `ℓ`, injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6,
+* Prop 5.5, `Eᵢ`-part for Def 5.4 (`RedStrands/EiFiltration*.lean`, `EiStep*.lean`, `EiTop*.lean`,
+  `EiLastLayer.lean`, `EiRightTerm.lean`, `StandardSplitFiltration.lean`): for `b_0 = 0`,
+  `Eᵢ(M ⊗_B S^L_α)` has a filtration by the `ₖEᵢ M ⊗_{B'} S^L_{α'}`, one for each block containing
+  `i` (`eiFiltration`), by induction on `ℓ` through `splitStandardEquiv`: when `i` lies in both
+  pieces, the two-piece short exact sequence with the induction hypothesis standardized
+  (`hasFiltration_splitStandard`) below and the last-strand layer above
+  (`eiFiltration_step_both`); when `i` lies in one piece, the isomorphisms `leftBlackResEquiv`,
+  `rightBlackResEquiv` made natural and compatible with the commuting action
+  (`eiFiltration_step_left`, `eiFiltration_step_right`). The statement carries an algebra `C`
+  acting on `M` by `B`-linear maps (the last cyclotomic factor in the induction); `C = k` is
+  Webster's statement.
+
+Open: the `Fᵢ` filtration of Prop 5.5 for the Def 5.4 standardization, injectivity in the
+`Fᵢ`-part of Prop 5.5 for general `Q`, Prop 5.6,
 and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:

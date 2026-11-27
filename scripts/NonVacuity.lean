@@ -6288,6 +6288,19 @@ example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [(()
   rw [h]
   rfl
 
+/-- Webster, arXiv:1309.3796v3, Lemma 7.3: the head of the level-two coevaluation wrap
+projective is simple. -/
+example := Categorification.Stendhal.isSimpleModule_coevaluationHead
+  CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+  CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+  (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced (fun i => by
+    cases i
+    simp [CoxeterSystem.IsLeftDescent])
+
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
   LieLean.QuantumGroup.hvn_ratFunc 3

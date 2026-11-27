@@ -62,6 +62,7 @@ import Categorification.Algebra.ExactDerivedTensor
 import Categorification.Algebra.OrderedStandardExt
 import Categorification.Algebra.ProjectiveKProjective
 import Categorification.Algebra.ResolutionAdjunction
+import Categorification.Algebra.CatModuleResolutionAdjunction
 import Categorification.Algebra.ProjectiveFlat
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
@@ -2167,6 +2168,7 @@ import Categorification.Algebra.DiagramWeightScalarHom
 import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
+import Categorification.Algebra.DiagramWeightTensorComp
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightComplex
 import Categorification.Algebra.DiagramWeightComplexKProjective

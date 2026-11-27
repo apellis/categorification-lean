@@ -2526,3 +2526,4 @@ import Categorification.WeightedKLR.RedStrands.EiTopChain
 import Categorification.Algebra.InductionAlongResEnd
 import Categorification.WeightedKLR.RedStrands.EiCaseBoth
 import Categorification.WeightedKLR.RedStrands.EiInitLayer
+import Categorification.WeightedKLR.RedStrands.EiLastLayer

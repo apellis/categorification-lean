@@ -145,6 +145,7 @@ import Categorification.Algebra.NilHeckeSimple
 import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.NilHeckeDemazure
 import Categorification.Algebra.ParabolicSymmetricFree
+import Categorification.Algebra.PiTensorProductNonUnitalMap
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
@@ -2463,6 +2464,7 @@ import Categorification.WeightedKLR.ZeroWeightSimple
 import Categorification.Algebra.FinrankCounting
 import Categorification.KLR.SpanCornerDotsTop
 import Categorification.WeightedKLR.RedStrands.BlockAssignment
+import Categorification.WeightedKLR.RedStrands.BlockBlackRes
 import Categorification.WeightedKLR.RedStrands.BlockInsertLoading
 import Categorification.WeightedKLR.RedStrands.BlockInsertWord
 import Categorification.WeightedKLR.RedStrands.LabelledStandardFiltration

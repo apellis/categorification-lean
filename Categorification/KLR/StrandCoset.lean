@@ -276,12 +276,14 @@ noncomputable def cosetSpan (hn : n < m) (c : ℕ) : Submodule k R :=
   Submodule.span k {w : R | ∃ q, c ≤ q ∧ q ≤ n ∧ ∃ y ∈ leftSub Q ν n, ∃ d : ℕ,
     w = toRight q n * y * (x ⟨n, hn⟩ : R) ^ d}
 
-theorem cosetSpan_anti (hn : n < m) {c c' : ℕ} (h : c ≤ c') : cosetSpan Q ν hn c' ≤ cosetSpan Q ν hn c := by
+theorem cosetSpan_anti (hn : n < m) {c c' : ℕ} (h : c ≤ c') :
+    cosetSpan Q ν hn c' ≤ cosetSpan Q ν hn c := by
   refine Submodule.span_mono ?_
   rintro w ⟨q, hq, hqn, y, hy, d, rfl⟩
   exact ⟨q, by omega, hqn, y, hy, d, rfl⟩
 
-theorem gen_mem_cosetSpan (hn : n < m) {c q : ℕ} (hq : c ≤ q) (hqn : q ≤ n) {y : R} (hy : y ∈ leftSub Q ν n)
+theorem gen_mem_cosetSpan (hn : n < m) {c q : ℕ} (hq : c ≤ q) (hqn : q ≤ n) {y : R}
+    (hy : y ∈ leftSub Q ν n)
     (d : ℕ) : toRight q n * y * (x ⟨n, hn⟩ : R) ^ d ∈ cosetSpan Q ν hn c :=
   Submodule.subset_span ⟨q, hq, hqn, y, hy, d, rfl⟩
 
@@ -294,7 +296,8 @@ theorem e_mul_cosetSpan (hn : n < m) (c : ℕ) (i : Seq ν) {w : R} (hw : w ∈ 
   exact gen_mem_cosetSpan hn hq hqn (mul_mem (e_mem_leftSub n i') hy) d
 
 /-- `ψ_q` maps the coset span from `q + 1` into the coset span from `q`. -/
-theorem ψ_mul_cosetSpan (hn : n < m) {q : ℕ} (hq : q < n) {w : R} (hw : w ∈ cosetSpan Q ν hn (q + 1)) :
+theorem ψ_mul_cosetSpan (hn : n < m) {q : ℕ} (hq : q < n) {w : R}
+    (hw : w ∈ cosetSpan Q ν hn (q + 1)) :
     ψ q * w ∈ cosetSpan Q ν hn q := by
   refine mul_span_mem ?_ hw
   rintro w ⟨q', hq', hqn, y, hy, d, rfl⟩
@@ -369,7 +372,8 @@ theorem dotIdemSub_mul_cosetSpan (hn : n < m) (c : ℕ) {z : R} (hz : z ∈ dotI
   · exact x_mul_cosetSpan hn c a ha hw
 
 /-- `ψ_p` with `q < p < n` maps the coset generators at `q` into the coset span from `q`. -/
-theorem ψ_mul_gen_of_lt (hn : n < m) {p q : ℕ} (hpq : q < p) (hp : p < n) {y : R} (hy : y ∈ leftSub Q ν n)
+theorem ψ_mul_gen_of_lt (hn : n < m) {p q : ℕ} (hpq : q < p) (hp : p < n) {y : R}
+    (hy : y ∈ leftSub Q ν n)
     (d : ℕ) : ψ p * (toRight q n * y * (x ⟨n, hn⟩ : R) ^ d) ∈ cosetSpan Q ν hn q := by
   have hqn : q ≤ n := by omega
   induction hqn using Nat.decreasingInduction with
@@ -402,7 +406,8 @@ theorem ψ_mul_gen_of_lt (hn : n < m) {p q : ℕ} (hpq : q < p) (hp : p < n) {y 
           (dotIdemSub_mono (by omega) key) (gen_mem_cosetSpan hn le_rfl (by omega) hy d))
 
 /-- The crossings `ψ_p` with `p < n` preserve the coset span from `0`. -/
-theorem ψ_mul_cosetSpan_zero (hn : n < m) {p : ℕ} (hp : p < n) {w : R} (hw : w ∈ cosetSpan Q ν hn 0) :
+theorem ψ_mul_cosetSpan_zero (hn : n < m) {p : ℕ} (hp : p < n) {w : R}
+    (hw : w ∈ cosetSpan Q ν hn 0) :
     ψ p * w ∈ cosetSpan Q ν hn 0 := by
   refine mul_span_mem ?_ hw
   rintro w ⟨q, -, hqn, y, hy, d, rfl⟩
@@ -425,7 +430,8 @@ theorem ψ_mul_cosetSpan_zero (hn : n < m) {p : ℕ} (hp : p < n) {w : R} (hw : 
 /-- **The coset decomposition along the last strand.** Every diagram on the first `n + 1`
 strands is a combination of the `ψ_q ψ_{q+1} ⋯ ψ_{n-1} · y · x_n^d` with `q ≤ n` and `y` a
 diagram on the first `n` strands. -/
-theorem mem_cosetSpan (hn : n < m) {z : R} (hz : z ∈ leftSub Q ν (n + 1)) : z ∈ cosetSpan Q ν hn 0 := by
+theorem mem_cosetSpan (hn : n < m) {z : R} (hz : z ∈ leftSub Q ν (n + 1)) :
+    z ∈ cosetSpan Q ν hn 0 := by
   have h1 : (1 : R) ∈ cosetSpan Q ν hn 0 := by
     have := gen_mem_cosetSpan hn (Nat.zero_le n) le_rfl (Subalgebra.one_mem (leftSub Q ν n)) 0
     simpa using this

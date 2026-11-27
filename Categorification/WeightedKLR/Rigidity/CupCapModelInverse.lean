@@ -14,6 +14,12 @@ Webster, arXiv:1309.3796v3, §7.3, proof of Lemma 7.17, in the case `j = ℓ`.
 
 * `CupCap.sum_capElt_prefixMapKLR`: diagrams of `λ` placed left of the maximum at the right end
   pass through the cap generators at the right end.
+* `CupCap.modelToCap`: the bimodule map from the model `L ⊗_{T̃^{(μ,μ*)}} e T̃^{λ⁺}` to
+  `K̃^{λ⁺}_λ`, `Z ⊗ v ↦ ∑_s c(s, m)⁻¹ · cap(s, m, v) · Z`.
+* `CupCap.capElt_passU`: (max1) along a passage of black strands under the maximum.
+* `CupCap.capModelEquiv`: when the scalars of (max1) are units, `L` is supported on the
+  loadings `μ ⋯ μ*` and the left pull-off identity holds, `K̃^{λ⁺}_λ` is isomorphic to the
+  model.
 -/
 
 noncomputable section
@@ -79,7 +85,8 @@ theorem capElt_last_eSum_ne (a : T) {s s' : Seq (stendhalWeight ℓ ν)} (h : s 
   rw [eSum_end_mul_eSum_end h, zero_mul, capElt_zero_right]
 
 theorem prefixMapKLR_add (u u' : KLRAlgebra k (stendhalQ Q Λ) (stendhalWeight ℓ ν)) :
-    prefixMapKLR Q Λ Λc ν ν₀ (u + u') = prefixMapKLR Q Λ Λc ν ν₀ u + prefixMapKLR Q Λ Λc ν ν₀ u' := by
+    prefixMapKLR Q Λ Λc ν ν₀ (u + u') =
+      prefixMapKLR Q Λ Λc ν ν₀ u + prefixMapKLR Q Λ Λc ν ν₀ u' := by
   unfold prefixMapKLR; rw [map_add, map_add]; rfl
 
 theorem prefixMapKLR_zero : prefixMapKLR Q Λ Λc ν ν₀ (0 : KLRAlgebra k (stendhalQ Q Λ)
@@ -485,6 +492,158 @@ theorem capElt_passU (a : T) (s : Seq (stendhalWeight ℓ ν)) (v : L) (b : Rp) 
         labelScalar, Sum.elim_inl]
     rw [hP, map_mul, mul_assoc, ← map_mul, ← map_mul, mul_comm (cupScalar Q ν₀ i)]
     rfl
+
+/-! ### The two composites -/
+
+theorem envMk_one_one : (Env.mk (1 : T) (1 : Tp) : Ev) = 1 := by
+  unfold Env.mk
+  rw [op_one]
+  rfl
+
+theorem capElt_one_one (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) :
+    (capElt 1 s n v 1 : K) = Submodule.Quotient.mk (gen (s, n) v) := by
+  rw [capElt, act, map_one, envMk_one_one, one_smul]
+
+variable {Q Λ Λc ν₀ L} in
+theorem capToModel_capElt
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (hP : PullOffLeft k Q Λc ν₀ L) (a : T) (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1))
+    (v : L) (b : Rp) :
+    capToModel Q Λ Λc L hL hP (capElt a s n v b) =
+      (Env.mk a (bot b) : Ev) • capImage Q Λ Λc ν₀ L (s, n) v := by
+  rw [capElt, act, Submodule.Quotient.mk_smul, map_smul, capToModel_mk]
+
+theorem capBot_last (s : Seq (stendhalWeight ℓ ν)) (h : (Fin.last m).val ≤ m) :
+    capBot Q Λ Λc ν₀ s (Fin.last m).val h = E s := by
+  rw [capBot_congr Q Λ Λc s h le_rfl (Fin.val_last m), capBot, Nat.sub_self, passU_zero, mul_one]
+  exact (KLRAlgebra.eSum_idem (Q := stendhalQ Q (plusLabels Λ Λc ℓ le_rfl)) _).eq
+
+theorem sum_tmul_endGen (f : Seq (stendhalWeight ℓ ν) → Tp) (v : L) :
+    ∑ s, (Ind.tmul (endGen Q Λ Λc ν ν₀ (f s)) v : EndModel Q Λ Λc ν ν₀ L) =
+      Ind.tmul (endGen Q Λ Λc ν ν₀ (∑ s, f s)) v := by
+  let φ : Tp →+ EndModel Q Λ Λc ν ν₀ L :=
+    AddMonoidHom.mk' (fun Z => Ind.tmul (endGen Q Λ Λc ν ν₀ Z) v)
+      (fun X Y => by rw [endGen_add, Ind.add_tmul])
+  exact (map_sum φ f Finset.univ).symm
+
+theorem endGen_unop (z : Corner (endOp Q Λ Λc ν ν₀)) : endGen Q Λ Λc ν ν₀ z.1.unop = z := by
+  apply Subtype.ext
+  rw [endGen_val]
+  exact (z.2 : op (endStendhal Q Λ Λc ν ν₀ 1 * z.1.unop) = z.1)
+
+theorem endIdem_mul_corner (z : Corner (endOp Q Λ Λc ν ν₀)) :
+    endIdem Q Λ Λc ν ν₀ * z.1.unop = z.1.unop := by
+  have hz' : endStendhal Q Λ Λc ν ν₀ 1 * z.1.unop = z.1.unop :=
+    congrArg unop (z.2 : op (endStendhal Q Λ Λc ν ν₀ 1 * z.1.unop) = z.1)
+  rw [← hz', ← mul_assoc, endStendhal_one_eq_endBot, endIdem_mul_endBot]
+
+/-- **The map to the model after its inverse is the identity**, when the scalars of (max1) are
+units. -/
+theorem capToModel_modelToCap (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i))
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (hP : PullOffLeft k Q Λc ν₀ L) (y : EndModel Q Λ Λc ν ν₀ L) :
+    capToModel Q Λ Λc L hL hP (modelToCap Q Λ Λc ν₀ L y) = y := by
+  induction y using Ind.induction_on with
+  | zero => rw [map_zero, map_zero]
+  | add y y' hy hy' => rw [map_add, map_add, hy, hy']
+  | tmul z v =>
+    rw [modelToCap_apply, modelToCapAdd_tmul, invFun, map_sum]
+    have h1 : ∀ (Z : Tp) (s : Seq (stendhalWeight ℓ ν)),
+        capToModel Q Λ Λc L hL hP (invTerm Q Λ Λc ν₀ Z s v) =
+          Ind.tmul (endGen Q Λ Λc ν ν₀ (bot (E s) * Z)) v := by
+      intro Z s
+      have hc : Ring.inverse (capScalar Q ν₀ s m) * capScalar Q ν₀ s (Fin.last m) = 1 :=
+        Ring.inverse_mul_cancel _ (isUnit_capScalar Q ν₀ hκ s m)
+      rw [invTerm, map_smul, lastGen, capToModel_capElt, map_one (botMap k Q Λ Λc ℓ le_rfl ν ν₀),
+        envMk_one_one, one_smul,
+        envMk_smul, op_smul_capImage, leftAct_algebraMap, smul_smul, hc, one_smul, capBot_last]
+    rw [Finset.sum_congr rfl fun s _ => h1 z.1.unop s, sum_tmul_endGen, ← Finset.sum_mul, ← map_sum,
+      ← eSum_endSet, endIdem_mul_corner, endGen_unop]
+
+theorem capScalar_mul_prod_Ico (s : Seq (stendhalWeight ℓ ν)) {n : ℕ} (hn : n ≤ m) :
+    capScalar Q ν₀ s n * (∏ r ∈ Finset.Ico n (n + (m - n)),
+      if h : r < m then labelScalar Q ν₀ (s.lbl ⟨r, h⟩) else 1) = capScalar Q ν₀ s m := by
+  rw [Nat.add_sub_cancel' hn, capScalar, capScalar, Finset.prod_range_mul_prod_Ico _ hn]
+
+theorem capElt_last_eSum (a : T) (s : Seq (stendhalWeight ℓ ν)) (v : L) (b : Rp) :
+    (capElt a s (Fin.last m) v (E s * b) : K) = capElt a s (Fin.last m) v b :=
+  (capElt_eq_eSum_mul a s _ v b).symm
+
+/-- **The inverse after the map to the model is the identity on the generators**, when the
+scalars of (max1) are units. -/
+theorem modelToCap_capToModel_gen (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i))
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (hP : PullOffLeft k Q Λc ν₀ L) (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) :
+    modelToCap Q Λ Λc ν₀ L (capToModel Q Λ Λc L hL hP (Submodule.Quotient.mk (gen (s, n) v))) =
+      Submodule.Quotient.mk (gen (s, n) v) := by
+  have hn : n.val ≤ m := Nat.lt_succ_iff.1 n.2
+  by_cases hred : ∃ (a : Fin m) (r : Fin ℓ), n.val ≤ a.val ∧ s.lbl a = .inr r
+  · obtain ⟨a, r, ha, hr⟩ := hred
+    have h0 : (Submodule.Quotient.mk (gen (s, n) v) : K) = 0 := by
+      rw [← capElt_one_one]
+      exact capElt_eq_zero_of_bottom _ _ _ _ _ fun t =>
+        not_isRedOrdered_of_red_right s hn t a ha hr r.2
+    rw [h0, map_zero, map_zero]
+  have hb : ∀ (r : ℕ) (h : r < m), n.val ≤ r → r < n.val + (m - n.val) →
+      ∃ i, s.lbl ⟨r, h⟩ = .inl i := by
+    intro r h h1 _
+    cases hl : s.lbl ⟨r, h⟩ with
+    | inl i => exact ⟨i, rfl⟩
+    | inr r' => exact absurd ⟨⟨r, h⟩, r', h1, hl⟩ hred
+  rw [capToModel_mk, capImage_mk, algebraMap_smul, MulOpposite.algebraMap_apply, modelToCap_apply,
+    modelToCapAdd_op_smul, modelToCapAdd_tmul, endGen_val, unop_op, invFun,
+    Finset.sum_eq_single s]
+  · rw [invTerm]
+    rw [smul_lastGen_congr Q Λ Λc ν₀ L _ s v (Y' := bot (capBot Q Λ Λc ν₀ s n hn))
+      (by rw [← mul_assoc, eSum_end_mul_endStendhal_one]),
+      smul_lastGen_eq_capElt, capBot, mul_assoc, capElt_last_eSum]
+    have hf : Fin.last m = ⟨n.val + (m - n.val), by omega⟩ :=
+      Fin.ext (by simp only [Fin.val_last]; omega)
+    rw [hf, capElt_passU Q Λ Λc ν₀ L _ s v _ (m - n.val) n.val (by omega) hb]
+    have he := capElt_eq_eSum_mul (L := L) (Q := Q) (Λc := Λc) (ν₀ := ν₀) (j := ℓ) (hj := le_rfl)
+      (algebraMap k T (Ring.inverse (capScalar Q ν₀ s m)) *
+      algebraMap k T (∏ r ∈ Finset.Ico n.val (n.val + (m - n.val)),
+        if h : r < m then labelScalar Q ν₀ (s.lbl ⟨r, h⟩) else 1)) s n v 1
+    rw [mul_one] at he
+    rw [← he, ← AlgHom.commutes (botMap k Q Λ Λc ℓ le_rfl ν ν₀), smul_capElt, one_mul, one_mul,
+      Algebra.algebraMap_eq_smul_one (A := Rp) (capScalar Q ν₀ s n), capElt_smul_right]
+    have hA : capScalar Q ν₀ s n • (algebraMap k T (Ring.inverse (capScalar Q ν₀ s m)) *
+        algebraMap k T (∏ r ∈ Finset.Ico n.val (n.val + (m - n.val)),
+          if h : r < m then labelScalar Q ν₀ (s.lbl ⟨r, h⟩) else 1)) = 1 := by
+      rw [Algebra.smul_def, ← map_mul, ← map_mul, mul_left_comm, capScalar_mul_prod_Ico Q ν₀ s hn,
+        Ring.inverse_mul_cancel _ (isUnit_capScalar Q ν₀ hκ s m), map_one]
+    rw [hA, capElt_one_one]
+  · intro s' _ hs'
+    rw [invTerm, smul_lastGen_congr Q Λ Λc ν₀ L _ s' v (Y' := 0), Env.mk_zero_right, zero_smul]
+    rw [← mul_assoc, eSum_end_mul_endStendhal_one, mul_zero, capBot, ← map_mul, ← mul_assoc,
+      ← mul_assoc, eSum_end_mul_eSum_end hs', zero_mul, zero_mul, map_zero]
+  · intro h
+    exact absurd (Finset.mem_univ s) h
+
+theorem modelToCap_capToModel (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i))
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (hP : PullOffLeft k Q Λc ν₀ L) :
+    (modelToCap Q Λ Λc ν₀ L).comp (capToModel Q Λ Λc L hL hP) = (LinearMap.id : K →ₗ[Ev] K) := by
+  refine Submodule.linearMap_qext _ (Finsupp.lhom_ext fun p r => ?_)
+  rw [← Finsupp.smul_single_one, LinearMap.comp_apply, LinearMap.comp_apply, map_smul, map_smul,
+    map_smul, LinearMap.comp_apply, LinearMap.id_apply, Submodule.mkQ_apply]
+  exact congrArg (r • ·) (modelToCap_capToModel_gen Q Λ Λc ν₀ L hκ hL hP p.1.1 p.1.2 p.2)
+
+/-- **Lemma 7.17, the right end** (Webster, arXiv:1309.3796v3, proof of Lemma 7.17, `j = ℓ`):
+when the scalars of (max1) are units, `L` is supported on loadings with `μ` and `μ*` at the ends,
+and the left pull-off identity holds, `K̃^{λ⁺}_λ` is isomorphic as a bimodule to the model
+`L ⊗_{T̃^{(μ,μ*)}} e T̃^{λ⁺}`. -/
+def capModelEquiv (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i))
+    (hL : ∀ (w : Seq (stendhalWeight 2 ν₀)) (v : L), ¬ IsCapGood ν₀ w →
+      op (cupMap k Q Λc ν₀ (KLRAlgebra.e w)) • v = 0)
+    (hP : PullOffLeft k Q Λc ν₀ L) : K ≃ₗ[Ev] EndModel Q Λ Λc ν ν₀ L :=
+  LinearEquiv.ofLinearMap (capToModel Q Λ Λc L hL hP) (modelToCap Q Λ Λc ν₀ L)
+    (LinearMap.ext fun y => capToModel_modelToCap Q Λ Λc ν₀ L hκ hL hP y)
+    (modelToCap_capToModel Q Λ Λc ν₀ L hκ hL hP)
 
 end Inverse
 

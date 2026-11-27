@@ -12609,6 +12609,33 @@ noncomputable example :=
 
 end NonVacuity.WebsterCapBasis
 
+namespace NonVacuity.WebsterFiFiltrationStd
+
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.KL3.Diagram
+
+private noncomputable abbrev fsC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem fsRouquier :
+    KLR.IsRouquierQ fsC (CL.qCL (CL.CLScalars.kl : CL.CLScalars fsC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem fsSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars fsC ℚ)) :=
+  fun _ _ h => (h (Subsingleton.elim _ _)).elim
+
+/- The Khovanov–Lauda-scalar results are stated with classical decidable equality on the
+colours; this section uses the same instance on `Unit`. -/
+noncomputable local instance (priority := high) fsDecEqClassical : DecidableEq Unit :=
+  Classical.decEq _
+
+/-- Webster's Prop 5.5, `F`-part, for finite-dimensional modules at the standard
+Khovanov–Lauda parameters, for two red `sl₂` strands, with no route hypothesis. -/
+example : StendhalAlgebra.FiFiltrationFor (k := ℚ)
+    (CL.qCL (CL.CLScalars.kl : CL.CLScalars fsC ℚ)) () (fun M _ _ => FiniteDimensional ℚ M) 2 :=
+  StendhalAlgebra.fiFiltration_finite_std () fsRouquier fsSymm 2
+
+end NonVacuity.WebsterFiFiltrationStd
 namespace NonVacuity.WebsterMidCapBasis
 
 open Categorification in

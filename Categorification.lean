@@ -2774,6 +2774,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedBraidBubblesQ
 import Categorification.WeightedKLR.RedStrands.DoubleRedBraidReductionQ
 import Categorification.WeightedKLR.RedStrands.LoadingGenerators
 import Categorification.WeightedKLR.RedStrands.HalfTwistFullyFaithful
+import Categorification.WeightedKLR.RedStrands.FiFiltrationFinite
 import Categorification.Algebra.LocalizingFiltration
 import Categorification.WeightedKLR.RedStrands.RightProjectiveStandardFiltration
 import Categorification.WeightedKLR.RedStrands.BraidColumnStayIndex

@@ -55,6 +55,7 @@ import Categorification.Algebra.ModuleTowerSl2
 import Categorification.Algebra.NilHeckeModuleRecognition
 import Categorification.Algebra.TensorProductOverFlat
 import Categorification.Algebra.TensorActModule
+import Categorification.Algebra.AlgebraFamilyCast
 import Categorification.Algebra.TensorAlong
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
@@ -148,6 +149,7 @@ import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.NilHeckeDemazure
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PiTensorProductNonUnitalMap
+import Categorification.Algebra.PiTensorProductNonUnitalExt
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
@@ -2469,6 +2471,7 @@ import Categorification.Algebra.FinrankCounting
 import Categorification.KLR.SpanCornerDotsTop
 import Categorification.WeightedKLR.RedStrands.BlockAssignment
 import Categorification.WeightedKLR.RedStrands.BlockBlackRes
+import Categorification.WeightedKLR.RedStrands.BlockBlackResMaps
 import Categorification.WeightedKLR.RedStrands.BlockInsertLoading
 import Categorification.WeightedKLR.RedStrands.BlockInsertWord
 import Categorification.WeightedKLR.RedStrands.LabelledStandardFiltration

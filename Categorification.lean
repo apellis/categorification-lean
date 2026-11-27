@@ -1780,6 +1780,7 @@ import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
 import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 import Categorification.WeightedKLR.RedStrands.RedFirstBraiding
+import Categorification.WeightedKLR.RedStrands.RedBraidDots
 import Categorification.WeightedKLR.RedStrands.TwoRedCrossingInjectivity
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
 import Categorification.WeightedKLR.RedStrands.RedFirstDoubleCentralizer
@@ -2396,6 +2397,7 @@ import Categorification.WeightedKLR.RedStrands.GradedTwoPieceStandard
 import Categorification.WeightedKLR.RedStrands.HalfTwistCokernel
 import Categorification.WeightedKLR.RedStrands.HalfTwistDots
 import Categorification.WeightedKLR.RedStrands.HalfTwistInclusion
+import Categorification.WeightedKLR.RedStrands.HalfTwistTransport
 import Categorification.WeightedKLR.RedStrands.HalfTwistInjective
 import Categorification.WeightedKLR.RedStrands.HalfTwistRedFirst
 import Categorification.WeightedKLR.RedStrands.InterleavedPBW

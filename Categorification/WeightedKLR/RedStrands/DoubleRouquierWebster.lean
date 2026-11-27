@@ -116,10 +116,12 @@ theorem admRelsZero_tensorTwoCatPresentation (hP : AdmRelsZero (genImg S red upI
       C.dot i i * p + C.dot j j * q ≠ -2 * C.dot i j → Sc.s i j p q = 0)
     (hSc : CL.presCL RD k Sc = pres RD k) (HQ : RouqUpKLR S Q)
     (hB : DownBigon S red upIso fun r i => exponents r i) (hdot : UpIsoDotNatural S red upIso)
-    (hcross : UpIsoCrossNatural S red upIso Sc) (hrbb : DownDotCrossNatural S red upIso)
-    (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
+    (hcross : UpIsoCrossNatural S red upIso Sc)
     (hmid : DownMidSame S red upIso fun r i => exponents r i) :
     AdmRelsZero (genImg S red upIso Sc) (tensorTwoCatPresentation RD Λ Q exponents Sc P) :=
+  have hrbb := (upIsoCrossNatural_iff_downDotCrossNatural S Sc red upIso).1 hcross
+  have hbbr := (upIsoCrossNatural_iff_downQuotCrossNatural S Sc red upIso H M).1 hcross
+  have hbrb := downMidCrossNatural_of_upIsoCrossNatural S Sc red upIso H M hcross
   ((((((((hP.addRedCupRelations).addRedCapRelations).addRedUpSlideRelations hdot
     hcross).addMixedCupPitchforkRelations H M hr hq hSc).addBlackAdjunctionRelations
     H M hr hq hSc).addBlackKLRelations H M hr hq hSc).addDownRelationsOneRed HQ _ hB hdot
@@ -139,12 +141,10 @@ def tensorTwoCatPseudofunctor [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Addi
       C.dot i i * p + C.dot j j * q ≠ -2 * C.dot i j → Sc.s i j p q = 0)
     (hSc : CL.presCL RD k Sc = pres RD k) (HQ : RouqUpKLR S Q)
     (hB : DownBigon S red upIso fun r i => exponents r i) (hdot : UpIsoDotNatural S red upIso)
-    (hcross : UpIsoCrossNatural S red upIso Sc) (hrbb : DownDotCrossNatural S red upIso)
-    (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
+    (hcross : UpIsoCrossNatural S red upIso Sc)
     (hmid : DownMidSame S red upIso fun r i => exponents r i) :
     Pseudofunctor (RevBicat (tensorTwoCatPresentation RD Λ Q exponents Sc P).Bicat) B :=
   admissiblePseudofunctor (genImg S red upIso Sc)
-    (admRelsZero_tensorTwoCatPresentation Q exponents hP H M hr hq hSc HQ hB hdot hcross hrbb
-      hbbr hbrb hmid)
+    (admRelsZero_tensorTwoCatPresentation Q exponents hP H M hr hq hSc HQ hB hdot hcross hmid)
 
 end Categorification.Stendhal.DoubleDiagram

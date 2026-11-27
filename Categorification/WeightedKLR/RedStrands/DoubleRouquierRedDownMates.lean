@@ -114,11 +114,13 @@ theorem upIsoCross_iff_downQuotCross (H : BrundanUpKLR S Sc) (M : BrundanMixedIn
   set Y₁ := leftAdjointSquareConjugate.vcomp
     (leftAdjointSquare.hcomp (redDownQuot S red upIso r i g₁ hr g₃ hi)
       (redDownQuot S red upIso r j g₁' g₃ h₃' hj)) (S.cross i j h₁ h₁' g₁ g₁')
-  have hL : mateEquiv A₁ A₃ X₁ = _ := conjugateEquiv_mateEquiv_vcomp A₁ ((S.adj j hj').comp (S.adj i hi')) A₃
+  have hL : mateEquiv A₁ A₃ X₁ = _ :=
+    conjugateEquiv_mateEquiv_vcomp A₁ ((S.adj j hj').comp (S.adj i hi')) A₃
     (S.cross i j hj' hi' hi hj)
     (leftAdjointSquare.hcomp (redDownQuot S red upIso r j h₁ hr h₃ hj')
       (redDownQuot S red upIso r i h₁' h₃ h₃' hi'))
-  have hR : mateEquiv A₁ A₃ Y₁ = _ := mateEquiv_conjugateEquiv_vcomp A₁ ((S.adj i g₁).comp (S.adj j g₁')) A₃
+  have hR : mateEquiv A₁ A₃ Y₁ = _ :=
+    mateEquiv_conjugateEquiv_vcomp A₁ ((S.adj i g₁).comp (S.adj j g₁')) A₃
     (leftAdjointSquare.hcomp (redDownQuot S red upIso r i g₁ hr g₃ hi)
       (redDownQuot S red upIso r j g₁' g₃ h₃' hj)) (S.cross i j h₁ h₁' g₁ g₁')
   rw [Bicategory.mateEquiv_hcomp] at hL hR
@@ -228,3 +230,30 @@ theorem upIsoCross_iff_downDotCross (r : Fin ℓ) (i j : I) {μ ρ ρi ρj ν μ
     rightAdjointSquare.hcomp, source_smul_whiskerRight, source_whiskerLeft_smul,
     Linear.smul_comp, Linear.comp_smul, Category.assoc, Iso.inv_hom_id_assoc]
   exact hc.smul_left_cancel
+
+/-- **The red/up crossings are natural for upward crossings (4.4d) if and only if `a′` is
+natural for downward crossings.** -/
+theorem upIsoCrossNatural_iff_downQuotCrossNatural (H : BrundanUpKLR S Sc)
+    (M : BrundanMixedInversion S) :
+    UpIsoCrossNatural S red upIso Sc ↔ DownQuotCrossNatural S red upIso := by
+  constructor
+  · intro h r i j _ _ _ _ _ _ _ _ f₁ f₂ hR q₁ q₂ hr q₃ q₄ q₅ g₁ g₂ g₃
+    exact (upIsoCross_iff_downQuotCross S Sc red upIso H M r i j hR q₅ q₄ q₃ q₂ f₂ q₁ f₁ hr
+      g₂ g₃ g₁).1 (h r i j hR q₅ q₄ q₃ q₂ f₂ q₁ f₁ hr g₂ g₃ g₁)
+  · intro h r i j _ _ _ _ _ _ _ _ hr hi hj hi' hj' h₁ h₃ h₁' h₃' g₁ g₃ g₁'
+    exact (upIsoCross_iff_downQuotCross S Sc red upIso H M r i j hr hi hj hi' hj' h₁ h₃ h₁' h₃'
+      g₁ g₃ g₁').2 (h r i j h₁' h₁ hr h₃ hj' h₃' hi' hj hi g₁' g₁ g₃)
+
+/-- **The red/up crossings are natural for upward crossings (4.4d) if and only if `b′` is
+natural for downward crossings.** -/
+theorem upIsoCrossNatural_iff_downDotCrossNatural :
+    UpIsoCrossNatural S red upIso Sc ↔ DownDotCrossNatural S red upIso := by
+  constructor
+  · intro h r i j _ _ _ _ _ _ _ _ hr hi hj hi' hj' g₁ g₃ k₁ k₃ f₁ f₃ f₁'
+    exact (upIsoCross_iff_downDotCross S Sc red upIso r i j k₃ hi' hj' hi hj f₁' f₃ f₁ hr k₁ g₃
+      g₁).1 (h r i j k₃ hi' hj' hi hj f₁' f₃ f₁ hr k₁ g₃ g₁)
+  · intro h r i j _ _ _ _ _ _ _ _ hr hi hj hi' hj' h₁ h₃ h₁' h₃' g₁ g₃ g₁'
+    exact (upIsoCross_iff_downDotCross S Sc red upIso r i j hr hi hj hi' hj' h₁ h₃ h₁' h₃' g₁
+      g₃ g₁').2 (h r i j h₃' hi' hj' hi hj g₁' g₃ g₁ hr h₁' h₃ h₁)
+
+end Categorification.Stendhal.DoubleDiagram

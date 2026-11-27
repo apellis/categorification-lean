@@ -102,8 +102,8 @@ include ho
 theorem CoverRelsNegligible.addMixedBlackRelationsQ
     {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
     (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P) :
-    CoverRelsNegligible.{u, v, w} Λ C hQ hc o (DoubleDiagram.addMixedBlackRelations (RDc) (redWeight Wgt) k
-      (Sb).t P) :=
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o
+      (DoubleDiagram.addMixedBlackRelations (RDc) (redWeight Wgt) k (Sb).t P) :=
   hP.addRels fun a => coverRedNegligible_mixedBlackRelationQ Λ C hQ hc o ho a
 
 /-- Adjoining the reflected black relations of `U_{Sb}(g)` preserves `CoverRelsNegligible`. -/
@@ -129,7 +129,8 @@ theorem CoverRelsNegligible.addMixedCupPitchforkRelationsQ
     {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
     (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P) :
     CoverRelsNegligible.{u, v, w} Λ C hQ hc o
-      (DoubleDiagram.addMixedCupPitchforkRelations (RDc) (redWeight Wgt) P fun i j => ((Sb).t i j : k)) :=
+      (DoubleDiagram.addMixedCupPitchforkRelations (RDc) (redWeight Wgt) P
+        fun i j => ((Sb).t i j : k)) :=
   hP.addRels fun a => coverRedNegligible_mixedCupPitchforkQ Λ C hQ hc o ho P a
 
 end Categorification.Stendhal

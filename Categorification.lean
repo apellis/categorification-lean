@@ -2543,3 +2543,5 @@ import Categorification.WeightedKLR.RedStrands.BlockAlgebraSplit
 import Categorification.Algebra.InductionAlongTensorSplit
 import Categorification.WeightedKLR.RedStrands.FiInitInduction
 import Categorification.WeightedKLR.RedStrands.FiLeftInput
+import Categorification.Algebra.TensorActRestrict
+import Categorification.WeightedKLR.RedStrands.FiSubTerm

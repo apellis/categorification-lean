@@ -19,6 +19,7 @@ Contents:
   - [8. §4.5, κ(0) and the citation of (4.4d)](#8-45-κ0-and-the-citation-of-44d)
   - [9. Lemma 4.35, insertion and deletion conditions](#9-lemma-435-insertion-and-deletion-conditions)
   - [10. The form before Proposition 4.33, and Lemma 4.36](#10-the-form-before-proposition-433-and-lemma-436)
+  - [11. Before Proposition 4.39, the operators F̃ᵢ on U⁻ ⊗ V^λ](#11-before-proposition-439-the-operators-f̃ᵢ-on-u--vλ)
 
 ## Khovanov–Lauda III, arXiv:0807.3250v1
 
@@ -228,3 +229,28 @@ and all black contents, for right and left projectives alike.
 
 **Roadmap.** None open for the form; the identification with the boundary ideals of
 Definition 4.34 is open (entry 9).
+
+### 11. Before Proposition 4.39, the operators F̃ᵢ on U⁻ ⊗ V^λ
+
+Locator: arXiv:1309.3796v3, the paragraph before Proposition 4.39 and its proof.
+
+**Printed.** `U_q^- ⊗ V^λ` carries the right action `(u ⊗ w) · F_i = uF_i ⊗ K_i^{-1} w + u ⊗ F_i w`,
+and the vectors `p̃_w` follow the recursion of the `p_w` with this action, so that for `λ = ∅` the
+word `(i_1, …, i_n)` gives `F_{i_n} ⋯ F_{i_1}`. The proof of Proposition 4.39 uses
+`𝔮_N(u ⊗ w) = u v_{Nλ₀} ⊗ w`, which sends `p̃_w` to `p_w` for the word with the red strand
+`Nλ₀` added on the left.
+
+**Why it fails.** With right multiplication the recursion gives `F_{i_1} ⋯ F_{i_n}` for `λ = ∅`,
+not the printed `F_{i_n} ⋯ F_{i_1}`, and `𝔮_N` does not intertwine it with `F_i`:
+`𝔮_N(uF_i ⊗ w) = uF_i v ⊗ w`, while `F_i 𝔮_N(u ⊗ w)` has first factor `F_i u v`.
+
+**Corrected.** Multiply on the left: `F̃_i(u ⊗ w) = F_i u ⊗ K_{-ĩ} w + u ⊗ F_i w`, with the
+coproduct `Δ(F_i) = F_i ⊗ K_{-ĩ} + 1 ⊗ F_i` of the library. Then `p̃_w` is `F_{i_n} ⋯ F_{i_1}` for
+`λ = ∅`, `𝔮_N` intertwines `F̃_i` with `F_i`, and Proposition 4.39 holds with these vectors.
+
+**Declarations.** `Categorification.Stendhal.FirstWeight.negTensorF`,
+`FirstWeight.negTensorMap_negTensorF`, `FirstWeight.negTensorMap_negWordVector`,
+`FirstWeight.exists_tildeTensorEquiv`.
+
+**Roadmap.** [Tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md),
+Proposition 4.39.

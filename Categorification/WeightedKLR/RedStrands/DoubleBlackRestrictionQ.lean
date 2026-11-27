@@ -18,7 +18,7 @@ of `Fᵢ`. On the categorical side, the upward black strand of colour `i` is rig
 the downward one in the completed black action (`blackCompletedAdjunctionQ`, the image of the
 biadjunction of the Khovanov–Lauda 2-category). For `M` in the completed block of content
 `ν + i`, `Hom(⊕ O_ν, Eᵢ M)` is the restriction of `Hom(⊕ O_{ν+i}, M)` along the matrix map of
-`Fᵢ` (`DoubleDiagram.blackHomRes`), and along `appendBlackOp` through the repaired Lemma 4.29
+`Fᵢ` (`DoubleDiagram.blackHomResQ`), and along `appendBlackOp` through the repaired Lemma 4.29
 (`clBlackHomResQ`), semilinearly for the actions of the source rings. Unlike the induction side
 this needs no generation hypothesis on `M`.
 
@@ -151,7 +151,7 @@ variable {I : Type u} {ℓ : ℕ} {Λ : Fin ℓ → I →₀ ℕ} {C : CartanDat
 
 local notation "RDc" => coordinateDatum Λ C
 local notation "KL" => blackScalarsQ Λ C hQ
-local notation "T" => TensorProductAlgebra k (clDownwardQ KL) Λ
+local notation "T" => TensorProductAlgebra k (Q) Λ
 
 variable {P : Presentation.{u, u}
     (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
@@ -176,7 +176,7 @@ of `Fᵢ` over the all-down matrix ring, identified by the repaired Lemma 4.29. 
 def clResTransportQ (M : Karoubi (Mat_ (Vc'))) :
     letI := clHomModuleQ hP hwf (({i} : Multiset I) + ν) M
     letI := downHomModule (Pin) (CL.CLScalars.t KL) (({i} : Multiset I) + ν) M
-    Res (appendBlackOp (clDownwardQ KL) Λ i ν)
+    Res (appendBlackOp (Q) Λ i ν)
         ((toKaroubi _).obj (downSum (PD) (({i} : Multiset I) + ν)) ⟶ M) ≃+
       Res (blackMatrixOp (Pin) (CL.CLScalars.t KL) i ν) ((toKaroubi _).obj (downSum (PD) (({i} : Multiset I) + ν)) ⟶ M) :=
   letI := clHomModuleQ hP hwf (({i} : Multiset I) + ν) M
@@ -194,7 +194,7 @@ Webster's `Eᵢ`, the restriction along `appendBlackOp` of the right `T^λ_{ν+i
 (`clBlackHomRes_smulQ`). -/
 def clBlackHomResQ (M : Karoubi (Mat_ (Vc'))) :
     letI := clHomModuleQ hP hwf (({i} : Multiset I) + ν) M
-    Res (appendBlackOp (clDownwardQ KL) Λ i ν)
+    Res (appendBlackOp (Q) Λ i ν)
         ((toKaroubi _).obj (downSum (PD) (({i} : Multiset I) + ν)) ⟶ M) ≃+
       ((toKaroubi _).obj (downSum (PD) ν) ⟶ (completionMap E).obj M) :=
   letI := clHomModuleQ hP hwf (({i} : Multiset I) + ν) M
@@ -205,7 +205,7 @@ def clBlackHomResQ (M : Karoubi (Mat_ (Vc'))) :
 /-- The comparison `clBlackHomResQ` is semilinear along `clOpEquivQ`. -/
 theorem clBlackHomRes_smulQ (M : Karoubi (Mat_ (Vc'))) (z : (T ν)ᵐᵒᵖ)
     (g : letI := clHomModuleQ hP hwf (({i} : Multiset I) + ν) M
-      Res (appendBlackOp (clDownwardQ KL) Λ i ν) ((toKaroubi _).obj (downSum (PD) (({i} : Multiset I) + ν)) ⟶ M)) :
+      Res (appendBlackOp (Q) Λ i ν) ((toKaroubi _).obj (downSum (PD) (({i} : Multiset I) + ν)) ⟶ M)) :
     letI := clHomModuleQ hP hwf (({i} : Multiset I) + ν) M
     (clBlackHomResQ hP hwf i ν M) (z • g) =
       (KLR.Diagram.MatEnd.karoubiMatrixOp (downObj (PD) (ν := ν))

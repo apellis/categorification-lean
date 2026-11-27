@@ -50,7 +50,7 @@ section Block
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   {RD : WeightDatum C X Y} {ℓ : ℕ} {Λ : Fin ℓ → {x : X // ∀ i, 0 ≤ RD.pair (RD.iY i) x}}
-  {k : Type w} [CommRing k] (P : Presentation.{w, max u v} (signature RD (Subtype.val ∘ Λ)) k)
+  {k : Type w} [CommRing k] {sc : KL3.Diagram.CL.CLScalars C k} (P : Presentation.{w, max u v} (signature RD (Subtype.val ∘ Λ)) k)
   (t : I → I → kˣ) (i : I) (ν : Multiset I)
 
 local notation "Q" => addRedUpRelations RD (Subtype.val ∘ Λ) k
@@ -72,7 +72,7 @@ variable {I : Type u} {ℓ : ℕ} {Λ : Fin ℓ → I →₀ ℕ} {C : CartanDat
 
 local notation "RDc" => coordinateDatum Λ C
 local notation "KL" => blackScalarsQ Λ C hQ
-local notation "T" => TensorProductAlgebra k (clDownwardQ KL) Λ
+local notation "T" => TensorProductAlgebra k (Q) Λ
 
 variable {P : Presentation.{u, u}
     (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
@@ -93,7 +93,7 @@ local notation "F" => blackAct (PD) [(false, i)] (wt_downRightWeight i ν)
 
 /-- The repaired Lemma 4.29 on opposite rings. -/
 abbrev clOpEquivQ (ν : Multiset I) : (T ν)ᵐᵒᵖ ≃+* (downwardMatrix (PD) ν)ᵐᵒᵖ :=
-  RingEquiv.op (ordinaryToDownwardMatrixEquivQ (ν := ν) hP hwf).toRingEquiv
+  RingEquiv.op ((tensorProductBlackScalarsEquiv ν).trans (ordinaryToDownwardMatrixEquivQ (ν := ν) hP hwf)).toRingEquiv
 
 /-- The right `T^λ_ν`-module `Hom(⊕ O_ν, M)` of the Morita equivalence (Webster,
 arXiv:1309.3796v3, Theorem 4.30): `T^λ_ν` acts through the repaired Lemma 4.29. -/
@@ -111,34 +111,37 @@ theorem clHomModule_smulQ (M : Karoubi (Mat_ (Vc))) (z : (T ν)ᵐᵒᵖ)
 
 theorem clOpEquiv_appendBlackQ (z : (T ν)ᵐᵒᵖ) :
     blackMatrixOp (Pin) (CL.CLScalars.t KL) i ν (clOpEquivQ hP hwf ν z) =
-      clOpEquivQ hP hwf ({i} + ν) (appendBlackOp (clDownwardQ KL) Λ i ν z) := by
+      clOpEquivQ hP hwf ({i} + ν) (appendBlackOp (Q) Λ i ν z) := by
   rw [blackMatrixOp_apply]
-  exact congrArg op (ordinaryToDownwardMatrix_appendBlack _ _ Λ (CL.CLScalars.t KL) i ν z.unop).symm
+  refine congrArg op (Eq.symm ?_)
+  change ordinaryToDownwardMatrix _ _ Λ _ (tensorRescale Λ _ _ _ (appendBlack Q Λ i ν z.unop)) = _
+  rw [tensorRescale_appendBlack, ordinaryToDownwardMatrix_appendBlack]
+  rfl
 
 /-- `Hom(⊕ O_ν, M)` over `T^λ_ν` and over the all-down matrix ring, with the inductions along
 `appendBlackOp` and along the matrix map of `Fᵢ` identified by the repaired Lemma 4.29. -/
 def clIndTransportQ (M : Karoubi (Mat_ (Vc))) :
     letI := clHomModuleQ hP hwf ν M
     letI := downHomModule (Pin) (CL.CLScalars.t KL) ν M
-    Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (clDownwardQ KL) Λ i ν) ≃+
+    Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (Q) Λ i ν) ≃+
       Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (blackMatrixOp (Pin) (CL.CLScalars.t KL) i ν) :=
   letI := clHomModuleQ hP hwf ν M
   letI := downHomModule (Pin) (CL.CLScalars.t KL) ν M
-  Ind.transport (φ := appendBlackOp (clDownwardQ KL) Λ i ν)
+  Ind.transport (φ := appendBlackOp (Q) Λ i ν)
     (φ' := blackMatrixOp (Pin) (CL.CLScalars.t KL) i ν) (clOpEquivQ hP hwf ν)
     (clOpEquivQ hP hwf ({i} + ν)) (clOpEquiv_appendBlackQ hP hwf i ν)
     (AddEquiv.refl ((toKaroubi _).obj (downSum (PD) ν) ⟶ M)) (clHomModule_smulQ hP hwf ν M)
 
 theorem clIndTransport_smulQ (M : Karoubi (Mat_ (Vc))) (b : (T ({i} + ν))ᵐᵒᵖ)
     (x : letI := clHomModuleQ hP hwf ν M
-      Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (clDownwardQ KL) Λ i ν)) :
+      Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (Q) Λ i ν)) :
     letI := clHomModuleQ hP hwf ν M
     letI := downHomModule (Pin) (CL.CLScalars.t KL) ν M
     clIndTransportQ hP hwf i ν M (b • x) =
       clOpEquivQ hP hwf ({i} + ν) b • clIndTransportQ hP hwf i ν M x := by
   let _ := clHomModuleQ hP hwf ν M
   let _ := downHomModule (Pin) (CL.CLScalars.t KL) ν M
-  have key := Ind.transport_smul (φ := appendBlackOp (clDownwardQ KL) Λ i ν)
+  have key := Ind.transport_smul (φ := appendBlackOp (Q) Λ i ν)
     (φ' := blackMatrixOp (Pin) (CL.CLScalars.t KL) i ν) (clOpEquivQ hP hwf ν)
     (clOpEquivQ hP hwf ({i} + ν)) (clOpEquiv_appendBlackQ hP hwf i ν)
     (AddEquiv.refl ((toKaroubi _).obj (downSum (PD) ν) ⟶ M)) (clHomModule_smulQ hP hwf ν M)
@@ -153,7 +156,7 @@ Webster's `Fᵢ` applied to the right `T^λ_ν`-module `Hom(⊕ O_ν, M)` is
 def clBlackHomIndQ (M : Karoubi (Mat_ (Vc)))
     (hM : ∀ j, (M.X.X j).as.val.signedContent = contentVector ν) :
     letI := clHomModuleQ hP hwf ν M
-    Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (clDownwardQ KL) Λ i ν) ≃+
+    Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (Q) Λ i ν) ≃+
       ((toKaroubi _).obj (downSum (PD) ({i} + ν)) ⟶ (completionMap F).obj M) :=
   letI := clHomModuleQ hP hwf ν M
   letI := downHomModule (Pin) (CL.CLScalars.t KL) ν M
@@ -162,7 +165,7 @@ def clBlackHomIndQ (M : Karoubi (Mat_ (Vc)))
 theorem clBlackHomInd_smulQ (M : Karoubi (Mat_ (Vc)))
     (hM : ∀ j, (M.X.X j).as.val.signedContent = contentVector ν) (b : (T ({i} + ν))ᵐᵒᵖ)
     (x : letI := clHomModuleQ hP hwf ν M
-      Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (clDownwardQ KL) Λ i ν)) :
+      Ind ((toKaroubi _).obj (downSum (PD) ν) ⟶ M) (appendBlackOp (Q) Λ i ν)) :
     clBlackHomIndQ hP hwf i ν M hM (b • x) =
       (KLR.Diagram.MatEnd.karoubiMatrixOpY (downObj (PD) (ν := {i} + ν))
         (clOpEquivQ hP hwf ({i} + ν) b)).unop ≫ clBlackHomIndQ hP hwf i ν M hM x :=

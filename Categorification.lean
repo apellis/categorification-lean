@@ -2350,6 +2350,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicInputGrading
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleAction
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleDescent
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardExact
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardFunctor
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardGrading
 import Categorification.WeightedKLR.RedStrands.RaisingAppendRed
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingFrame
@@ -2457,4 +2458,5 @@ import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition
 import Categorification.WeightedKLR.RedStrands.LeftRootStandard
 import Categorification.WeightedKLR.RedStrands.TwoPieceBlocks
 import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMaps
+import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandard
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

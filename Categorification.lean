@@ -14,8 +14,8 @@ import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
-import Categorification.Algebra.CompactGeneratorIsIso
 import Categorification.Algebra.CompactGeneratorEquivalence
+import Categorification.Algebra.CompactGeneratorIsIso
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerEndomorphism

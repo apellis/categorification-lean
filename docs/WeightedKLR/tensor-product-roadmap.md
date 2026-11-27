@@ -924,8 +924,8 @@ Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crysta
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.23,
 Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorification); Thm 5.25 (finite
 projective resolutions); self-dual projectives and double centralizer
-(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30); Thm 5.31 (for `sl_n`, blocks of cyclotomic
-`q`-Schur algebras). Open except as listed above.
+(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
+Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
 
 ### Phase D: §6, braiding functors
 
@@ -995,8 +995,13 @@ Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
 modules over the corners of the violated quotient, built on dg-lean's derived categories of dg
 modules over rings in degree `0`, computed on K-projective resolutions (`derivedTensor`,
 `derivedRightTensor`, `Algebra/DerivedTensor.lean`; the bimodule `e A e'` is
-`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
-graded version and the restriction to `D⁻` are open roadmap items.
+`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`. The
+maintainer chose the graded form of Def 6.6 (2026-11-27). The graded braiding functor is
+the derived right tensor over the weight categories of the corners with their auxiliary
+grading (`diagramCornerWeightDerivedRightTensor`, `Algebra/DiagramWeightCorner.lean`, used so
+far for the fundamental braid in §7). Open: package it as `𝔅_w` for all red orders, compare
+it with the ungraded functor after forgetting the grading, and carry the §6 results over to
+the graded functor.
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of
@@ -1476,21 +1481,27 @@ minuscule tangles (Prop 8.3); the unknot for `sl₂` (Prop 8.4); independence of
 projection (Thm 8.6, Lemma 8.7); ribbon elements (Prop 8.8); minuscule duality
 (Thm 8.11). All open.
 
-### Phase G: §9, comparisons
+### Phase G (optional): §9 comparisons and their inputs
 
-Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
-Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
-and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
-homologies (Props 9.18, 9.20, 9.21). All open.
+Optional item (maintainer, 2026-11-27): skipped for now, to be taken up only on request. It
+covers the comparisons with other categories and everything only they need:
+
+* Thm 5.31 (v3: Thm 5.34): for `sl_n`, the algebras `T^λ` and blocks of cyclotomic
+  `q`-Schur algebras.
+* Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
+  Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
+  and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
+  homologies (Props 9.18, 9.20, 9.21).
+
+All open. The external inputs below are recorded for when the item is taken up.
 
 ### Inputs from other works (maintainer decisions)
 
 * Prop 9.6 and Thm 9.16 are the Brundan–Kleshchev isomorphism (arXiv:0808.2032),
   which is not in the library. Options: formalize it, or take it as a stated
-  hypothesis of the §9 results.
-* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`. On
-  2026-11-15 the maintainer excluded the Cherednik and `q`-Schur comparisons for
-  the weighted KLR work. This needs confirming for 1309.3796.
+  hypothesis of the §9 results (Phase G, optional).
+* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`;
+  they are in the optional Phase G (maintainer, 2026-11-27).
 * Prop 9.14 (Koszulity) and Props 9.18–9.21 rest on results of other papers (for
   example Enright–Shelton equivalences). These are flagged in the same way when
   they are reached.

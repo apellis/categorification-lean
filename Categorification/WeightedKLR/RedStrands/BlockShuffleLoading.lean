@@ -271,4 +271,16 @@ theorem violated_of_adjacent_shuffleLoading [DecidableEq I] (L M : List (Fin ℓ
       (aligned_adjacent L M g β (ho ▸ redWord_nodup _)) z s hs
       (redWord_place_eq_of_shuffleLoading L M g β h z s hs ho) hh
 
+/-- A shuffle compatible with the blocks of a nonviolated tuple, in the same red order, only
+moves black strands to the right of red strands: block counts do not increase. -/
+theorem blockBlackCount_le_of_shuffleLoading [DecidableEq I] {Bs : List (RedBlock I ℓ)}
+    {ν : Multiset I} (h : weightSum Bs = stendhalWeight ℓ ν) (z : Seq (weightSum Bs))
+    (s : Loadings Bs) (hs : ShuffleLoading Bs z s)
+    (ho : redWord (Seq.cast h z) = redWord (Seq.cast h (place Bs s))) (hv : ¬ Violated Bs s)
+    (C : Finset (Fin ℓ)) (i : I) :
+    blockBlackCount (Seq.cast h z) C i ≤ blockBlackCount (place Bs s) C i := by
+  obtain ⟨p, rfl, hf⟩ := permutation_of_shuffle Bs z s hs
+  rw [count_cast]
+  exact count_shuffle_le Bs s p hf hv (red_order_cast h p _ ho) C i
+
 end Categorification.Stendhal.RedBlock

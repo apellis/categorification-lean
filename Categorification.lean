@@ -2461,4 +2461,5 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMaps
 import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandard
 import Categorification.WeightedKLR.RedStrands.RootReflectUnit
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardUnitExt
+import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardUnit
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

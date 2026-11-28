@@ -13680,3 +13680,576 @@ example (C : Cat.{0, 0}) (α : 𝟙 C ⟶ 𝟙 C) :
   conjugateEquiv_revAdjunction _ _ α
 
 end NonVacuityTraceCyclicSection
+
+/-! Prop 7.22 (b): the vacuum functor at one block and the derived action on `F_𝐢 T^λ_∅`. -/
+section NonVacuityB16Section
+set_option backward.isDefEq.respectTransparency false
+
+open Categorification CategoryTheory QuantumGroup UDot KLR KLR.Unfurling Stendhal
+open Pseudofunctor.StrongTrans
+
+namespace NonVacuityB16
+
+attribute [local instance 2000] Classical.propDecidable
+
+noncomputable def arr : Bool → Bool → ℕ := fun a b => if a = false ∧ b = true then 1 else 0
+
+private theorem oneArrowParameters :
+    KLR.IsRouquierQ (coverCartan arr) (unfQ (k := ZMod 2) arr) where
+  symm i j hij := (unfQ_klrSymm arr i j hij).symm
+  homogeneous i j hij := by
+    rw [coverCartan_dot_self, coverCartan_dot_self, coverCartan_dot_of_ne arr hij]
+    have hh := (unfGrading (k := ZMod 2) arr).isWeightedHomogeneous i j hij
+    change (unfQ (k := ZMod 2) arr i j).IsWeightedHomogeneous ![(2 : ℤ), 2]
+      ((if i = j then -2 else 2 * (arr j i : ℤ)) + (if j = i then -2 else 2 * (arr i j : ℤ)))
+      at hh
+    rw [ite_eq_right hij, ite_eq_right hij.symm] at hh
+    convert hh using 1
+    push_cast
+    ring
+  unit_coeff i j hij := KLR.isUnit_extremalCoeff _ (unfQ_klrSymm arr)
+    (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
+
+noncomputable def lam : Fin 1 → Bool →₀ ℕ := fun _ => Finsupp.single true 1
+
+@[instance_reducible] noncomputable def smallDerived (R : Type) [Ring R] :
+    HasDerivedCategory.{0} (ModuleCat.{0} R) :=
+  DerivedCategory.smallModuleCat R
+
+attribute [local instance] smallDerived
+
+/-- The vacuum functor at one block. -/
+noncomputable example (c) (β) := blackVacuumBlockFunctor.{0, 0, 0} (Λ := lam)
+  (C := coverCartan arr) (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+  (blackRegularVacuum _ lam _ _) (isZero_blackRegularVacuum (Q := unfQ (k := ZMod 2) arr)) c β
+
+/-- `εΦ` at one block, for the identity transformation `σ = 𝟙`. -/
+noncomputable example (c) (β) := blackVacuumBlockCompIso.{0, 0, 0} (Λ := lam)
+  (C := coverCartan arr) (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+  (blackRegularVacuum _ lam _ _) (isZero_blackRegularVacuum (Q := unfQ (k := ZMod 2) arr)) c β
+  (𝟙 _) (Iso.refl _) (𝟭 _) (Iso.refl _)
+
+/-- `(F_𝐢 T^λ_∅)_ν ≅ e(𝐢) T^λ_ν` for the sequence `(true)`. -/
+noncomputable example (s : KLR.Seq ({true} : Multiset Bool)) :=
+  SingleRed.vacuumSeqBlockIso.{0, 0} (Λ := lam)
+  (C := coverCartan arr) (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr) s
+
+/-- Derived induction of `e(𝐢) T^λ_μ`. -/
+noncomputable example (s : KLR.Seq (0 : Multiset Bool)) :=
+  SingleRed.derivedFOfEqSingleRedFirstIdealIso (unfQ (k := ZMod 2) arr) lam oneArrowParameters
+    true (add_zero _) s
+
+end NonVacuityB16
+
+end NonVacuityB16Section
+
+/-! The coevaluation against the form of Prop 4.33 and its scalar (Webster §7.1). -/
+section NonVacuityCoevFormSection
+/-! Non-vacuity examples for the transpose identity, the scalar `a` and the pure-tensor formulas (sl₂, `μ = 2ϖ`, `w₀ = s`). -/
+
+namespace NonVacuity.QuantumCoevaluationForm
+
+open Categorification.Stendhal Categorification.Stendhal.QuantumDual
+
+noncomputable section
+
+private abbrev A : Matrix Unit Unit ℤ := LieLean.QuantumGroup.sl2Datum.cartanMatrix
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+private theorem longest : ∀ i, (P.coxeterSystem generalized).IsLeftDescent
+    ((P.coxeterSystem generalized).wordProd ([()] : List Unit).reverse) i := by
+  intro i
+  cases i
+  simp [CoxeterSystem.IsLeftDescent, CoxeterSystem.length_simple]
+
+private instance : Finite (P.weylGroup generalized) := by
+  refine Finite.of_surjective
+    (fun b : Bool => if b then (P.coxeterSystem generalized).simple () else 1) ?_
+  intro x
+  obtain ⟨l, rfl⟩ := (P.coxeterSystem generalized).wordProd_surjective x
+  induction l with
+  | nil => exact ⟨false, by simp⟩
+  | cons a l ih =>
+    obtain ⟨b, hb⟩ := ih
+    refine ⟨!b, ?_⟩
+    cases a
+    cases b
+    · simp_all [CoxeterSystem.wordProd_cons]
+    · simp only [Bool.not_true, Bool.false_eq_true, ↓reduceIte, CoxeterSystem.wordProd_cons] at hb ⊢
+      rw [← hb, CoxeterSystem.simple_mul_simple_self]
+
+private instance finiteWeylSl2 : Finite (P.weylGroup
+    (LieLean.QuantumGroup.sl2Datum).isGeneralizedCartan_cartanMatrix) :=
+  inferInstanceAs (Finite (P.weylGroup generalized))
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private abbrev μ : LieLean.QuantumGroup.GrandLoop.Dom LieLean.QuantumGroup.sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun i => by cases i; change (0 : ℤ) ≤ 2 * 1; norm_num⟩
+
+private theorem hmatch : ∀ j, (weight : Module.Dual ℝ _) (P.coroot j) =
+    ((μ.1 (LieLean.QuantumGroup.sl2RootDatum.coroot j) : ℤ) : ℝ) := fun i => by
+  cases i
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+
+example := correctedForm_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := quasiRAct_tensorBar_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := highestHead_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := dualLowestScalar_eq (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := dualLowestScalar_eq_or (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := dualLowestScalar_eq_of_lowestVector_reverse (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+/-- The transpose statement is well formed for `V_μ ⊗ V_μ ⊗ V_{μ*}` (`k = 1`, `m = 0`). -/
+def nv_transpose : Prop := TensorCoevaluationTranspose (k := 1) (m := 0) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+  Fin.elim0 ![μ, μ, dualWeight P μ weight dominant hmatch [()] reduced longest]
+  ![μ] (fun i => by fin_cases i; rfl) rfl rfl (fun i => i.elim0)
+
+example := tensorCoevaluation_tprod (k := 1) (m := 0) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+  Fin.elim0 ![μ, μ, dualWeight P μ weight dominant hmatch [()] reduced longest]
+  ![μ] (fun i => by fin_cases i; rfl) rfl rfl (fun i => i.elim0)
+
+example := tensorQuantumTrace_tprod (k := 0) (m := 1) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+  Fin.elim0 ![μ, dualWeight P μ weight dominant hmatch [()] reduced longest, μ]
+  ![μ] (fun i => i.elim0) rfl rfl (fun i => by fin_cases i; rfl)
+
+end
+
+
+
+end NonVacuity.QuantumCoevaluationForm
+
+end NonVacuityCoevFormSection
+
+/-! The graded coefficient module `L_μ` of the cap bimodule (Webster §7.3). -/
+section NonVacuityGradedLmuSection
+/-! Non-vacuity checks for the graded coefficient module `L_μ` (Webster, arXiv:1309.3796v3,
+Lemma 7.3, Definitions 7.15 and 7.18): `sl₂`, `Q = 0`, `λ = 2ϖ` (pairing 2), the divided
+coevaluation word `[((), 2)]` (black weight `2α`), with every hypothesis proved. -/
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.CupCap QuantumGroup QuantumGroup.UDot
+
+namespace NonVacuityGradedLmu
+
+abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+abbrev datum := UDot.sl2RootDatum
+
+theorem params : KLR.IsRouquierQ C Q where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+theorem dominantTwo : ∀ i, ((2 : ℕ) : ℤ) = datum.pair (datum.iY i) 2 := by
+  intro i
+  change 2 = (1 : ℤ) * 2
+  decide
+
+abbrev dw : List (Unit × ℕ) := [((), 2)]
+
+/-- `⟨α^∨, λ - 2α⟩ = 2 - 4 ≤ 0`: the second red label is not truncated. -/
+theorem hdom : ∀ i, datum.pair (datum.iY i)
+    (2 - ((KLRAlgebra.expandDiv dw : Multiset Unit).map datum.iX).sum) ≤ 0 := by
+  intro i
+  change (1 : ℤ) * (2 - (([(), ()] : Multiset Unit).map fun _ => (2 : ℤ)).sum) ≤ 0
+  decide
+
+/-- The wrap idempotent has degree zero. -/
+example := wrapIdem_dividedIdem_mem_grade params (fun _ => 2) datum 2 dw
+
+/-- `L_{2ϖ}` is a graded module over `T̃^{(2ϖ, 2ϖ)}`. -/
+example := isGradedCoeff_coevaluationHead params (fun _ => 2) datum 2 dw
+
+example := isInternal_coevaluationHeadGrade params (fun _ => 2) datum 2 dw
+
+/-- The balance condition at the maximum of `L_{2ϖ}`. -/
+example := capBalanced_coevaluationLabels params (fun _ => 2) datum 2 dominantTwo _ hdom
+
+/-- Both grading hypotheses discharged: the cap grading of `K̃` with `L = L_{2ϖ}` over the top
+`λ = (ϖ)` at `j = 1` is a direct sum decomposition. -/
+example := isInternal_capGrade (Λ := fun _ : Fin 1 => Finsupp.single () 1) (j := 1)
+  (hj := le_rfl) (ν := 0) params.gradingDatum (fun i => C.dot i i / 2) (dotDegree C params)
+  (coevaluationHeadGrade params (fun _ => 2) datum 2 dw)
+  (capBalanced_coevaluationLabels params (fun _ => 2) datum 2 dominantTwo _ hdom)
+  (isGradedCoeff_coevaluationHead params (fun _ => 2) datum 2 dw)
+
+/-- The graded coevaluation functor at `L_μ` and its forget isomorphism (generic in the
+derived-category instances). -/
+noncomputable example := @gradedCoevaluationHeadFunctor
+noncomputable example := @gradedCoevaluationHeadFunctorForgetIso
+
+end NonVacuityGradedLmu
+
+namespace NonVacuityGradedLmu
+
+/-- For `μ = 2ϖ` of `sl₂`: `2⟨μ, ρ⟩ = 2` and `⟨(α, 2)⟩ = 1`, so the shift is `3`. -/
+example : coevaluationHeadShift NonVacuityGradedLmu.C dw = 3 := by
+  decide
+
+end NonVacuityGradedLmu
+
+end NonVacuityGradedLmuSection
+
+/-! Prop 7.2 on vectors, Webster's scalar and the invariant line (Webster §7.1). -/
+section NonVacuityKHalfSection
+/-! Non-vacuity checks for the Prop 7.20 K-half inputs (sl₂, `μ = 2ϖ`, `w₀ = s`), with every
+hypothesis proved. -/
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.QuantumDual QuantumGroup QuantumGroup.UDot
+
+namespace NonVacuityKHalf
+
+noncomputable section
+
+/-! ### `hdom` from the realization (categorification-lean Cartan datum) -/
+
+abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+abbrev datum := UDot.sl2RootDatum
+
+abbrev PC := Matrix.Realization.std C.toLusztig.cartanMatrix ℝ
+abbrev weightC : PC.integralWeights := ⟨PC.root (), PC.root_mem_integralWeights ()⟩
+
+theorem cartan_self : C.toLusztig.cartanMatrix () () = 2 := by decide
+
+theorem dominantC : PC.IsDominantIntegral weightC := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change PC.root () (PC.coroot ()) = (2 : ℝ)
+  rw [PC.root_coroot, cartan_self]
+  norm_num
+
+theorem matchC : ∀ i, (weightC : Module.Dual ℝ _) (PC.coroot i) =
+    ((datum.pair (datum.iY i) 2 : ℤ) : ℝ) := by
+  intro i
+  cases i
+  change PC.root () (PC.coroot ()) = (((1 : ℤ) * 2 : ℤ) : ℝ)
+  rw [PC.root_coroot, cartan_self]
+  norm_num
+
+theorem reducedC : (PC.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsReduced
+    ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+theorem longestC : ∀ i, (PC.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsLeftDescent
+    ((PC.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).wordProd
+      ([()] : List Unit).reverse) i := by
+  intro i
+  cases i
+  simp [CoxeterSystem.IsLeftDescent, CoxeterSystem.length_simple]
+
+/-- `hdom` for the coevaluation word of `w₀ = s`. -/
+example := pair_sub_coevaluationWord_nonpos datum 2 PC weightC matchC dominantC [()] reducedC
+  longestC
+
+example := pair_sub_coevaluationWord_eq datum 2 PC weightC matchC [()]
+
+/-- The graded coevaluation functor of `w₀` (generic in the derived-category instances). -/
+example := @CupCap.gradedCoevaluationLongestFunctor
+example := @CupCap.gradedCoevaluationLongestFunctorForgetIso
+
+/-! ### `c = 1` and the invariant line (lie-lean root datum) -/
+
+private def A : Matrix Unit Unit ℤ := fun _ _ => 2
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+private theorem longest : ∀ i, (P.coxeterSystem generalized).IsLeftDescent
+    ((P.coxeterSystem generalized).wordProd ([()] : List Unit).reverse) i := by
+  intro i
+  cases i
+  simp [CoxeterSystem.IsLeftDescent, CoxeterSystem.length_simple]
+
+instance finiteWeyl : Finite (P.weylGroup generalized) := by
+  refine Finite.of_surjective
+    (fun b : Bool => if b then (P.coxeterSystem generalized).simple () else 1) ?_
+  intro x
+  obtain ⟨l, rfl⟩ := (P.coxeterSystem generalized).wordProd_surjective x
+  induction l with
+  | nil => exact ⟨false, by simp⟩
+  | cons a l ih =>
+    obtain ⟨b, hb⟩ := ih
+    refine ⟨!b, ?_⟩
+    cases a
+    cases b
+    · simp_all [CoxeterSystem.wordProd_cons]
+    · simp only [Bool.not_true, Bool.false_eq_true, ↓reduceIte,
+        CoxeterSystem.wordProd_cons] at hb ⊢
+      rw [← hb, CoxeterSystem.simple_mul_simple_self]
+
+instance finiteWeylDatum : Finite (Matrix.Realization.weylGroup (A := LieLean.QuantumGroup.sl2Datum.cartanMatrix) P
+    LieLean.QuantumGroup.sl2Datum.isGeneralizedCartan_cartanMatrix) := finiteWeyl
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private abbrev μ : LieLean.QuantumGroup.GrandLoop.Dom LieLean.QuantumGroup.sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun i => by cases i; change (0 : ℤ) ≤ 2 * 1; norm_num⟩
+
+private theorem hmatch : ∀ j, (weight : Module.Dual ℝ _) (P.coroot j) =
+    ((μ.1 (LieLean.QuantumGroup.sl2RootDatum.coroot j) : ℤ) : ℝ) := fun i => by
+  cases i
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+/-- Prop 7.2 on vectors, for two reduced expressions (here both `[()]`). -/
+example := dividedLoweringWord_eq_of_wordProd_eq (R := LieLean.QuantumGroup.sl2RootDatum) P
+  xRegular μ weight dominant hmatch [()] [()] reduced reduced rfl
+
+/-- `c = 1`. -/
+example := lowestVector_reverse_eq_lowestVector (R := LieLean.QuantumGroup.sl2RootDatum) P
+  xRegular μ weight dominant hmatch [()] reduced longest
+
+/-- Webster's value of the coevaluation scalar. -/
+example := dualLowestScalar_eq_webster (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ
+  weight dominant hmatch [()] reduced longest
+
+/-- The invariant line from the vanishing on `F`-images. -/
+example := eq_smul_quantumTrace_of_F (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ
+  weight dominant hmatch [()] reduced longest
+
+end
+
+end NonVacuityKHalf
+
+end NonVacuityKHalfSection
+
+/-! Prop 7.21: the 𝔉 dot in direct form. -/
+section NonVacuityFDotDirectSection
+/-! Non-vacuity examples for the direct form of the 𝔉 dot (type `A₁`, `Q = 0`, over `ℚ`). -/
+
+open Categorification CategoryTheory QuantumGroup KLR Stendhal MulOpposite
+open scoped DG.DegreeZero
+
+noncomputable section
+
+namespace NonVacuity.FDotDirect
+
+private theorem rouquierZero :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private abbrev labels : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private abbrev labelsc : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+/-- Webster, arXiv:1309.3796v3, Theorem 4.31: the conjugate of the dot on `𝔈_i` along
+`𝔈_i ⊣ 𝔉_i` is the dot on `𝔉_i`, on modules. -/
+example := CupCap.blackEFAdjunction_conjugate_dot (k := ℚ)
+  (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels () 0 _ rouquierZero
+
+/-- The same on derived categories of dg modules. -/
+example :=
+  letI := DG.HasDerivedCategory.small.{0, 0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels (0 : Multiset Unit))ᵐᵒᵖ
+  letI := DG.HasDerivedCategory.small.{0, 0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels
+      ((Singleton.singleton () : Multiset Unit) + 0))ᵐᵒᵖ
+  letI := _root_.DerivedCategory.smallModuleCat ((TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels (0 : Multiset Unit))ᵐᵒᵖ)
+  letI := _root_.DerivedCategory.smallModuleCat ((TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels
+      ((Singleton.singleton () : Multiset Unit) + 0))ᵐᵒᵖ)
+  CupCap.dgBlackFDotMate_eq_dgBlackFDot (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+    (Λ := labels) 0 () _ rouquierZero
+
+/-- The `λ⁺` side, on modules. -/
+example := CupCap.plusEFAdjunction_conjugate_dot (k := ℚ)
+  (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (Λ := labels) (Λc := labelsc) (j := 0)
+  (hj := Nat.zero_le 1) (ν₀ := 0) 0 () _ rouquierZero
+
+/-- Derived categories of module categories with small morphisms. -/
+@[instance_reducible] private def smallDerived (R : Type) [Ring R] :
+    HasDerivedCategory.{0} (ModuleCat.{0} R) :=
+  _root_.DerivedCategory.smallModuleCat R
+
+attribute [local instance] smallDerived
+
+/-- The `λ⁺` side on derived categories of dg modules. -/
+example :=
+  letI := DG.HasDerivedCategory.small.{0, 0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels (0 : Multiset Unit))ᵐᵒᵖ
+  letI := DG.HasDerivedCategory.small.{0, 0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) labels ({()} + 0))ᵐᵒᵖ
+  letI := DG.HasDerivedCategory.small.{0, 0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (CupCap.plusLabels labels labelsc 0 (Nat.zero_le 1))
+      ((0 : Multiset Unit) + 0))ᵐᵒᵖ
+  letI := DG.HasDerivedCategory.small.{0, 0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (CupCap.plusLabels labels labelsc 0 (Nat.zero_le 1))
+      (((Singleton.singleton () : Multiset Unit) + 0) + 0))ᵐᵒᵖ
+  CupCap.dgPlusFDotMate_eq_dgPlusFDot (k := ℚ)
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (Λ := labels) (Λc := labelsc) (j := 0)
+    (hj := Nat.zero_le 1) (ν₀ := 0) 0 () _ rouquierZero
+
+end NonVacuity.FDotDirect
+
+end
+
+end NonVacuityFDotDirectSection
+
+/-! Cyclicity of the same-colour crossings of `U_Q(g)`. -/
+section NonVacuityCyclicCrossSection
+/-! Non-vacuity examples for the cyclicity of the same-colour crossings of `U_Q(g)` (`sl₂`,
+the KL scalars, over `ℚ`). -/
+
+open Categorification QuantumGroup UDot KL3.Diagram
+
+example (ν : ℤ) := CLQ.upcross_same_isCyclic sl2RootDatum ℚ CL.CLScalars.kl () ν
+  (genValid_upcross sl2RootDatum () () ν)
+
+example (μ : ℤ) := CLQ.downcross_same_isCyclic sl2RootDatum ℚ CL.CLScalars.kl () μ
+  (genValid_downcross sl2RootDatum () () μ)
+
+end NonVacuityCyclicCrossSection
+
+/-! The grading of the cap bimodule (Webster Defs 7.14/7.15). -/
+section NonVacuityGradedCapSection
+/-! Non-vacuity checks for the grading of Webster's cap bimodule (arXiv:1309.3796v3, §7.3)
+and the graded coevaluation functor (Definition 7.18): `sl₂` with the KL degrees, one red strand
+`ϖ` on top, the pair `(ϖ, ϖ*)` inserted at the right, one black strand at the maximum
+(`L_ϖ` has weight `ϖ + ϖ* = α`), and the zero coefficient module. -/
+
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.Stendhal.CupCap
+open DirectSum
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+namespace NonVacuityGradedCap
+
+noncomputable abbrev Γ : SimpleGraph (Fin 1) := ⊥
+noncomputable abbrev G := KLR.klGradingDatum ℚ Γ
+noncomputable abbrev ϖ : Fin 1 → Fin 1 →₀ ℕ := fun _ => Finsupp.single 0 1
+noncomputable abbrev Λc : Fin 2 → Fin 1 →₀ ℕ := fun _ => Finsupp.single 0 1
+abbrev ν₀ : Multiset (Fin 1) := {0}
+
+theorem hd : ∀ i, G.degX i = 2 * (fun _ : Fin 1 => (1 : ℤ)) i := fun _ => rfl
+
+/-- The balance condition holds for `L_ϖ`: one black strand of colour `α` at the maximum. -/
+theorem hbal : CapBalanced Λc ν₀ G (fun _ => 1) := by
+  intro i
+  fin_cases i
+  simp [G, KLR.klGradingDatum, KLR.cartan]
+
+abbrev ℒ : ℤ → AddSubgroup PUnit := fun _ => ⊥
+
+theorem isInternal_ℒ : IsInternal ℒ :=
+  ⟨fun x y _ => Subsingleton.elim x y, fun _ => ⟨0, Subsingleton.elim _ _⟩⟩
+
+noncomputable instance : Decomposition ℒ := isInternal_ℒ.chooseDecomposition _
+
+theorem hℒ : IsGradedCoeff (Λc := Λc) (ν₀ := ν₀) G (fun _ => 1) hd ℒ :=
+  fun _ _ _ _ _ _ => (AddSubgroup.mem_bot).2 (Subsingleton.elim _ _)
+
+/-- The relations of `K̃` are homogeneous (here: the idempotent relation). -/
+example (s : Seq (stendhalWeight 1 ({0} : Multiset (Fin 1)))) (n) (q : ℤ) :=
+  freeProj_of_isRel (Λ := ϖ) (j := 1) (hj := le_rfl) (ν := {0}) G (fun _ => 1) hd ℒ hbal hℒ
+    (IsRel.idem s n (0 : PUnit)) q
+
+example := isInternal_capTildeGrade (Λ := ϖ) (j := 1) (hj := le_rfl) (ν := {0}) G (fun _ => 1)
+  hd ℒ hbal hℒ
+
+example := isInternal_capGrade (Λ := ϖ) (j := 1) (hj := le_rfl) (ν := {0}) G (fun _ => 1)
+  hd ℒ hbal hℒ
+
+example := isInternal_coevGrade (Λ := ϖ) (j := 1) (hj := le_rfl) (ν := {0}) G (fun _ => 1)
+  hd ℒ hbal hℒ 2
+
+/-- The graded coevaluation functor and its forget isomorphism (generic; the concrete
+derived-category instances at the data above did not elaborate, see the report). -/
+noncomputable example := @gradedCoevaluationFunctorForgetIso
+
+end NonVacuityGradedCap
+
+namespace NonVacuityGradedHead
+
+open Categorification.Stendhal MulOpposite
+
+attribute [local instance] MvPolynomial.weightedGradedAlgebra
+
+/-- The weighted grading of `ℚ[X]` with `deg X = 1`. -/
+noncomputable abbrev 𝒜 : ℤ → Submodule ℚ (MvPolynomial (Fin 1) ℚ) :=
+  MvPolynomial.weightedHomogeneousSubmodule ℚ (fun _ : Fin 1 => (1 : ℤ))
+
+theorem one_mem_zero : (1 : MvPolynomial (Fin 1) ℚ) ∈ 𝒜 0 := SetLike.GradedOne.one_mem
+
+theorem cut_mem : ∀ _ : Unit, (0 : MvPolynomial (Fin 1) ℚ) ∈ 𝒜 0 := fun _ => zero_mem _
+
+/-- The head `1 · ℚ[X] ⧸ trace(0)` is graded. -/
+example := isInternal_headGrade 𝒜 one_mem_zero (fun _ : Unit => 0) cut_mem
+
+/-- Multiplying by `X` raises the degree by one. -/
+example {p : ℤ} {v : rIdeal (1 : MvPolynomial (Fin 1) ℚ) ⧸
+      coevaluationTrace (e := (1 : MvPolynomial (Fin 1) ℚ)) (fun _ : Unit => 0)}
+    (hv : v ∈ headGrade 𝒜 one_mem_zero (fun _ : Unit => 0) cut_mem p) :=
+  op_smul_mem_headGrade 𝒜 one_mem_zero (fun _ : Unit => 0) cut_mem
+    (MvPolynomial.isWeightedHomogeneous_X ℚ _ 0) hv
+
+end NonVacuityGradedHead
+
+end NonVacuityGradedCapSection

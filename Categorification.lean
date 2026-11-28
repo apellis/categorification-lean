@@ -3075,6 +3075,7 @@ import Categorification.WeightedKLR.RedStrands.TensorSplit
 import Categorification.WeightedKLR.RedStrands.TensorWordProjectives
 import Categorification.WeightedKLR.RedStrands.TensorPartialLowering
 import Categorification.WeightedKLR.RedStrands.LoadingVectorExpansion
+import Categorification.WeightedKLR.RedStrands.StandardVectorExpansion
 import Categorification.WeightedKLR.RedStrands.TensorWordRaising
 import Categorification.WeightedKLR.RedStrands.LoadingWordExpansion
 import Categorification.WeightedKLR.RedStrands.RightSequenceWordExpansion

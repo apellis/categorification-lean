@@ -17,12 +17,12 @@ reverses.
 
 ## Main definitions
 
-* `FirstWeight.wordVec`, `FirstWeight.blockWord`, `FirstWeight.assignVector`,
+* `FirstWeight.lowerVec`, `FirstWeight.blockWord`, `FirstWeight.assignVector`,
   `FirstWeight.crossExp`, `FirstWeight.expansionTerm`.
 
 ## Main results
 
-* `FirstWeight.loadingVector_ofFn_eq_sum`: the expansion.
+* `FirstWeight.loweringVector_ofFn_eq_sum`: the expansion.
 -/
 
 noncomputable section
@@ -43,14 +43,14 @@ private abbrev Factor (wt : Dom R) := IrreducibleModule R 𝕍 wt.1
 section WordVector
 
 /-- `F_{i_k} ⋯ F_{i_1} v_λ` for the word `i_1 ⋯ i_k`. -/
-def wordVec (w : Dom R) (L : List I) : Factor w :=
+def lowerVec (w : Dom R) (L : List I) : Factor w :=
   L.foldl (fun x i => F R 𝕍 i • x) (IrreducibleModule.hwv R 𝕍 w.1)
 
-@[simp] theorem wordVec_nil (w : Dom R) : wordVec w [] = IrreducibleModule.hwv R 𝕍 w.1 := rfl
+@[simp] theorem lowerVec_nil (w : Dom R) : lowerVec w [] = IrreducibleModule.hwv R 𝕍 w.1 := rfl
 
-theorem wordVec_append_singleton (w : Dom R) (L : List I) (i : I) :
-    wordVec w (L ++ [i]) = F R 𝕍 i • wordVec w L := by
-  simp [wordVec, List.foldl_append]
+theorem lowerVec_append_singleton (w : Dom R) (L : List I) (i : I) :
+    lowerVec w (L ++ [i]) = F R 𝕍 i • lowerVec w L := by
+  simp [lowerVec, List.foldl_append]
 
 theorem K_smul_F_smul {M : Type*} [AddCommGroup M] [Module 𝕂 M]
     [Module (LieLean.QuantumGroup R 𝕍) M] [IsScalarTower 𝕂 (LieLean.QuantumGroup R 𝕍) M]
@@ -59,15 +59,15 @@ theorem K_smul_F_smul {M : Type*} [AddCommGroup M] [Module 𝕂 M]
   rw [← mul_smul, K_mul_F, smul_assoc, mul_smul]
 
 /-- `F_{i_k} ⋯ F_{i_1} v_λ` has weight `λ - α_{i_1} - ⋯ - α_{i_k}`. -/
-theorem K_smul_wordVec (w : Dom R) (a : Y) (L : List I) :
-    K R 𝕍 a • wordVec w L = 𝕍 ^ (w.1 a - (L.map fun j => R.root j a).sum) • wordVec w L := by
+theorem K_smul_lowerVec (w : Dom R) (a : Y) (L : List I) :
+    K R 𝕍 a • lowerVec w L = 𝕍 ^ (w.1 a - (L.map fun j => R.root j a).sum) • lowerVec w L := by
   induction L using List.reverseRecOn with
   | nil =>
-    simp only [wordVec_nil, List.map_nil, List.sum_nil, sub_zero]
+    simp only [lowerVec_nil, List.map_nil, List.sum_nil, sub_zero]
     rw [IrreducibleModule.hwv, ← Submodule.Quotient.mk_smul, VermaModule.K_smul_hwv,
       Submodule.Quotient.mk_smul]
   | append_singleton L i ih =>
-    rw [wordVec_append_singleton, K_smul_F_smul, ih, smul_comm (F R 𝕍 i), smul_smul,
+    rw [lowerVec_append_singleton, K_smul_F_smul, ih, smul_comm (F R 𝕍 i), smul_smul,
       ← zpow_add₀ RatFunc.X_ne_zero]
     congr 2
     simp
@@ -91,7 +91,7 @@ def blockWord (lbl : Fin m → I ⊕ Fin ℓ) (g : Fin m → ℕ) (r : ℕ) : Li
 black letters `i_1, …, i_k` of block `r + 1`. -/
 def assignVector (wt : Fin ℓ → Dom R) (lbl : Fin m → I ⊕ Fin ℓ) (g : Fin m → ℕ) :
     TensorSpace wt :=
-  PiTensorProduct.tprod 𝕂 (fun r => wordVec (wt r) (blockWord lbl g r))
+  PiTensorProduct.tprod 𝕂 (fun r => lowerVec (wt r) (blockWord lbl g r))
 
 /-- The crossing exponent: `cross` summed over the pairs `p < q` of letters whose order the
 assignment reverses. -/
@@ -336,12 +336,12 @@ theorem lowerAt_assignVector (wt : Fin ℓ → Dom R) (lbl : Fin (m + 1) → I �
   by_cases hj : j = r
   · subst hj
     rw [ite_eq_left rfl, ite_eq_right (fun h => lt_irrefl _ h.1), ite_eq_left rfl,
-      neg_zero, zpow_zero, one_smul, wordVec_append_singleton]
+      neg_zero, zpow_zero, one_smul, lowerVec_append_singleton]
     rfl
   · have hne : ¬ ((r : ℕ) + 1 = (j : ℕ) + 1) := fun h => hj (Fin.ext (by omega))
     rw [ite_eq_right hj, ite_eq_right hne, List.append_nil]
     by_cases hc : r < j ∧ (j : ℕ) < c
-    · rw [ite_eq_left hc, ite_eq_left hc, DistribSMul.toLinearMap_apply, K_smul_wordVec]
+    · rw [ite_eq_left hc, ite_eq_left hc, DistribSMul.toLinearMap_apply, K_smul_lowerVec]
       congr 2
       simp only [map_neg]
       have hneg : ∀ L : List I, (L.map fun l => -R.root l (ktilde R i)).sum =
@@ -391,14 +391,14 @@ numbered in order, the loading vector is the sum, over the block assignments `g 
 letter left of every red letter), of `q^{-e(g)}` times the assignment vector, where `e(g)` sums
 `cross` over the pairs of letters that `g` reverses. Here `cross` is the crossing degree of a red
 strand `λ_j` over a black strand `i` (`⟨λ_j, α̃_i⟩`) and of two black strands (`-α_l(α̃_i)`). -/
-theorem loadingVector_ofFn_eq_sum (wt : Fin ℓ → Dom R) (cross : I ⊕ Fin ℓ → I ⊕ Fin ℓ → ℤ)
+theorem loweringVector_ofFn_eq_sum (wt : Fin ℓ → Dom R) (cross : I ⊕ Fin ℓ → I ⊕ Fin ℓ → ℤ)
     (hred : ∀ j i, cross (.inr j) (.inl i) = (wt j).1 (ktilde R i))
     (hblack : ∀ l i, cross (.inl l) (.inl i) = -R.root l (ktilde R i)) :
     ∀ {m : ℕ} (lbl : Fin m → I ⊕ Fin ℓ),
       (∀ p r, lbl p = .inr r → (r : ℕ) = redsBefore lbl p) → redCount (List.ofFn lbl) ≤ ℓ →
-      loadingVector wt (List.ofFn lbl) = ((assignments lbl).map (expansionTerm wt cross lbl)).sum
+      loweringVector wt (List.ofFn lbl) = ((assignments lbl).map (expansionTerm wt cross lbl)).sum
   | 0, lbl, _, _ => by
-    rw [List.ofFn_zero, loadingVector_nil]
+    rw [List.ofFn_zero, loweringVector_nil]
     change _ = (List.map (expansionTerm wt cross lbl) [fun p => p.elim0]).sum
     simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero, expansionTerm]
     rw [ite_eq_left (show IsNonviolating lbl (fun p => p.elim0) from fun p => p.elim0)]
@@ -411,10 +411,10 @@ theorem loadingVector_ofFn_eq_sum (wt : Fin ℓ → Dom R) (cross : I ⊕ Fin �
       rw [List.ofFn_succ', List.concat_eq_append]
     have hc0 : redCount (List.ofFn lbl0) ≤ ℓ := by
       rw [hsplit, redCount_append] at hcount; omega
-    have ih := loadingVector_ofFn_eq_sum wt cross hred hblack lbl0 hidx0 hc0
+    have ih := loweringVector_ofFn_eq_sum wt cross hred hblack lbl0 hidx0 hc0
     rw [hsplit, assignments_succ, list_sum_map_flatMap]
     rcases hl : lbl (Fin.last m) with i | r
-    · rw [loadingVector_append_inl, ih, map_list_sum, List.map_map]
+    · rw [loweringVector_append_inl, ih, map_list_sum, List.map_map]
       refine congrArg List.sum (List.map_congr_left fun g hg => ?_)
       simp only [Function.comp_apply, assignChoices, hl, Sum.isRight_inl, Bool.false_eq_true,
         ite_false, redsBefore_last, List.range_succ_eq_map, List.map_cons, List.sum_cons,
@@ -451,7 +451,7 @@ theorem loadingVector_ofFn_eq_sum (wt : Fin ℓ → Dom R) (cross : I ⊕ Fin �
         refine List.sum_eq_zero fun x hx => ?_
         obtain ⟨a, -, rfl⟩ := List.mem_map.1 hx
         exact hz a
-    · rw [loadingVector_append_inr, ih]
+    · rw [loweringVector_append_inr, ih]
       refine congrArg List.sum (List.map_congr_left fun g hg => ?_)
       simp only [assignChoices, hl, Sum.isRight_inr, ite_true, List.map_cons, List.map_nil,
         List.sum_cons, List.sum_nil, add_zero]

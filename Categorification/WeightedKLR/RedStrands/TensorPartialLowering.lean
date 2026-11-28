@@ -14,17 +14,17 @@ Lemma 5.19. The iterated coproduct of `F_i` acts on `V^{λ_1} ⊗ ⋯ ⊗ V^{λ_
 loading only meets the red strands to its left, so we also use the partial operator
 `F_i^{<c}`, which lowers only in the first `c` factors and applies `K̃_{-i}` only up to factor
 `c`. Applying `F_i^{<c}` for each black strand, with `c` the number of red strands to its left,
-gives Webster's vector `v^κ_i` inside the full tensor product (`loadingVector_eq`).
+gives Webster's vector `v^κ_i` inside the full tensor product (`loweringVector_eq`).
 
 ## Main definitions
 
 * `FirstWeight.lowerAt`, `FirstWeight.partialLower`: the operators above.
-* `FirstWeight.loadingVector`: the vector of a word in black and red letters.
+* `FirstWeight.loweringVector`: the vector of a word in black and red letters.
 
 ## Main results
 
 * `FirstWeight.tensorRepresentation_F`: the iterated coproduct of `F_i` is `partialLower ℓ`.
-* `FirstWeight.tensorWordUndivided_eq_loadingVector`: `v^κ_i` is the loading vector.
+* `FirstWeight.tensorWordUndivided_eq_loweringVector`: `v^κ_i` is the loading vector.
 -/
 
 noncomputable section
@@ -73,7 +73,7 @@ variable (wt : Fin (ℓ + 1) → Dom R)
 local notation "wt₀" => fun j : Fin ℓ => wt (Fin.castSucc j)
 local notation "V₁" => Factor (wt (Fin.last ℓ))
 
-theorem appendTensor_tprod (x : ∀ j : Fin ℓ, Factor (wt j.castSucc)) (y : V₁) :
+theorem appendTensor_tprod_lastCases (x : ∀ j : Fin ℓ, Factor (wt j.castSucc)) (y : V₁) :
     appendTensor wt (PiTensorProduct.tprod 𝕂 x) y =
       PiTensorProduct.tprod 𝕂 (Fin.lastCases (motive := fun j => Factor (wt j)) y x) := by
   apply (tensorSplitLast wt).injective
@@ -91,7 +91,7 @@ theorem linearMap_ext_appendTensor {M : Type*} [AddCommGroup M] [Module 𝕂 M]
   intro z
   have hz : PiTensorProduct.tprod 𝕂 z = appendTensor wt
       (PiTensorProduct.tprod 𝕂 (fun j : Fin ℓ => z j.castSucc)) (z (Fin.last ℓ)) := by
-    rw [appendTensor_tprod]
+    rw [appendTensor_tprod_lastCases]
     congr 1
     funext j
     induction j using Fin.lastCases <;> simp
@@ -119,7 +119,7 @@ theorem lowerAt_castSucc_appendTensor {c c' : ℕ} (hc : ∀ j : Fin ℓ, ((j : 
     lowerAt wt c i r.castSucc (appendTensor wt (PiTensorProduct.tprod 𝕂 x) y) =
       appendTensor wt (lowerAt (fun j : Fin ℓ => wt j.castSucc) c' i r (PiTensorProduct.tprod 𝕂 x))
         (lowerFactor wt c i r.castSucc (Fin.last ℓ) y) := by
-  rw [appendTensor_tprod, lowerAt_tprod, lowerAt_tprod, appendTensor_tprod]
+  rw [appendTensor_tprod_lastCases, lowerAt_tprod, lowerAt_tprod, appendTensor_tprod_lastCases]
   congr 1
   funext j
   induction j using Fin.lastCases with
@@ -191,7 +191,7 @@ theorem tensorRepresentation_F : ∀ {ℓ : ℕ} (wt : Fin ℓ → Dom R) (i : I
       rfl
     have h2 : appendTensor wt (PiTensorProduct.tprod 𝕂 x) (F R 𝕍 i • y) =
         lowerAt wt (ℓ + 1) i (Fin.last ℓ) (appendTensor wt (PiTensorProduct.tprod 𝕂 x) y) := by
-      rw [appendTensor_tprod, appendTensor_tprod, lowerAt_tprod]
+      rw [appendTensor_tprod_lastCases, appendTensor_tprod_lastCases, lowerAt_tprod]
       congr 1
       funext j
       induction j using Fin.lastCases with
@@ -207,64 +207,64 @@ variable {n : ℕ}
 
 /-- The vector of a reversed word: each black letter `i` applies `F_i^{<c}`, with `c` the
 number of red letters before it. -/
-def loadingVectorRev (wt : Fin ℓ → Dom R) : List (I ⊕ Fin n) → TensorSpace wt
+def loweringVectorRev (wt : Fin ℓ → Dom R) : List (I ⊕ Fin n) → TensorSpace wt
   | [] => PiTensorProduct.tprod 𝕂 (fun j => IrreducibleModule.hwv R 𝕍 (wt j).1)
-  | .inl i :: u => partialLower wt (redCount u) i (loadingVectorRev wt u)
-  | .inr _ :: u => loadingVectorRev wt u
+  | .inl i :: u => partialLower wt (redCount u) i (loweringVectorRev wt u)
+  | .inr _ :: u => loweringVectorRev wt u
 
 /-- **Webster's vector `v^κ_i`** of a word in black and red letters, inside the full tensor
 product `V^{λ_1} ⊗ ⋯ ⊗ V^{λ_ℓ}` (arXiv:1309.3796v3, before Lemma 5.19): read left to right,
 a black letter `i` applies `F_i` through the coproduct on the factors of the red letters before
 it. -/
-def loadingVector (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) : TensorSpace wt :=
-  loadingVectorRev wt u.reverse
+def loweringVector (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) : TensorSpace wt :=
+  loweringVectorRev wt u.reverse
 
-theorem loadingVector_nil (wt : Fin ℓ → Dom R) :
-    loadingVector wt ([] : List (I ⊕ Fin n)) =
+theorem loweringVector_nil (wt : Fin ℓ → Dom R) :
+    loweringVector wt ([] : List (I ⊕ Fin n)) =
       PiTensorProduct.tprod 𝕂 (fun j => IrreducibleModule.hwv R 𝕍 (wt j).1) := rfl
 
-theorem loadingVector_append_inl (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) (i : I) :
-    loadingVector wt (u ++ [.inl i]) = partialLower wt (redCount u) i (loadingVector wt u) := by
-  simp [loadingVector, loadingVectorRev]
+theorem loweringVector_append_inl (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) (i : I) :
+    loweringVector wt (u ++ [.inl i]) = partialLower wt (redCount u) i (loweringVector wt u) := by
+  simp [loweringVector, loweringVectorRev]
 
-theorem loadingVector_append_inr (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) (r : Fin n) :
-    loadingVector wt (u ++ [.inr r]) = loadingVector wt u := by
-  simp [loadingVector, loadingVectorRev]
+theorem loweringVector_append_inr (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) (r : Fin n) :
+    loweringVector wt (u ++ [.inr r]) = loweringVector wt u := by
+  simp [loweringVector, loweringVectorRev]
 
-theorem loadingVector_append_replicate (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) (i : I) :
-    ∀ a : ℕ, loadingVector wt (u ++ List.replicate a (.inl i)) =
-      (partialLower wt (redCount u) i ^ a) (loadingVector wt u)
+theorem loweringVector_append_replicate (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) (i : I) :
+    ∀ a : ℕ, loweringVector wt (u ++ List.replicate a (.inl i)) =
+      (partialLower wt (redCount u) i ^ a) (loweringVector wt u)
   | 0 => by simp
   | a + 1 => by
-    rw [List.replicate_succ', ← List.append_assoc, loadingVector_append_inl,
-      loadingVector_append_replicate wt u i a, redCount_append]
+    rw [List.replicate_succ', ← List.append_assoc, loweringVector_append_inl,
+      loweringVector_append_replicate wt u i a, redCount_append]
     simp [pow_succ', redCount, List.countP_replicate]
 
 /-- Red labels only enter through their number. -/
-theorem loadingVector_map_addRedColor (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) :
-    loadingVector wt (u.map (addRedColor n)) = loadingVector wt u := by
+theorem loweringVector_map_addRedColor (wt : Fin ℓ → Dom R) (u : List (I ⊕ Fin n)) :
+    loweringVector wt (u.map (addRedColor n)) = loweringVector wt u := by
   induction u using List.reverseRecOn with
   | nil => rfl
   | append_singleton u a ih =>
     rcases a with i | r
     · rw [List.map_append, List.map_singleton, show addRedColor n (.inl i) = .inl i from rfl,
-        loadingVector_append_inl, loadingVector_append_inl, ih]
+        loweringVector_append_inl, loweringVector_append_inl, ih]
       congr 2
       simp [redCount, List.countP_map, Function.comp_def]
     · rw [List.map_append, List.map_singleton, show addRedColor n (.inr r) = .inr r.castSucc from rfl,
-        loadingVector_append_inr, loadingVector_append_inr, ih]
+        loweringVector_append_inr, loweringVector_append_inr, ih]
 
 /-- Appending a factor with its highest weight vector to a loading vector whose black letters
 meet at most the existing factors. -/
-theorem appendTensor_loadingVector (wt : Fin (ℓ + 1) → Dom R) :
+theorem appendTensor_loweringVector (wt : Fin (ℓ + 1) → Dom R) :
     ∀ (u : List (I ⊕ Fin n)), redCount u ≤ ℓ →
-      appendTensor wt (loadingVector (fun j => wt j.castSucc) u)
-        (IrreducibleModule.hwv R 𝕍 (wt (Fin.last ℓ)).1) = loadingVector wt u := by
+      appendTensor wt (loweringVector (fun j => wt j.castSucc) u)
+        (IrreducibleModule.hwv R 𝕍 (wt (Fin.last ℓ)).1) = loweringVector wt u := by
   intro u
   induction u using List.reverseRecOn with
   | nil =>
     intro _
-    rw [loadingVector_nil, loadingVector_nil, appendTensor_tprod]
+    rw [loweringVector_nil, loweringVector_nil, appendTensor_tprod_lastCases]
     congr 1
     funext j
     induction j using Fin.lastCases <;> simp
@@ -272,9 +272,9 @@ theorem appendTensor_loadingVector (wt : Fin (ℓ + 1) → Dom R) :
     intro hu
     rw [redCount_append] at hu
     rcases a with i | r
-    · rw [loadingVector_append_inl, loadingVector_append_inl,
+    · rw [loweringVector_append_inl, loweringVector_append_inl,
         ← partialLower_appendTensor wt (by omega), ih (by omega)]
-    · rw [loadingVector_append_inr, loadingVector_append_inr, ih (by simp at hu; omega)]
+    · rw [loweringVector_append_inr, loweringVector_append_inr, ih (by simp at hu; omega)]
 
 end LoadingVector
 
@@ -312,18 +312,18 @@ variable {C : Categorification.QuantumGroup.CartanDatum I} {Rc : C.toLusztig.Roo
 /-- **`v^κ_i` is the loading vector** (arXiv:1309.3796v3, before Lemma 5.19): the vector of a
 tensor word, applying ordinary powers of `F_i` at its black blocks, is the loading vector of its
 expanded letters. -/
-theorem tensorWordUndivided_eq_loadingVector : ∀ {n : ℕ} (w : TensorWord I n)
-    (wt : Fin n → Dom Rc), tensorWordUndivided w wt = loadingVector wt (expandDiv w.blocks)
+theorem tensorWordUndivided_eq_loweringVector : ∀ {n : ℕ} (w : TensorWord I n)
+    (wt : Fin n → Dom Rc), tensorWordUndivided w wt = loweringVector wt (expandDiv w.blocks)
   | _, .empty, wt => by
     rw [tensorWordUndivided, tensorWordVector,
-      show expandDiv (TensorWord.empty (I := I)).blocks = [] from rfl, loadingVector_nil]
+      show expandDiv (TensorWord.empty (I := I)).blocks = [] from rfl, loweringVector_nil]
   | n + 1, .red w, wt => by
-    have h := tensorWordUndivided_eq_loadingVector w (fun j => wt j.castSucc)
-    rw [tensorWordUndivided, h, TensorWord.expandDiv_blocks_red, loadingVector_append_inr,
-      loadingVector_map_addRedColor, appendTensor_loadingVector wt _ (w.redCount_blocks).le]
+    have h := tensorWordUndivided_eq_loweringVector w (fun j => wt j.castSucc)
+    rw [tensorWordUndivided, h, TensorWord.expandDiv_blocks_red, loweringVector_append_inr,
+      loweringVector_map_addRedColor, appendTensor_loweringVector wt _ (w.redCount_blocks).le]
   | n, .black w i a, wt => by
-    have h := tensorWordUndivided_eq_loadingVector w wt
-    rw [tensorWordUndivided, h, TensorWord.expandDiv_blocks_black, loadingVector_append_replicate,
+    have h := tensorWordUndivided_eq_loweringVector w wt
+    rw [tensorWordUndivided, h, TensorWord.expandDiv_blocks_black, loweringVector_append_replicate,
       map_pow, tensorRepresentation_F, w.redCount_blocks]
 
 end Bridge

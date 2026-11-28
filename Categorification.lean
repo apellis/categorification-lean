@@ -59,6 +59,7 @@ import Categorification.Algebra.DerivedTensorTriangulated
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
 import Categorification.Algebra.ExactDerivedTensor
+import Categorification.Algebra.InductionAlongQuotientSup
 import Categorification.Algebra.OrderedStandardExt
 import Categorification.Algebra.ProjectiveKProjective
 import Categorification.Algebra.ResolutionAdjunction
@@ -815,6 +816,7 @@ import Categorification.WeightedKLR.RedStrands.PartialStandardizationSingStepFir
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationSpectatorAssoc
 import Categorification.WeightedKLR.RedStrands.PrependRedAssignments
 import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
+import Categorification.WeightedKLR.RedStrands.SingStdStandardBasis
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicTerminalSymmetric
@@ -1263,6 +1265,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapLemma719KSrcUnit
 import Categorification.WeightedKLR.Rigidity.CupCapLemma719KSrcWindow
 import Categorification.WeightedKLR.Rigidity.CupCapProp721Adjoint
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendAct
+import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendCapInd
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendCut
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendGen
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendImage

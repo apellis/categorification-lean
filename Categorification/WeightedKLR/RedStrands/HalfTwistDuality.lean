@@ -166,7 +166,7 @@ variable {Y : Type*} [AddCommGroup Y] [Finite I]
 ≅ g(x) e⁰_{κ,b} · P⁰_{κ,b}` of left multiplications. -/
 def halfTwistCutEquiv : M ≃ₗ[k] dotCut QL Λ κ κ b (halfTwistPol C Λ b (t := t)) :=
   (FirstWeight.halfTwistInclusionEquiv C hQ hR (baseCrossing_of_rouquier hQ hQ.klrSymm)
-      (fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm) H Λ wt hwt (blackWeight b) w hw hκ
+      H Λ wt hwt (blackWeight b) w hw hκ
       t ht).trans
     ((LinearEquiv.ofEq _ _ (map_halfTwistY_eq_dotCut hs₁ ht₀ κ
       (halfTwistY_eq_halfTwistPol C Λ b))).trans

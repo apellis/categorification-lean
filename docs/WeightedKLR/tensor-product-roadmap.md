@@ -1442,9 +1442,10 @@ partial standardizations, apply the induction in (6.21), and identify the derive
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
-(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
-`RowFigureFiveHypotheses` (the two hypotheses of Lemma 6.8) at every row; finite-dimensionality of `T^λ` is
-`tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
+(proved for adjacent transpositions as `braidClass_pairSwap`, under `RowFigureFiveHypotheses` (the
+injectivity hypothesis of Lemma 6.8) at every row; `AllFiniteDeltaInjective` holds for Rouquier
+parameters (`allFiniteDeltaInjective_of_isRouquierQ`) and finite-dimensionality of `T^λ` is
+`tensorProductAlgebra_finite`; removing the injectivity hypothesis is open), Lemma 6.11 (proved for
 `w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses; the diagram
 filtration of the step `p_n → f_n` is proved, `BraidColumnCutFiltration.lean`), Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group

@@ -16,8 +16,7 @@ Corollary 6.10 and proof of Lemma 6.11. For `ℓ = n + 2 + m` red strands and th
 braiding of those factors (`braidClass_swapAt`), and `v² R` is congruent at `v = 1` to the
 permutation of the tensor factors by `s` (`exists_braidClass_swapAt`).
 
-Route hypotheses, as in `braidClass_pairSwap`: `AllFiniteDeltaInjective` (Corollary 5.22) and
-`RowFigureFiveHypotheses` (Proposition 6.9).
+Route hypothesis, as in `braidClass_pairSwap`: `RowFigureFiveHypotheses` (Proposition 6.9).
 -/
 
 noncomputable section
@@ -42,12 +41,10 @@ variable {I : Type} {k : Type} {Y : Type*} [DecidableEq I] [Field k] [AddCommGro
 
 /-- **Corollary 6.10 at `ℓ = n + 2 + m` strands** (Webster, arXiv:1309.3796v2): the class map
 of `𝔅_s`, for the transposition `s = swapAt n m h` of the strands `n + 1, n + 2`, is
-`x ↦ B(v² R x, -)` with `R = braidingAt n m h`. Route hypotheses: `AllFiniteDeltaInjective` and
-`RowFigureFiveHypotheses`. -/
+`x ↦ B(v² R x, -)` with `R = braidingAt n m h`. Route hypothesis: `RowFigureFiveHypotheses`. -/
 theorem braidClass_swapAt {ℓ : ℕ} (n m : ℕ) (h : n + 2 + m = ℓ) (Λ : Fin ℓ → I →₀ ℕ)
     (wt : Fin ℓ → Dom R) (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i))
     [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I), Module.Finite k (TensorProductAlgebra k Q Ω ν)]
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ) (u : Fin (n + 2 + m) → List I)
       (hu : u (rightPos n m) = []), RowFigureFiveHypotheses C hQ Ω u hu)
     [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I) (κ : List (Fin ℓ)),
@@ -57,7 +54,7 @@ theorem braidClass_swapAt {ℓ : ℕ} (n m : ℕ) (h : n + 2 + m = ℓ) (Λ : Fi
       (formDual hR (wt ∘ swapAt n m h)).comp
         ((v ^ (2 : ℤ) : 𝕂) • (braidingAt hR n m h wt).toLinearMap) := by
   subst h
-  exact braidClass_pairSwap.{w} C hQ hR Λ wt hwt hall (H Λ)
+  exact braidClass_pairSwap.{w} C hQ hR Λ wt hwt (H Λ)
 
 /-- **The class map of an adjacent braid functor is congruent to the transposition** (Webster,
 arXiv:1309.3796v2, Corollary 6.10 and proof of Lemma 6.11): the class map of `𝔅_s` is
@@ -65,7 +62,6 @@ arXiv:1309.3796v2, Corollary 6.10 and proof of Lemma 6.11): the class map of `�
 theorem exists_braidClass_swapAt {ℓ : ℕ} (n m : ℕ) (h : n + 2 + m = ℓ) (Λ : Fin ℓ → I →₀ ℕ)
     (wt : Fin ℓ → Dom R) (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i))
     [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I), Module.Finite k (TensorProductAlgebra k Q Ω ν)]
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ) (u : Fin (n + 2 + m) → List I)
       (hu : u (rightPos n m) = []), RowFigureFiveHypotheses C hQ Ω u hu)
     [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I) (κ : List (Fin ℓ)),
@@ -75,6 +71,6 @@ theorem exists_braidClass_swapAt {ℓ : ℕ} (n m : ℕ) (h : n + 2 + m = ℓ) (
       VOneCongr f (tensorPermute wt (swapAt n m h)).toLinearMap ∧
         braidClass C hQ hR Λ wt hwt (swapAt n m h) = (formDual hR (wt ∘ swapAt n m h)).comp f :=
   ⟨_, (vOneCongr_braidingAt hR n m h wt).zpow_smul 2,
-    braidClass_swapAt.{w} C hQ hR n m h Λ wt hwt hall H⟩
+    braidClass_swapAt.{w} C hQ hR n m h Λ wt hwt H⟩
 
 end Categorification.Stendhal.FirstWeight

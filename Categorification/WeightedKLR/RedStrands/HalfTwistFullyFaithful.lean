@@ -78,7 +78,7 @@ theorem isCompact_braidingFunctor_obj_halfTwist {t : Seq (stendhalWeight (ℓ + 
     fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
   obtain ⟨Ps, ⟨r⟩⟩ := exists_resolution_of_hasCornerStandardFiltration
     (FirstWeight.isReducedChoice_canChoice ν) hQ.klrSymm hQ hall
-    (FirstWeight.hasCornerStandardFiltration_braidF.{0} C hQ hR hall H w hw Λ wt hwt t htO)
+    (FirstWeight.hasCornerStandardFiltration_braidF.{0} C hQ hR H w hw Λ wt hwt t htO)
   have hc := Graded.isCompact_resModule_of_resolution (braidCutRingEquiv Λ ν C hQ w) r
     (fun P hP => by
       obtain ⟨P', -, rfl⟩ := List.mem_map.1 hP

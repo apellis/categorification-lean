@@ -139,7 +139,6 @@ lengths add, `𝔅((1, …, ℓ), τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅((1, …, ℓ),
 Webster's statement is the case of an adjacent transposition `s`. Route hypotheses: those of the
 ungraded `braidingFunctorCompIsoOfLengthAdd` (Corollary 6.10, through Lemma 6.11). -/
 def auxiliaryGradedBraidingFunctorCompIsoOfLengthAdd
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
@@ -188,6 +187,6 @@ def auxiliaryGradedBraidingFunctorCompIsoOfLengthAdd
         simp only [List.mem_map, List.mem_finRange, true_and]
         exact ⟨fun _ => ⟨τ.symm a, τ.apply_symm_apply a⟩,
           fun _ => ⟨(τ * s).symm a, (τ * s).apply_symm_apply a⟩⟩) hL
-    (isZero_braidingFunctor_homology_of_lengthAdd C hQ hR hall H Λ wt hwt ν τ s hs)
+    (isZero_braidingFunctor_homology_of_lengthAdd C hQ hR H Λ wt hwt ν τ s hs)
 
 end Categorification.Stendhal.FirstWeight

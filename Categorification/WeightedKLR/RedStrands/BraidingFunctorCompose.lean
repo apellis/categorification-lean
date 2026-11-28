@@ -22,8 +22,7 @@ The vanishing of the higher `Tor` (`isZero_braidingFunctor_homology_of_lengthAdd
 standard filtrations of Lemma 6.11 (`hasCornerStandardFiltration_braidF`) for `τ ≠ 1`, and from
 the projectivity of the corner for `τ = 1`.
 
-Route hypotheses: those of Corollary 6.10 (`AllFiniteDeltaInjective`,
-`RowFigureFiveHypotheses`), through Lemma 6.11.
+Route hypothesis: that of Corollary 6.10 (`RowFigureFiveHypotheses`), through Lemma 6.11.
 -/
 
 noncomputable section
@@ -55,7 +54,6 @@ proof of Lemma 6.12, step `s_n + f_n → p_{n+1}`): for `s ≠ 1`, `B(κ₂, κ�
 homology only in degree `0`, for the red orders `κ₂ = (1, …, ℓ)`, `κ₁ = τ κ₂`, `κ₀ = τ s κ₂`.
 Route hypotheses: those of Corollary 6.10, through Lemma 6.11. -/
 theorem isZero_braidingFunctor_homology_of_lengthAdd
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
@@ -68,13 +66,15 @@ theorem isZero_braidingFunctor_homology_of_lengthAdd
           (isIdempotentElem_violMk_redProj k Q Λ ν ((List.finRange ℓ).map τ)).Cornerᵐᵒᵖ
           (cornerOpDZ (isIdempotentElem_violMk_redProj k Q Λ ν (List.finRange ℓ))
             (violMk k Q Λ ν (redProj k Q Λ ν ((List.finRange ℓ).map τ)))))))) := by
+  have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm :=
+    fun _ _ => allFiniteDeltaInjective_of_isRouquierQ hQ hQ.klrSymm _
   by_cases hτ : τ = 1
   · subst hτ
     exact isZero_braidingFunctor_braidingBimodule_self_homology (by simp) n hn
   · exact isZero_braidingFunctor_braidingBimodule_homology.{0} (isReducedChoice_canChoice ν)
       hQ.klrSymm hQ Λ τ s hall
-      (fun t ht => hasCornerStandardFiltration_braidF.{0} C hQ hR hall H τ hτ Λ wt hwt t ht)
-      (fun t ht => hasCornerStandardFiltration_braidF.{0} C hQ hR hall H s⁻¹ (inv_ne_one.2 hs)
+      (fun t ht => hasCornerStandardFiltration_braidF.{0} C hQ hR H τ hτ Λ wt hwt t ht)
+      (fun t ht => hasCornerStandardFiltration_braidF.{0} C hQ hR H s⁻¹ (inv_ne_one.2 hs)
         ((Λ ∘ τ) ∘ s) ((wt ∘ τ) ∘ s) (fun r i => hwt (τ (s r)) i) t ht) n hn
 
 include hR in
@@ -82,10 +82,9 @@ include hR in
 `τ` and `s ≠ 1` of the red strands whose lengths add (every pair of strands crossed by `τ` is
 still crossed by `τ s`), the derived braiding functors compose:
 `𝔅((1, …, ℓ), τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅((1, …, ℓ), τ s)`. Webster's statement is the case of an
-adjacent transposition `s`. Route hypotheses: those of Corollary 6.10
-(`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`), through Lemma 6.11. -/
+adjacent transposition `s`. Route hypothesis: that of Corollary 6.10
+(`RowFigureFiveHypotheses`), through Lemma 6.11. -/
 def braidingFunctorCompIsoOfLengthAdd
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
@@ -103,6 +102,6 @@ def braidingFunctorCompIsoOfLengthAdd
         simp only [List.mem_map, List.mem_finRange, true_and]
         exact ⟨fun _ => ⟨τ.symm a, τ.apply_symm_apply a⟩,
           fun _ => ⟨(τ * s).symm a, (τ * s).apply_symm_apply a⟩⟩) hL
-    (isZero_braidingFunctor_homology_of_lengthAdd C hQ hR hall H Λ wt hwt ν τ s hs)
+    (isZero_braidingFunctor_homology_of_lengthAdd C hQ hR H Λ wt hwt ν τ s hs)
 
 end Categorification.Stendhal.FirstWeight

@@ -115,8 +115,6 @@ theorem isEquivalence_braidingFunctor_finRange (Λ : Fin (ℓ + 1) → I →₀ 
     have hℓ : ℓ = 0 := by simpa [Fin.ext_iff] using h0
     subst hℓ
     exact Equiv.ext fun x => Subsingleton.elim (α := Fin 1) _ _
-  have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective QL Λ' hQ.klrSymm :=
-    fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
   have hL : ∀ τ : Perm (Fin (ℓ + 1)), ∀ x y, [x, y] <+ (fin).map ⇑(τ * (τ⁻¹ * w₀)) →
       [y, x] <+ (fin).map τ → [y, x] <+ fin := fun τ x y h _ => by
     rw [mul_inv_cancel_left] at h
@@ -136,10 +134,10 @@ theorem isEquivalence_braidingFunctor_finRange (Λ : Fin (ℓ + 1) → I →₀ 
     exact isEquivalence_braidingFunctor_revPerm C hQ hR H (Λ ∘ u) ν (wt ∘ u)
       (fun r i => hwt (u r) i) hw
   have h₁ := Functor.isEquivalence_of_iso
-    (FirstWeight.braidingFunctorCompIsoOfLengthAdd C hQ hR hall H Λ wt hwt ν u (u⁻¹ * w₀) hs
+    (FirstWeight.braidingFunctorCompIsoOfLengthAdd C hQ hR H Λ wt hwt ν u (u⁻¹ * w₀) hs
       (hL u)).symm
   have h₂ := Functor.isEquivalence_of_iso
-    (FirstWeight.braidingFunctorCompIsoOfLengthAdd C hQ hR hall H (Λ ∘ u) (wt ∘ u)
+    (FirstWeight.braidingFunctorCompIsoOfLengthAdd C hQ hR H (Λ ∘ u) (wt ∘ u)
       (fun r i => hwt (u r) i) ν (u⁻¹ * w₀) ((u⁻¹ * w₀)⁻¹ * w₀) hv (hL (u⁻¹ * w₀))).symm
   have hG : (braidingFunctor.{0} k QL Λ ν ((fin).map u)
       ((fin).map ⇑(u * (u⁻¹ * w₀)))).IsEquivalence :=

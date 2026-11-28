@@ -223,6 +223,81 @@ theorem _root_.Categorification.Stendhal.ext_coevaluationHead
   rw [Multiset.coe_card] at h1
   exact ⟨h1, fun i hi => h2 i (by rwa [Multiset.coe_card])⟩
 
+local notation "QK" =>
+  KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars C k)
+
+include hΛ hR in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Proposition 7.8**, ungraded, in the repaired reading, at
+the standard Khovanov–Lauda parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.exists_stdResolution_coevaluationHead_std
+    (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK)
+    [FiniteDimensional K H] (weight : P.integralWeights)
+    (hweight : P.IsDominantIntegral (weight : Module.Dual K H))
+    (match_weight : ∀ i, (weight : Module.Dual K H) (P.coroot i) =
+      (RD.pair.flip highest ((projectiveRootDatum RD).coroot i) : K))
+    (w : List I) (hw : (cs).IsReduced w.reverse)
+    (hlong : ∀ i, (cs).IsLeftDescent ((cs).wordProd w.reverse) i)
+    (t : Seq (Stendhal.stendhalWeight 1 (0 : Multiset I))) (ht : Stendhal.IsRedOrdered t)
+    (h : 0 + Stendhal.wordWt (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)) 0 =
+      expandDiv (Stendhal.coevaluationDividedWord Dc weight w))
+    [HasExt.{w} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k QK
+      (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))))] :
+    ∃ S : ℕ → ShortComplex (ModuleCat.{0} (Stendhal.TensorProductAlgebra k QK
+        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)))
+        (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)))),
+      Nonempty ((S 0).X₃ ≅ Stendhal.flipLeft QK _ _ (Stendhal.coevaluationHead QK Λ RD highest
+        (Stendhal.coevaluationDividedWord Dc weight w))) ∧
+      (∀ n, Nonempty ((S (n + 1)).X₃ ≅ (S n).X₁)) ∧ (∀ n, (S n).ShortExact) ∧
+      (∀ n ≤ (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length,
+        Stendhal.StdSum QK _ hQs
+          ((expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length + 1 - n) (S n).X₂) ∧
+      (∀ n, (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length < n →
+        IsZero (S n).X₂) ∧
+      Nonempty ((S (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length).X₂ ≅
+        Stendhal.tensorStd QK _ hQs h (Stendhal.oldProj QK _ 0 t ht)
+          (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord Dc weight w))) :=
+  Stendhal.exists_stdResolution_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight match_weight w hw hlong hQs
+    (by
+      convert Stendhal.allFiniteDeltaInjective_std
+        (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc
+          weight w))) hP' hQs) t ht h
+
+include hΛ hR in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.9**, ungraded, at the standard
+Khovanov–Lauda parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.ext_coevaluationHead_std
+    (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK)
+    [FiniteDimensional K H] (weight : P.integralWeights)
+    (hweight : P.IsDominantIntegral (weight : Module.Dual K H))
+    (match_weight : ∀ i, (weight : Module.Dual K H) (P.coroot i) =
+      (RD.pair.flip highest ((projectiveRootDatum RD).coroot i) : K))
+    (w : List I) (hw : (cs).IsReduced w.reverse)
+    (hlong : ∀ i, (cs).IsLeftDescent ((cs).wordProd w.reverse) i)
+    (t : Seq (Stendhal.stendhalWeight 1 (0 : Multiset I))) (ht : Stendhal.IsRedOrdered t)
+    (h : 0 + Stendhal.wordWt (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)) 0 =
+      expandDiv (Stendhal.coevaluationDividedWord Dc weight w))
+    [HasExt.{w} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k QK
+      (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))))] :
+    Module.finrank k (Ext.{w} (Stendhal.flipLeft QK
+        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _ (Stendhal.coevaluationHead QK Λ RD highest
+        (Stendhal.coevaluationDividedWord Dc weight w)))
+      (Stendhal.tensorStd QK _ hQs h (Stendhal.oldProj QK _ 0 t ht)
+        (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord Dc weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length) = 1 ∧
+    ∀ i ≠ (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length,
+      Subsingleton (Ext.{w} (Stendhal.flipLeft QK
+        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _ (Stendhal.coevaluationHead QK Λ RD highest
+          (Stendhal.coevaluationDividedWord Dc weight w)))
+        (Stendhal.tensorStd QK _ hQs h (Stendhal.oldProj QK _ 0 t ht)
+          (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord Dc weight w))) i) :=
+  Stendhal.ext_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight match_weight w hw hlong hQs
+    (by
+      convert Stendhal.allFiniteDeltaInjective_std
+        (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc
+          weight w))) hP' hQs) t ht h
+
 end Categorification.KLR.CycKLR
 
 end

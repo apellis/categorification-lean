@@ -40,6 +40,7 @@ import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerBimoduleEnd
 import Categorification.Algebra.CornerEndomorphism
+import Categorification.Algebra.CornerFaithfulEmbedding
 import Categorification.Algebra.CornerSelfDual
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorAdditive
@@ -930,6 +931,7 @@ import Categorification.WeightedKLR.RedStrands.PartialStandardizationSpectatorTe
 import Categorification.WeightedKLR.RedStrands.PlusStagedStandardBasis
 import Categorification.WeightedKLR.RedStrands.PlusStagedTensorRepresented
 import Categorification.WeightedKLR.RedStrands.PrependRedAssignments
+import Categorification.WeightedKLR.RedStrands.ProjectiveInjective
 import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
 import Categorification.WeightedKLR.RedStrands.RedOrderedConcat
 import Categorification.WeightedKLR.RedStrands.SingStdStandardBasis

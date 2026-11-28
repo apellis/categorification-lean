@@ -6447,6 +6447,21 @@ section RedFirstEnd
 
 attribute [local instance 2000] Classical.propDecidable
 
+/-- Webster, arXiv:1309.3796v3, Thm. 5.30 (1) ⇔ (3) (v2: Thm. 5.27), for `sl₂`, two red strands
+of weight `ω`, every black weight and every indecomposable finitely generated projective
+module. -/
+example (ν : Multiset Unit) {P : Type} [AddCommGroup P]
+    [Module (TensorProductAlgebra ℚ (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+      (fun _ : Fin 2 => Finsupp.single () 1) ν) P]
+    [Module.Finite (TensorProductAlgebra ℚ (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+      (fun _ : Fin 2 => Finsupp.single () 1) ν) P]
+    [Module.Projective (TensorProductAlgebra ℚ (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+      (fun _ : Fin 2 => Finsupp.single () 1) ν) P]
+    (hP : IsIndecomposableModule (TensorProductAlgebra ℚ
+      (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ)) (fun _ : Fin 2 => Finsupp.single () 1) ν) P) :=
+  injective_iff_isSummand_redFirstProjective rbRouquier rbSymm
+    (fun _ : Fin 2 => Finsupp.single () 1) ν hP
+
 /-- Webster, arXiv:1309.3796v2, proof of Prop. 5.30, for `sl₂`, two red strands of weight `ω`,
 and every black weight: left multiplication by `θ̇_s` is injective on `e(s) T^λ`. -/
 example (ν : Multiset Unit) (s : TensorProductAlgebra.OrderedLoading (ℓ := 2) ν) :=

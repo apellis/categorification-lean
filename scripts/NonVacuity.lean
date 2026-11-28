@@ -13481,4 +13481,3 @@ nonzero black weight there are no simple tops. -/
 example := topsResolvable_noRed suGrade (ν := {()}) (by simp)
 
 end NonVacuity.WebsterSimpleUpResolution
-||||||| 51d48af8

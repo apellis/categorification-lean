@@ -1466,9 +1466,12 @@ classes of autoequivalences of the product of the derived categories of all red 
 every factorization `τ^p ξ₁ ⋯ ξₙ` of a braid gives the class of `𝔅_{w₀}^p 𝔅_{w₁} ⋯ 𝔅_{wₙ}`
 (`braidActionHom_eq_factorization`). Cor 6.19 is proved under the same hypothesis: the
 endomorphism ring of the tilting generator `B(1, κ)` for the half twist is the corner at
-`(1, …, ℓ)` (`ringelDualEquiv`, `RingelDuality.lean`). Open in §6.1: the strong action of
-Cor 6.18 (Zamolodchikov coherence), Prop 6.20 (mutation of the semi-orthogonal decomposition;
-both parts of Prop 5.26 are now proved, generation in the ungraded perfect reading); §6.2: Prop 6.21 (Serre functor).
+`(1, …, ℓ)` (`ringelDualEquiv`, `RingelDuality.lean`). Prop 6.20 (mutation of the standard
+stratification) is proved under the hypotheses of Lemma 6.11, in the thick-closure reading used for
+the generation part of Prop 5.26: for every upper set `U` of loadings, the thick closure of the
+`𝔅_w(S_s)`, `s ∈ U`, is that of the block-permuted standards `S'_{w s}`
+(`thickClosure_braidingFunctor_violLoadingStandard`, `BraidMutation.lean`). Open in §6.1: the
+strong action of Cor 6.18 (Zamolodchikov coherence); §6.2: Prop 6.21 (Serre functor).
 
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric

@@ -719,6 +719,7 @@ import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminalProjective
 import Categorification.TypeA.BlockSwapLength
 import Categorification.TypeA.BlockSwapShuffle
+import Categorification.TypeA.BruhatRank
 import Categorification.WeightedKLR.RedStrands.BlackCommutationQ
 import Categorification.WeightedKLR.RedStrands.BlackModuleAdjunctionQ
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutationQ
@@ -1229,8 +1230,11 @@ import Categorification.WeightedKLR.RedStrands.WindowBlackBlock
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFlip
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFree
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockIC
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockICFlip
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockIndCoind
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockPairing
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockRight
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockRightProjective
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockSwap
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockTrace
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockTraceRight
@@ -1264,7 +1268,10 @@ import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendGen
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendImage
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendLambda
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendLeft
+import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendQuot
 import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendStendhal
+import Categorification.WeightedKLR.Rigidity.CupCapProp721AppendViolated
+import Categorification.WeightedKLR.Rigidity.CupCapProp721CapViolated
 import Categorification.WeightedKLR.Rigidity.CupCapProp721Induced
 import Categorification.WeightedKLR.Rigidity.CupCapProp721Window
 import Categorification.WeightedKLR.Rigidity.CupCapProp721WindowIdem

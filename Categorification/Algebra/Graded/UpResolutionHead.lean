@@ -203,6 +203,15 @@ omit [GradedAlgebra 𝒜] [Module.Finite k A] in
 theorem epsDim_pos {ε : A} {N : GFin 𝒜} {x : N.carrier} (hx : ε • x ≠ 0) : 0 < epsDim k ε N :=
   Nat.pos_of_ne_zero fun h => hx (smul_eq_zero_of_epsDim_eq_zero h x)
 
+omit [GradedAlgebra 𝒜] [Module.Finite k A] in
+/-- An element acting by zero on a module acts by zero on its subquotients. -/
+theorem smul_eq_zero_of_isSubquotient {L M : GFin 𝒜} (h : IsSubquotient L M) {a : A}
+    (ha : ∀ x : M.carrier, a • x = 0) (y : L.carrier) : a • y = 0 := by
+  obtain ⟨X, f, g, -, hf, -, hg⟩ := h
+  obtain ⟨x, rfl⟩ := hg y
+  have : a • x = 0 := hf (by rw [map_smul, ha, map_zero])
+  rw [← map_smul, this, map_zero]
+
 omit [Module.Finite k A] in
 /-- **Subquotients across a simple quotient.** Let `L` be a graded simple module that is an
 ungraded subquotient of `M`, and `π : M → Q` a map onto a graded simple module. Then `L` is an

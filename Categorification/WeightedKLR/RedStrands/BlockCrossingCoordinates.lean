@@ -624,21 +624,29 @@ private theorem coefficient_of_section {M : Type*} [AddCommGroup M] [Module k M]
     rw [split,map_mul pol,pol_X,mul_assoc _ _ (e t),(e_commute_pol t _).eq.symm,← mul_assoc (x a),mul_assoc _ _ u,hF t a ha]
 end SectionCoefficient
 
-/-- Parabolic coordinates of the juxtaposed-top column (Webster, arXiv:1309.3796v2,
-Proposition 6.4 and proof of Lemma 6.8; Khovanov–Lauda I, Proposition 2.16). Multiplying
-above the seam multiplies each coefficient. A bottom loading acts on each
-coefficient through the split projector for its shuffle. Restacking the coefficients recovers the
-whole column after imposing red dots, before either kind of violation. -/
-theorem exists_blockStack_coordinates_with_indexed_projectors (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
-    (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
-    (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν) :
-    let row := adjacentRow L M f β
+/-- Juxtaposition of the blocks of a row in the affine algebra of the ambient weight. -/
+def rowStack (Bs : List (RedBlock I ℓ)) {ν : Multiset I} (h : weightSum Bs = stendhalWeight ℓ ν) :
+    X Bs →ₙₐ[k] R (stendhalWeight ℓ ν) where
+  toFun x := castKLR S h (juxtapose Q Λ Bs x)
+  map_zero' := by simp only [map_zero]
+  map_add' _ _ := by simp only [map_add]
+  map_smul' _ _ := by simp only [map_smul, MonoidHom.id_apply]
+  map_mul' _ _ := by simp only [juxtapose_mul, map_mul]
+
+/-- **Parabolic coordinates of a juxtaposed-top column, for any row** (Webster,
+arXiv:1309.3796v2, Proposition 6.4 and proof of Lemma 6.8; Khovanov–Lauda I,
+Proposition 2.16). The same as `exists_blockStack_coordinates_with_indexed_projectors`, for an
+arbitrary row of red blocks and an arbitrary class `bad` of source loadings all of whose
+compatible shuffles have a violated block. For the row of an adjacent pair this is the partial
+standard; for a row of singleton blocks with `bad` the singleton cuts it is the full standard. -/
+theorem exists_rowStack_coordinates_with_indexed_projectors (hQ : KLRSymm Q)
+    (row : List (RedBlock I ℓ)) {ν : Multiset I} (h : weightSum row = stendhalWeight ℓ ν)
+    (bad : KLR.Seq (stendhalWeight ℓ ν) → Prop)
+    (hbad : ∀ s, bad s → ∀ v : Loadings row, ShuffleLoading row (Seq.cast h.symm s) v →
+      Violated row v) :
     let μ := stendhalWeight ℓ ν
-    let G := affineStackBlocks Q Λ L M f β h
+    let G := rowStack Q Λ row h
     let π := ofKLR k Q Λ ν
-    let bad := fun s : KLR.Seq μ => IsViolated s ∨
-      (redWord s = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst ∧
-        (fun r i => boundaryCount (cut (f 0) (f 1) r) i row) < adjacentBlockRoot (f 0) (f 1) s)
     ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
       (bottom : Fin n → Seq μ → X row),
       (∀ j y n, y ∈ filt k S μ n → g j y ∈ blockShuffleFilt Q Λ row (index j) n) ∧
@@ -651,7 +659,7 @@ theorem exists_blockStack_coordinates_with_indexed_projectors (hQ : KLRSymm Q) (
       (∀ j y s z, bad s → projection Q Λ row (g j (y * e s * z)) = 0) ∧
       ∀ y, π (G 1 * y) = ∑ j, π (G (g j y) * w j) := by
   classical
-  intro row μ G π bad
+  intro μ G π
   let T := rowCoefficients Q Λ (BraidedStendhalAlgebra k Q Λ ν) hQ row
   let e := Fintype.equivFin (ShuffleIndex row)
   let b := castKLR S h
@@ -707,18 +715,8 @@ theorem exists_blockStack_coordinates_with_indexed_projectors (hQ : KLRSymm Q) (
   have zero_at_loading (j : Fin (Fintype.card (ShuffleIndex row))) (y : R μ) (s : KLR.Seq μ)
       (hviol : bad s) : projection Q Λ row (g j (y * KLRAlgebra.e s)) = 0 := by
     let u := Seq.cast h.symm s
-    have hv (v : Loadings row) (hs : ShuffleLoading row u v) : Violated row v := by
-      rcases hviol with hglobal | ⟨ho, hhigh⟩
-      · apply violated_of_shuffleLoading_global row u v hs
-        have cast_violated {w w' : Multiset (I ⊕ Fin ℓ)} (hww : w = w') (t : Seq w)
-            (ht : IsViolated t) : IsViolated (Seq.cast hww t) := by
-          subst w'
-          simpa using ht
-        exact cast_violated h.symm s hglobal
-      · have hu : redWord (Seq.cast h u) = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst := by
-          rw [cast_back, ho]
-        apply violated_of_adjacent_shuffleLoading L M f β h u v hs hu
-        exact Or.inr (by rwa [cast_back])
+    have hv (v : Loadings row) (hs : ShuffleLoading row u v) : Violated row v :=
+      hbad s hviol v hs
     change projection Q Λ row (T.coeff _ (b.symm (y * KLRAlgebra.e s))) = 0
     rw [map_mul b.symm, cast_e, T.coeff_e]
     rcases (T.bottom_spec (e.symm j) u).loading Q Λ with hzero | ⟨v, hsh, he⟩
@@ -776,6 +774,48 @@ theorem exists_blockStack_coordinates_with_indexed_projectors (hQ : KLRSymm Q) (
         intro i _
         rw [g_mul, map_mul, zero_at_loading i y s hs, zero_mul]
 
+
+/-- Parabolic coordinates of the juxtaposed-top column (Webster, arXiv:1309.3796v2,
+Proposition 6.4 and proof of Lemma 6.8; Khovanov–Lauda I, Proposition 2.16). Multiplying
+above the seam multiplies each coefficient. A bottom loading acts on each
+coefficient through the split projector for its shuffle. Restacking the coefficients recovers the
+whole column after imposing red dots, before either kind of violation. -/
+theorem exists_blockStack_coordinates_with_indexed_projectors (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
+    (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
+    (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν) :
+    let row := adjacentRow L M f β
+    let μ := stendhalWeight ℓ ν
+    let G := affineStackBlocks Q Λ L M f β h
+    let π := ofKLR k Q Λ ν
+    let bad := fun s : KLR.Seq μ => IsViolated s ∨
+      (redWord s = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst ∧
+        (fun r i => boundaryCount (cut (f 0) (f 1) r) i row) < adjacentBlockRoot (f 0) (f 1) s)
+    ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
+      (bottom : Fin n → Seq μ → X row),
+      (∀ j y n, y ∈ filt k S μ n → g j y ∈ blockShuffleFilt Q Λ row (index j) n) ∧
+      (∀ j, w j = G 1 * ψw (shuffleWord row (index j))) ∧
+      (∀ j x y, g j (G x * y) = x * g j y) ∧
+      (∀ j y s, g j (y * e s) = g j y * bottom j s) ∧
+      (∀ j y, g j (toKLR k Q Λ ν (π y)) = g j y) ∧
+      (∀ j, g j (w j) = 1) ∧ (∀ i j, i ≠ j → g i (w j) = 0) ∧
+      (∀ j s, IndexedLoadingProjector Q Λ row (index j) (Seq.cast h.symm s) (bottom j s)) ∧
+      (∀ j y s z, bad s → projection Q Λ row (g j (y * e s * z)) = 0) ∧
+      ∀ y, π (G 1 * y) = ∑ j, π (G (g j y) * w j) := by
+  intro row μ G π bad
+  refine exists_rowStack_coordinates_with_indexed_projectors Q Λ hQ row h bad ?_
+  intro s hs v hsv
+  have cast_back : Seq.cast h (Seq.cast h.symm s) = s :=
+    (show ∀ {w w' : Multiset (I ⊕ Fin ℓ)} (hw : w = w') (t : Seq w'),
+      Seq.cast hw (Seq.cast hw.symm t) = t from fun {w w'} hw t => by subst w'; rfl) h s
+  rcases hs with hglobal | ⟨ho, hhigh⟩
+  · apply violated_of_shuffleLoading_global row _ v hsv
+    have cast_violated {w w' : Multiset (I ⊕ Fin ℓ)} (hww : w = w') (t : Seq w)
+        (ht : IsViolated t) : IsViolated (Seq.cast hww t) := by
+      subst w'
+      simpa using ht
+    exact cast_violated h.symm s hglobal
+  · exact violated_of_adjacent_shuffleLoading L M f β h _ v hsv (by rw [cast_back, ho])
+      (Or.inr (by rwa [cast_back]))
 /-- Filtered coordinates with the support of each bottom projector. -/
 theorem exists_blockStack_coordinates_with_filtered_shuffle_words (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
     (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}

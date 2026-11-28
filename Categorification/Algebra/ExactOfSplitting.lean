@@ -1,0 +1,166 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
+import Mathlib.Algebra.Exact.Basic
+import Mathlib.Algebra.Module.Submodule.Range
+import Mathlib.Tactic.Abel
+
+/-!
+# Exactness in the middle from a splitting of the middle term
+
+Let `C₂ → C₁ → C₀` be maps with zero composite. Suppose `C₁ = A + B` for submodules `A`, `B`
+such that `d₁` is injective on `B` and every element of `A` is the image under `d₂` of some
+element, modulo `B`. Then the sequence is exact at `C₁`
+(`LinearMap.ker_le_range_of_sup_eq_top`).
+
+This is the matching argument of algebraic Morse theory in degree one. It is used for the
+Koszul vanishing in B. Webster, *Knot invariants and higher representation theory*,
+arXiv:1309.3796v3, proof of Lemma 6.9 (v2: Lemma 6.8), at (6.21): the degree-one cells of the
+cube on a standard module split into those matched downward (`B`) and those matched upward
+(`A`).
+
+## Main results
+
+* `LinearMap.ker_le_range_of_sup_eq_top`.
+* `LinearMap.ker_le_range_of_filtered_matching`: the same with the matching only on leading
+  terms of a filtration.
+* `LinearMap.ker_le_range_of_subcomplex`: exactness in degree one of a three-term complex from
+  exactness of a subcomplex and of the quotient complex (the middle of the long exact sequence).
+  In the proof of Lemma 6.9 the subcomplex is the face of the cube where the first between strand
+  exits left; it reduces the three-state cube to a two-state one.
+-/
+
+namespace LinearMap
+
+variable {R : Type*} [Ring R] {C₂ C₁ C₀ : Type*} [AddCommGroup C₂] [AddCommGroup C₁]
+  [AddCommGroup C₀] [Module R C₂] [Module R C₁] [Module R C₀]
+
+/-- **Exactness from a matching.** If `C₁ = A + B`, `d₁` is injective on `B`, and each element
+of `A` lies in `range d₂ + B`, then `ker d₁ ≤ range d₂`. -/
+theorem ker_le_range_of_sup_eq_top {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] C₀}
+    (hd : d₁.comp d₂ = 0) {A B : Submodule R C₁} (hAB : A ⊔ B = ⊤)
+    (hB : ∀ b ∈ B, d₁ b = 0 → b = 0) (hA : ∀ a ∈ A, ∃ y, d₂ y - a ∈ B) :
+    ker d₁ ≤ range d₂ := by
+  intro z hz
+  have hz' : z ∈ A ⊔ B := hAB ▸ Submodule.mem_top
+  obtain ⟨a, ha, b, hb, rfl⟩ := Submodule.mem_sup.1 hz'
+  obtain ⟨y, hy⟩ := hA a ha
+  have hmem : a + b - d₂ y ∈ B := by
+    have : a + b - d₂ y = b - (d₂ y - a) := by abel
+    rw [this]; exact B.sub_mem hb hy
+  have hzero : d₁ (a + b - d₂ y) = 0 := by
+    rw [map_sub, mem_ker.1 hz, ← comp_apply, hd, zero_apply, sub_zero]
+  have := hB _ hmem hzero
+  exact ⟨y, (sub_eq_zero.1 this).symm⟩
+
+/-- The same conclusion as exactness of the pair. -/
+theorem exact_of_sup_eq_top {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] C₀}
+    (hd : d₁.comp d₂ = 0) {A B : Submodule R C₁} (hAB : A ⊔ B = ⊤)
+    (hB : ∀ b ∈ B, d₁ b = 0 → b = 0) (hA : ∀ a ∈ A, ∃ y, d₂ y - a ∈ B) :
+    Function.Exact d₂ d₁ := by
+  intro z
+  constructor
+  · intro hz
+    obtain ⟨y, hy⟩ := ker_le_range_of_sup_eq_top hd hAB hB hA (mem_ker.2 hz)
+    exact ⟨y, hy⟩
+  · rintro ⟨y, rfl⟩
+    rw [← comp_apply, hd, zero_apply]
+
+/-- **Exactness from a filtered matching.** Let `p` be a projection of `C₁` whose kernel part
+lies in `B` (`z - p z ∈ B`), with `d₁` injective on `B`. Let `F` be an increasing filtration of
+the values of `p`, starting at `0` and exhausting them. If each element of `F (n + 1)` agrees
+with `p ∘ d₂` of some element up to `F n`, then `ker d₁ ≤ range d₂`.
+
+This is the form used for the y*-matching in the proof of Lemma 6.9: `p` is the projection to the
+span of the up cells along the down cells, and `F` is the leading-term filtration. -/
+theorem ker_le_range_of_filtered_matching {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] C₀}
+    (hd : d₁.comp d₂ = 0) {B : Submodule R C₁} (p : C₁ →ₗ[R] C₁) (hp : ∀ z, z - p z ∈ B)
+    (hB : ∀ b ∈ B, d₁ b = 0 → b = 0) (F : ℕ → Submodule R C₁) (hF0 : F 0 = ⊥)
+    (hFex : ∀ z, ∃ n, p z ∈ F n)
+    (hA : ∀ n, ∀ a ∈ F (n + 1), ∃ y, p (d₂ y) - a ∈ F n) :
+    ker d₁ ≤ range d₂ := by
+  have key : ∀ n, ∀ z, d₁ z = 0 → p z ∈ F n → z ∈ range d₂ := by
+    intro n
+    induction n with
+    | zero =>
+      intro z hz hpz
+      rw [hF0, Submodule.mem_bot] at hpz
+      have hzB : z ∈ B := by simpa [hpz] using hp z
+      rw [hB z hzB hz]
+      exact Submodule.zero_mem _
+    | succ n ih =>
+      intro z hz hpz
+      obtain ⟨y, hy⟩ := hA n _ hpz
+      have hz' : d₁ (z - d₂ y) = 0 := by
+        rw [map_sub, hz, ← comp_apply, hd, zero_apply, sub_zero]
+      have hpz' : p (z - d₂ y) ∈ F n := by
+        rw [map_sub, ← neg_sub]
+        exact Submodule.neg_mem _ hy
+      obtain ⟨x, hx⟩ := ih _ hz' hpz'
+      exact ⟨x + y, by rw [map_add, hx, sub_add_cancel]⟩
+  intro z hz
+  obtain ⟨n, hn⟩ := hFex z
+  exact key n z (mem_ker.1 hz) hn
+
+section Subcomplex
+
+variable {C₂' C₁' C₀' C₂'' C₁'' : Type*} [AddCommGroup C₂'] [AddCommGroup C₁'] [AddCommGroup C₀']
+  [AddCommGroup C₂''] [AddCommGroup C₁''] [Module R C₂'] [Module R C₁'] [Module R C₀']
+  [Module R C₂''] [Module R C₁'']
+
+/-- **Degree one of a short exact sequence of complexes.** Let `C' → C → C''` be maps of
+three-term complexes (`C''` is only needed in degrees two and one), surjective in degree two,
+exact in degree one, and injective in degree zero. If `C'` and `C''` are exact in degree one, so
+is `C`. -/
+theorem ker_le_range_of_subcomplex
+    {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] C₀}
+    {d₂' : C₂' →ₗ[R] C₁'} {d₁' : C₁' →ₗ[R] C₀'} {d₂'' : C₂'' →ₗ[R] C₁''}
+    {i₂ : C₂' →ₗ[R] C₂} {i₁ : C₁' →ₗ[R] C₁} {i₀ : C₀' →ₗ[R] C₀}
+    {p₂ : C₂ →ₗ[R] C₂''} {p₁ : C₁ →ₗ[R] C₁''} (hd : d₁.comp d₂ = 0)
+    (hi₂ : d₂.comp i₂ = i₁.comp d₂') (hi₁ : d₁.comp i₁ = i₀.comp d₁')
+    (hp₂ : d₂''.comp p₂ = p₁.comp d₂)
+    (hp₂s : Function.Surjective p₂) (hex : Function.Exact i₁ p₁) (hi₀ : Function.Injective i₀)
+    (h' : ker d₁' ≤ range d₂') (h'' : ∀ z, d₁ z = 0 → p₁ z ∈ range d₂'') :
+    ker d₁ ≤ range d₂ := by
+  intro z hz
+  obtain ⟨y'', hy''⟩ := h'' z (mem_ker.1 hz)
+  obtain ⟨y, rfl⟩ := hp₂s y''
+  have hq : p₁ (z - d₂ y) = 0 := by
+    rw [map_sub, ← hy'', ← comp_apply, hp₂, comp_apply, sub_self]
+  obtain ⟨z', hz'⟩ := (hex _).1 hq
+  have hc : d₁' z' = 0 := by
+    apply hi₀
+    rw [map_zero, ← comp_apply, ← hi₁, comp_apply, hz', map_sub, mem_ker.1 hz, ← comp_apply,
+      hd, zero_apply, sub_zero]
+  obtain ⟨y', hy'⟩ := h' (mem_ker.2 hc)
+  refine ⟨y + i₂ y', ?_⟩
+  rw [map_add, ← comp_apply d₂ i₂, hi₂, comp_apply, hy', hz', add_sub_cancel]
+
+end Subcomplex
+
+section FourLemma
+
+variable {A₁ B₁ C₁' A₂ B₂ C₂'' : Type*} [AddCommGroup A₁] [AddCommGroup B₁] [AddCommGroup C₁']
+  [AddCommGroup A₂] [AddCommGroup B₂] [AddCommGroup C₂''] [Module R A₁] [Module R B₁]
+  [Module R C₁'] [Module R A₂] [Module R B₂] [Module R C₂'']
+
+/-- **Four lemma for injectivity.** In a commutative diagram with rows `A₁ → B₁ → C₁` exact at
+`B₁` and `0 → A₂ → B₂ → C₂`, if the outer vertical maps are injective, so is the middle one.
+For Lemma 6.9 the rows are a column of the bimodule and its sub- and quotient columns, after
+tensoring with the kernel `K` and with the projective `e(t)T`; the induction runs over the gap. -/
+theorem injective_of_exact_of_injective {f₁ : A₁ →ₗ[R] B₁} {g₁ : B₁ →ₗ[R] C₁'}
+    {f₂ : A₂ →ₗ[R] B₂} {g₂ : B₂ →ₗ[R] C₂''} {α : A₁ →ₗ[R] A₂} {β : B₁ →ₗ[R] B₂}
+    {γ : C₁' →ₗ[R] C₂''} (hf : β.comp f₁ = f₂.comp α) (hg : γ.comp g₁ = g₂.comp β)
+    (hex : Function.Exact f₁ g₁) (hf₂ : Function.Injective f₂) (hα : Function.Injective α)
+    (hγ : Function.Injective γ) : Function.Injective β := by
+  rw [← ker_eq_bot, ker_eq_bot']
+  intro z hz
+  have h₁ : g₁ z = 0 := hγ (by rw [map_zero, ← comp_apply, hg, comp_apply, hz, map_zero])
+  obtain ⟨z', rfl⟩ := (hex z).1 h₁
+  have h₂ : α z' = 0 := hf₂ (by rw [map_zero, ← comp_apply, ← hf, comp_apply, hz])
+  rw [hα (h₂.trans (map_zero α).symm), map_zero]
+
+end FourLemma
+
+end LinearMap

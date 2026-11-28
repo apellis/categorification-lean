@@ -2298,6 +2298,9 @@ import Categorification.WeightedKLR.RedStrands.Prop55DimensionSecondFactor
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionCount
 import Categorification.WeightedKLR.RedStrands.StandardExtVanishing
 import Categorification.WeightedKLR.RedStrands.StandardStratificationStd
+import Categorification.WeightedKLR.RedStrands.StandardizedProjectiveDimension
+import Categorification.WeightedKLR.RedStrands.StandardHeadResolution
+import Categorification.WeightedKLR.RedStrands.StandardizedResolution
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionFinite
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionPieces
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionTransport
@@ -2714,6 +2717,8 @@ import Categorification.Algebra.Graded.UpResolutionSimple
 import Categorification.Algebra.Graded.UpResolutionBootstrap
 import Categorification.Algebra.Graded.UpResolutionTotal
 import Categorification.Algebra.Graded.UpResolutionTensor
+import Categorification.Algebra.Graded.UpResolutionProjDim
+import Categorification.Algebra.Graded.UpResolutionHead
 import Categorification.Algebra.Graded.HomFormEquiv
 import Categorification.Algebra.Graded.HomFormPolynomial
 import Categorification.Algebra.Graded.IdealTensor
@@ -3053,6 +3058,7 @@ import Categorification.WeightedKLR.RedStrands.GradedBraidingBimodule
 import Categorification.WeightedKLR.RedStrands.GradedRightStandard
 import Categorification.WeightedKLR.RedStrands.GradedRightStandardModule
 import Categorification.WeightedKLR.RedStrands.GradedStandardization
+import Categorification.WeightedKLR.RedStrands.GradedStandardizationExact
 import Categorification.WeightedKLR.RedStrands.GradedTwoPieceStandard
 import Categorification.WeightedKLR.RedStrands.HalfTwistCokernel
 import Categorification.WeightedKLR.RedStrands.HalfTwistCorner

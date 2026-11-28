@@ -117,21 +117,31 @@ def HeadAtCut (u : Cut) (b : IndecClass ((𝓑) u)) (s : IndecClass 𝓐) : Prop
   ∀ a ∈ (J) u, ∀ x : s.top, a • x = 0
 
 include hQ in
-private theorem headAtCut_exists (u : Cut) (b : IndecClass ((𝓑) u)) (V : LastRedInducedCut Λ ν G u b) :
-    ∃ s, HeadAtCut Λ ν G u b s := by
+/-- The head at a cut, obtained from an induced representation, is a subquotient of that
+representation: a submodule over the smaller-suffix layer maps onto it, compatibly with the
+action of the tensor product algebra. -/
+theorem exists_headAtCut_subquotient (u : Cut) (b : IndecClass ((𝓑) u))
+    (V : LastRedInducedCut Λ ν G u b) :
+    ∃ s, HeadAtCut Λ ν G u b s ∧ ∃ (X : Submodule ((C) u) V.carrier) (g : X →ₗ[k] s.top),
+      Function.Surjective g ∧ ∀ (a : T) (x : X), g ((q) u a • x) = a • g x := by
   let := tensorProductAlgebra_finite Λ ν hQ
   let := HasGdim.of_finiteDimensional 𝓐
   let := lastRedLayerSource_finite hQ (Λ ∘ Fin.castSucc) u.1.1 (Λ (Fin.last ℓ)) u.1.2
   let := Module.Finite.trans (R := k) (A := factorAlgebra (Q := Q) Λ ν u) (M := b.top)
   let := (IndecClass.isGradedSimple_top b).isSimpleModule
-  obtain ⟨s,hs,hzero⟩ := exists_cornerHeadRestriction (𝒜 := 𝓐) ((q) u) ((ψ) u) V.carrier
+  obtain ⟨s,hs,hzero,hsub⟩ := exists_cornerHeadRestriction (𝒜 := 𝓐) ((q) u) ((ψ) u) V.carrier
     (RingCon.mkₐ_surjective _) b V.recover.some
-  refine ⟨s,hs,fun v h t => hzero _ (V.support v h t),fun a ha => hzero a fun x => ?_⟩
+  refine ⟨s,⟨hs,fun v h t => hzero _ (V.support v h t),fun a ha => hzero a fun x => ?_⟩,hsub⟩
   have h0 : (q) u a = 0 := by
     rw [← map_zero ((q) u)]
     exact RingCon.eq _ |>.2 ((TwoSidedIdeal.rel_iff _ _ _).2 (by rwa [sub_zero]))
   rw [h0]
   exact zero_smul ((C) u) x
+
+include hQ in
+private theorem headAtCut_exists (u : Cut) (b : IndecClass ((𝓑) u)) (V : LastRedInducedCut Λ ν G u b) :
+    ∃ s, HeadAtCut Λ ν G u b s :=
+  (exists_headAtCut_subquotient Λ ν G hQ u b V).imp fun _ h => h.1
 
 /-- Two heads at cuts with the same top have comparable black prefixes. -/
 theorem HeadAtCut.le {u v : Cut} {b : IndecClass ((𝓑) u)} {c : IndecClass ((𝓑) v)}
@@ -147,6 +157,18 @@ theorem HeadAtCut.le {u v : Cut} {b : IndecClass ((𝓑) u)} {c : IndecClass ((�
   have h := f.intertwines _ 1 ht x
   rw [one_smul,hz] at h
   exact hx (f.injective (h.symm.trans f.incl.map_zero.symm))
+
+/-- A concatenation lifting the sector idempotent of the cut of a head acts nonzero on its
+top. -/
+theorem HeadAtCut.exists_smul_ne_zero {u : Cut} {b : IndecClass ((𝓑) u)} {s : IndecClass 𝓐}
+    (hb : HeadAtCut Λ ν G u b s) (t : lastRedCutKLR (Q := Q) Λ ν u)
+    (ht : (q) u (lastRedCutConcat (Q := Q) Λ ν u t) = (ψ) u 1) :
+    ∃ x : s.top, lastRedCutConcat Λ ν u t • x ≠ 0 := by
+  let f := hb.1.some
+  let := (IndecClass.isGradedSimple_top b).nontrivial
+  obtain ⟨y,hy⟩ := exists_ne (0 : b.top)
+  refine ⟨f.incl y,fun h0 => hy (f.injective ?_)⟩
+  rw [map_zero,← h0,f.intertwines _ 1 ht y,one_smul]
 
 /-- An idempotent concatenation at the cut of a head acts nonzero on its top exactly when its
 image in the factor algebra acts nonzero on the top of the factor class. -/

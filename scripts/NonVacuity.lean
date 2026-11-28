@@ -13456,6 +13456,32 @@ end NonVacuityModuleCoevaluationThirteenth
 
 end NonVacuityModuleCoevaluationThirteenthSection
 
+namespace NonVacuity.WebsterSimpleUpResolution
+
+open Categorification Categorification.Stendhal KLR
+
+private noncomputable abbrev suParameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev suWeights : Fin 0 → Unit →₀ ℕ := Fin.elim0
+
+private noncomputable def suBlackGrade : GradingDatum suParameters where
+  degX _ := 0
+  degΨ _ _ := 0
+  degΨ_self _ := rfl
+  isWeightedHomogeneous a b h := (h (Subsingleton.elim a b)).elim
+
+private noncomputable def suGrade : GradingDatum (stendhalQ suParameters suWeights) :=
+  stendhalGradingDatum suWeights suBlackGrade (fun _ => 0) (fun _ => rfl)
+
+/-- Webster, arXiv:1309.3796v3, proof of Theorem 5.28, base case: with no black strands every
+simple top has a resolution in `C↑`. -/
+example := topsResolvable_vacuum suGrade
+
+/-- Webster, arXiv:1309.3796v3, proof of Theorem 5.28, base case: with no red strands and a
+nonzero black weight there are no simple tops. -/
+example := topsResolvable_noRed suGrade (ν := {()}) (by simp)
+
+end NonVacuity.WebsterSimpleUpResolution
+
 /-! A derived tensor fixing the regular bimodule is the identity (Webster Prop 7.22 gap (b)). -/
 section NonVacuityRegularSection
 open CategoryTheory DG DG.DerivedCategory MulOpposite Categorification

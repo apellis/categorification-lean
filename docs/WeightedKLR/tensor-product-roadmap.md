@@ -960,12 +960,26 @@ Thm 5.28 (v3; projective resolutions of simples in `C↑`) is in progress. Done:
 * external tensor products of resolutions in `C↑` (`GFin.UpResolution.extTensor`,
   `Algebra/Graded/UpResolutionTensor.lean`).
 
-Open: one red strand, and general `λ` by standardization. The printed one-red-strand step has a
+* general `λ` by standardization (`RedStrands/StandardHeadResolution.lean`): if the graded simple
+  tops over `T^{λ'}_θ` and over the cyclotomic `R^{λ_ℓ}_β` have resolutions in `C↑`, so do those
+  over `T^λ_ν` (`topsResolvable_of_factors`). Standardization is exact (`standardizationSES`),
+  has bounded projective dimension on projectives
+  (`exists_hasProjectiveDimensionLT_stdOf_projective`) and preserves `C↑`
+  (`exists_upResolution_standardizationGFin`); the simple at a cut is the head of the
+  standardization of a factor simple (`exists_headAtCut_isUngradedSubquotient`), and the head
+  lemma `GFin.exists_upResolution_of_head` applies by induction on the number of black strands
+  before the last red strand. With the base cases `topsResolvable_vacuum` and
+  `topsResolvable_noRed`, Thm 5.28 follows from its one-red-strand case
+  (`topsResolvable_of_cyclotomic`, explicit hypothesis `hcyc`). Extra hypothesis: nonnegative dot
+  degrees. These statements use the classical `DecidableEq I`, like the standard stratification
+  they rest on.
+
+Open: one red strand (`hcyc`, tracked for removal). The printed one-red-strand step has a
 gap: it claims that the other composition factors of `Ind(ẽ_i^a L ⊠ L(i^a)) ↠ L` are smaller than
 `L` in the string order, but for `sl_3` with `Λ = ω_i + ω_j` the module `F_j L(i)` has
 composition factors `L(ij)`, `L(ij){2}`, `L(ji){1}`, `L(ji){3}` and `F_i L(j)` contains `L(ij){1}`,
 so neither simple is smaller than the other. In this example the extra factors are positive
-shifts, which the bootstrapping lemma handles; a general argument is open.
+shifts, which the bootstrapping lemma handles; a general argument is being researched.
 
 Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is
 proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) = 0` when `t` is

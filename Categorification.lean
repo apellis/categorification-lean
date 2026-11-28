@@ -41,6 +41,7 @@ import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerBimoduleEnd
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerFaithfulEmbedding
+import Categorification.Algebra.CornerGeneratorTensor
 import Categorification.Algebra.CornerSelfDual
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorAdditive

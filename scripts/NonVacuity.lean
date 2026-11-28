@@ -3892,6 +3892,25 @@ example := parabolicStandardEndEquiv q w (0 : Multiset Unit) β qsymm factors
 
 end ParabolicInputs
 
+namespace StandardizationEndExamples
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.StendhalAlgebra
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+private def q := fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)
+private theorem qsymm : KLRSymm q := fun _ _ hab => (hab (Subsingleton.elim _ _)).elim
+private def w := fun _ : Fin 1 => Finsupp.single () 1
+private def blocks : Fin 2 → Multiset Unit := ![0, {()}]
+private theorem hα : RootNonViolated (ν := blockPrefix blocks 2) (blockRoot blocks) :=
+  rootNonViolated_blockRoot (ℓ := 1) (by decide) rfl
+/-- One red strand with one black strand to its right: standardization of the regular right
+module of the block algebra is bijective on endomorphisms, and the block action identifies the
+block algebra with `End(S^L_α)`. -/
+example := standardizationEndEquiv q qsymm w blocks rfl hα (BlockAlgebra ℚ q w blocks)
+example := bijective_leftBlockActionOf q w blocks hα qsymm rfl
+
+end StandardizationEndExamples
+
 namespace GradedParabolicShuffle
 
 open Categorification KLR KLRAlgebra Graded TypeA KLR.Unfurling

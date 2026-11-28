@@ -7,6 +7,7 @@ import Categorification.WeightedKLR.RedStrands.PrependRedInjective
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.KLR.CyclotomicSplit
+import Categorification.WeightedKLR.RedStrands.TildeLayerIso
 
 /-!
 # The block algebra fills the corner `S_α e_α`
@@ -337,5 +338,245 @@ theorem exists_rootAction_eq_blockAction (β : BlockAlgebra k Q Λ b) :
   exact ⟨c, hc, h.symm⟩
 
 end BlockSpanAction
+
+
+section ZeroAction
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {ℓ : ℕ} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
+
+/-- An element of the corner acting by zero on `S_α` lies in `U_α`. -/
+theorem val_mem_rootUpper_of_rootAction_eq_zero (α : Fin ℓ → I → ℕ)
+    (c : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ) (ν := ν) α).Corner)
+    (hc : rootAction Q Λ α c = 0) : c.val ∈ rootUpper (ν := ν) Q Λ α := by
+  have h := congrArg Subtype.val (LinearMap.congr_fun hc (rootStandardUnit Q Λ ν α))
+  change Submodule.Quotient.mk (c.val * rootIdem Q Λ α) =
+    (0 : StendhalAlgebra k Q Λ ν ⧸ rootUpper (ν := ν) Q Λ α) at h
+  rw [Submodule.Quotient.mk_eq_zero, KLR.Corner.val_mul_E] at h
+  exact h
+
+/-- **Proposition 5.26 for `b_0 = 0`, in right-module form**: every element of the corner acts
+on `S_α` through the block algebra. -/
+theorem exists_blockAction_eq_rootAction_of_zero (hQ : KLRSymm Q) {n : ℕ} (hn : 0 < n)
+    (Λ : Fin n → I →₀ ℕ) {b : Fin (n + 1) → Multiset I} {ν : Multiset I}
+    (hb : blockPrefix b (n + 1) = ν) (hb0 : b 0 = 0)
+    (c : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ) (ν := ν) (blockRoot b)).Corner) :
+    ∃ β, blockAction Q Λ hb β = rootAction Q Λ (blockRoot b) c := by
+  subst hb
+  have hα : RootNonViolated (ν := blockPrefix b (n + 1)) (blockRoot b) :=
+    rootNonViolated_blockRoot hn hb0
+  obtain ⟨β, hβ⟩ := (bijective_leftBlockActionOf Q Λ b hα hQ hb0).2
+    (rootReflectConj Q Λ hα (rootAction Q Λ (blockRoot b) c))
+  refine ⟨β, LinearMap.ext fun v => (rootReflectEquiv Q Λ hα).injective ?_⟩
+  have h := LinearMap.congr_fun hβ (rootReflectEquiv Q Λ hα v)
+  rw [leftBlockActionOf, AlgHom.comp_apply, rootReflectConj_apply, rootReflectConj_apply] at h
+  exact h
+
+end ZeroAction
+
+section Lift
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {ℓ : ℕ} {Λ : Fin (ℓ + 1) → I →₀ ℕ} {ν : Multiset I} {b : Fin (ℓ + 1) → Multiset I}
+  (G : GradingDatum (stendhalQ Q Λ)) (hb : blockPrefix b (ℓ + 1) = ν)
+
+local notation "T̃" => StendhalAlgebra k Q Λ ν
+local notation "T̃₀" => StendhalAlgebra k Q (Λ ∘ Fin.succ) ν
+local notation "φ" => prependRedStendhal Q Λ ν
+local notation "G₀" => restrictFirstRedGrading Q Λ G
+local notation "e'" => (rootIdem Q Λ (blockRoot (consBlocks b)) : T̃)
+local notation "eα" => (rootIdem Q (Λ ∘ Fin.succ) (blockRoot b) : T̃₀)
+
+omit [DecidableEq I] in
+theorem rootIdem_consBlocks [DecidableEq I] : e' = φ eα :=
+  (prependRedStendhal_rootIdem_of_eq (blockRoot_consBlocks b)).symm
+
+theorem exists_prependRed_eq_of_mem_closure {y : T̃}
+    (hy : y ∈ Submonoid.closure (blockGens G (blockPrefix_consBlocks_eq b hb))) :
+    ∃ x ∈ blockSpan G₀ hb, φ x = y * e' := by
+  induction hy using Submonoid.closure_induction with
+  | mem y hy =>
+    have hg := (blockGens_corner G (blockPrefix_consBlocks_eq b hb) hy).2
+    rw [hg]
+    obtain ⟨j, hj, d, a, -, rfl⟩ := hy
+    cases j with
+    | zero =>
+      obtain ⟨c, hc⟩ := KLRAlgebra.exists_eq_algebraMap_of_zero (Q := Q) (k := k) a
+      have ha : a = algebraMap k (KLRAlgebra k Q (consBlocks b ⟨0, hj⟩)) c := hc
+      rw [ha]
+      refine ⟨c • eα, Submodule.smul_mem _ c (rootIdem_mem_blockSpan G₀ hb), ?_⟩
+      rw [map_smul, ← rootIdem_consBlocks, Algebra.smul_def]
+      exact (congrArg Subtype.val
+        (algHom_commutes_of _ _ (blockHom Q Λ (blockPrefix_consBlocks_eq b hb) 0 hj) c)).symm
+    | succ j =>
+      refine ⟨(blockHom Q (Λ ∘ Fin.succ) hb j (Nat.lt_of_succ_lt_succ hj) a).val,
+        val_blockHom_mem_blockSpan G₀ hb _ _ a, Subtype.ext ?_⟩
+      exact ((prependBlockVal_apply b hb j _ a).symm.trans
+        ((prependBlockVal_eq b hb j _ a).trans (consBlockVal_apply b hb j _ a)))
+  | one => exact ⟨eα, rootIdem_mem_blockSpan G₀ hb, by rw [one_mul, rootIdem_consBlocks]⟩
+  | mul y z _ hz' hy hz =>
+    obtain ⟨x, hx, h⟩ := hy
+    obtain ⟨x', hx', h'⟩ := hz
+    refine ⟨x * x', mul_mem_blockSpan G₀ hb hx hx', ?_⟩
+    have hc := rootIdem_mul_comm_of_mem_closure G (blockPrefix_consBlocks_eq b hb) hz'
+    rw [map_mul, h, h', mul_assoc y, ← mul_assoc e' z e', hc, mul_assoc z,
+      (isIdempotentElem_rootIdem _).eq, mul_assoc]
+
+/-- **The block span lifts along adding the red strand**: every element of the block span for
+the blocks `0, b_0, …, b_ℓ` is the image of an element of the block span for `b`. -/
+theorem exists_prependRed_eq_of_mem_blockSpan {y : T̃}
+    (hy : y ∈ blockSpan G (blockPrefix_consBlocks_eq b hb)) :
+    ∃ x ∈ blockSpan G₀ hb, φ x = y := by
+  induction hy using Submodule.span_induction with
+  | mem y hy =>
+    obtain ⟨y, hy, rfl⟩ := hy
+    exact exists_prependRed_eq_of_mem_closure G hb hy
+  | zero => exact ⟨0, zero_mem _, map_zero _⟩
+  | add y z _ _ hy hz =>
+    obtain ⟨x, hx, h⟩ := hy
+    obtain ⟨x', hx', h'⟩ := hz
+    exact ⟨x + x', add_mem hx hx', by rw [map_add, h, h']⟩
+  | smul r y _ hy =>
+    obtain ⟨x, hx, h⟩ := hy
+    exact ⟨r • x, Submodule.smul_mem _ r hx, by rw [map_smul, h]⟩
+
+theorem prependRed_val_mem_corner
+    (c : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ ∘ Fin.succ) (ν := ν) (blockRoot b)).Corner) :
+    e' * φ c.val * e' = φ c.val := by
+  rw [rootIdem_consBlocks, ← map_mul, ← map_mul, KLR.Corner.E_mul_val, KLR.Corner.val_mul_E]
+
+/-- **The homogeneous case of the surjectivity in Proposition 5.26** (Webster,
+arXiv:1309.3796v3, proof of Proposition 5.26): if the grading of all red orders vanishes below
+`-c₀` and `⟨α_i^∨, λ₀⟩ deg x_i > n + 2c₀` for every black label `i`, every element of degree
+`n` of the corner `e_α T̃^λ e_α` acts on `S_α` through the block algebra. -/
+theorem exists_blockAction_eq_rootAction_of_mem_grade (hQ : KLRSymm Q) {c₀ n : ℤ}
+    (hc₀ : ∀ m < -c₀, allOrdersGrade G₀ ν m = ⊥)
+    (hΛ : ∀ i ∈ ν, n + 2 * c₀ < Λ 0 i * G.degX (.inl i))
+    (c : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ ∘ Fin.succ) (ν := ν) (blockRoot b)).Corner)
+    (hcn : c.val ∈ stendhalGrade G₀ ν n) :
+    ∃ β, blockAction Q (Λ ∘ Fin.succ) hb β = rootAction Q (Λ ∘ Fin.succ) (blockRoot b) c := by
+  classical
+  have hb' := blockPrefix_consBlocks_eq b hb
+  let c' : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ) (ν := ν)
+      (blockRoot (consBlocks b))).Corner := KLR.Corner.mk (φ c.val) (prependRed_val_mem_corner c)
+  obtain ⟨β', hβ'⟩ := exists_blockAction_eq_rootAction_of_zero hQ (Nat.succ_pos ℓ) Λ hb'
+    (consBlocks_zero b) c'
+  obtain ⟨w', hw', hβw'⟩ := exists_rootAction_eq_blockAction G hb' β'
+  obtain ⟨x, hx, hxw⟩ := exists_prependRed_eq_of_mem_blockSpan G hb hw'
+  have hU' : φ (c.val - x) ∈ rootUpper Q Λ (blockRoot (consBlocks b)) := by
+    have h0 : rootAction Q Λ (blockRoot (consBlocks b)) (c' - w') = 0 := by
+      rw [map_sub, ← hβ', hβw', sub_self]
+    have h1 := val_mem_rootUpper_of_rootAction_eq_zero _ _ h0
+    rwa [KLR.Corner.val_sub, KLR.Corner.val_mk, ← hxw, ← map_sub] at h1
+  generalize hyc : (c.1 : T̃₀) = y at hU' hcn
+  let φL : T̃₀ →ₗ[k] T̃ :=
+    { toFun := φ, map_add' := map_add φ, map_smul' := map_smul φ }
+  have hgr : PreservesGrading (stendhalGrade G₀ ν) (stendhalGrade G ν) φL :=
+    fun _ _ hz => prependRedStendhal_mem_grade Q Λ ν G hz
+  let xn : T̃₀ := decompose (stendhalGrade G₀ ν) x n
+  have hxn : xn ∈ blockSpan G₀ hb := isHomogeneousSubspace_blockSpan G₀ hb n x hx
+  have hcxn : y - xn ∈ stendhalGrade G₀ ν n :=
+    sub_mem hcn (decompose (stendhalGrade G₀ ν) x n).2
+  have hdc : (decompose (stendhalGrade G₀ ν) (y - x) n : T̃₀) = y - xn := by
+    have h1 := decompose_of_mem_same (stendhalGrade G₀ ν) hcn
+    have h2 := map_sub (GradedRing.proj (stendhalGrade G₀ ν) n) y x
+    simp only [GradedRing.proj_apply] at h2
+    rw [h2, h1]
+  have hU'n : φ (y - xn) ∈ rootUpper Q Λ (blockRoot (consBlocks b)) := by
+    have h := isHomogeneousSubspace_rootUpper Q ν G (blockRoot (consBlocks b)) n _ hU'
+    have h2 := decompose_map hgr (y - x) n
+    change (decompose (stendhalGrade G ν) (φ (y - x)) n : T̃) = φ _ at h2
+    rw [h2, hdc] at h
+    exact h
+  rw [blockRoot_consBlocks] at hU'n
+  have hU := mem_rootUpper_of_prependRedStendhal_mem Q Λ ν G hc₀ hΛ (blockRoot b) hcxn hU'n
+  let w : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ ∘ Fin.succ) (ν := ν) (blockRoot b)).Corner :=
+    KLR.Corner.mk xn (by
+      rw [rootIdem_mul_of_mem_blockSpan G₀ hb hxn, mul_rootIdem_of_mem_blockSpan G₀ hb hxn])
+  obtain ⟨β, hβ⟩ := exists_blockAction_eq_rootAction G₀ hb w hxn
+  refine ⟨β, hβ.trans ?_⟩
+  have h0 : rootAction Q (Λ ∘ Fin.succ) (blockRoot b) (w - c) = 0 := by
+    refine rootAction_eq_zero_of_mul_mem _ _ ?_
+    rw [KLR.Corner.val_mul_E, KLR.Corner.val_sub, KLR.Corner.val_mk]
+    change xn - c.1 ∈ _
+    rw [hyc, ← neg_sub]
+    exact neg_mem hU
+  rw [map_sub, sub_eq_zero] at h0
+  exact h0
+
+end Lift
+
+
+section Surjective
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {ℓ : ℕ} {Λ₀ : Fin ℓ → I →₀ ℕ} {ν : Multiset I} {b : Fin (ℓ + 1) → Multiset I}
+
+/-- **The corner acts through the block algebra** (Webster, arXiv:1309.3796v3, proof of
+Proposition 5.26, any first block `b_0`): for symmetric `Q` and a grading of `T̃^λ` in which
+dots have positive degree, every element of `e_α T̃^λ e_α` acts on `S_α` as an element of the
+block algebra `R(b_0) ⊗ R^{λ_1}(b_1) ⊗ ⋯ ⊗ R^{λ_ℓ}(b_ℓ)` of Proposition 5.3. A homogeneous
+element is compared with its image after adding a red strand `λ₀` on the left, large in its
+degree, where the first block is empty. -/
+theorem exists_blockAction_eq_rootAction_of_grading (hQ : KLRSymm Q)
+    (G' : GradingDatum (stendhalQ Q Λ₀)) (hG' : ∀ a, 0 < G'.degX a)
+    (hb : blockPrefix b (ℓ + 1) = ν)
+    (c : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ₀) (ν := ν) (blockRoot b)).Corner) :
+    ∃ β, blockAction Q Λ₀ hb β = rootAction Q Λ₀ (blockRoot b) c := by
+  classical
+  obtain ⟨c₀, hc₀⟩ := exists_allOrdersGrade_eq_bot G' ν (stendhalQ_symm Q Λ₀ hQ) hG'
+  have hhom : ∀ (n : ℤ)
+      (c : (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ₀) (ν := ν) (blockRoot b)).Corner),
+      c.1 ∈ stendhalGrade G' ν n → ∃ β, blockAction Q Λ₀ hb β = rootAction Q Λ₀ (blockRoot b) c := by
+    intro n c hcn
+    let N : ℕ := (n + 2 * c₀).toNat + 1
+    let l0 : I →₀ ℕ := N • Multiset.toFinsupp ν
+    have hres := restrict_extGrading Q Λ₀ l0 G'
+    have hΛ : ∀ i ∈ ν, n + 2 * c₀ < ((Fin.cons l0 Λ₀ : Fin (ℓ + 1) → I →₀ ℕ) 0 i : ℤ) *
+        (extGrading Q Λ₀ l0 G').degX (.inl i) := by
+      intro i hi
+      have h1 : N ≤ l0 i := by
+        change N ≤ N * Multiset.count i ν
+        exact Nat.le_mul_of_pos_right N (Multiset.count_pos.2 hi)
+      have h2 : 1 ≤ G'.degX (.inl i) := hG' _
+      change n + 2 * c₀ < (l0 i : ℤ) * G'.degX (.inl i)
+      have h3 : (N : ℤ) ≤ l0 i := by exact_mod_cast h1
+      have h4 : (l0 i : ℤ) ≤ l0 i * G'.degX (.inl i) :=
+        le_mul_of_one_le_right (Int.natCast_nonneg _) h2
+      have h5 : (N : ℤ) = ((n + 2 * c₀).toNat : ℤ) + 1 := by simp [N]
+      omega
+    exact exists_blockAction_eq_rootAction_of_mem_grade (Λ := Fin.cons l0 Λ₀)
+      (extGrading Q Λ₀ l0 G') hb hQ (hres ▸ hc₀) hΛ c (hres ▸ hcn)
+  have hE := rootIdem_mem_stendhalGrade (ν := ν) G' (blockRoot b)
+  have hce : (rootIdem (ν := ν) Q Λ₀ (blockRoot b)) * c.1 *
+      rootIdem (ν := ν) Q Λ₀ (blockRoot b) = c.1 := by
+    have h1 : (rootIdem (ν := ν) Q Λ₀ (blockRoot b)) * c.1 = c.1 :=
+      KLR.Corner.E_mul_val c
+    have h2 : c.1 * (rootIdem (ν := ν) Q Λ₀ (blockRoot b)) = c.1 :=
+      KLR.Corner.val_mul_E c
+    rw [h1, h2]
+  have hmem : ∀ n : ℤ, (rootIdem (ν := ν) Q Λ₀ (blockRoot b)) *
+      (decompose (stendhalGrade G' ν) c.1 n : StendhalAlgebra k Q Λ₀ ν) *
+      rootIdem (ν := ν) Q Λ₀ (blockRoot b) = decompose (stendhalGrade G' ν) c.1 n := by
+    intro n
+    rw [← decompose_mul_of_mem_zero_left _ hE, ← decompose_mul_of_mem_zero_right _ hE, hce]
+  let cn : ℤ → (isIdempotentElem_rootIdem (Q := Q) (Λ := Λ₀) (ν := ν) (blockRoot b)).Corner :=
+    fun n => KLR.Corner.mk _ (hmem n)
+  have hsum : c = ∑ n ∈ (decompose (stendhalGrade G' ν) c.1).support, cn n := by
+    apply KLR.Corner.ext
+    rw [KLR.Corner.val_sum]
+    exact (sum_support_decompose (stendhalGrade G' ν) c.1).symm
+  have hmemS : rootAction Q Λ₀ (blockRoot b) c ∈ (blockAction Q Λ₀ hb).range := by
+    rw [hsum, map_sum]
+    refine Subalgebra.sum_mem _ fun n _ => ?_
+    obtain ⟨β, hβ⟩ := hhom n (cn n) (decompose (stendhalGrade G' ν) c.1 n).2
+    exact ⟨β, hβ⟩
+  obtain ⟨β, hβ⟩ := hmemS
+  exact ⟨β, hβ⟩
+
+end Surjective
 
 end Categorification.Stendhal

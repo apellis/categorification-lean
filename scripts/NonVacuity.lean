@@ -13551,7 +13551,7 @@ open Categorification.Stendhal Categorification.Stendhal.QuantumDual
 
 noncomputable section
 
-private def A : Matrix Unit Unit ℤ := fun _ _ => 2
+private abbrev A : Matrix Unit Unit ℤ := LieLean.QuantumGroup.sl2Datum.cartanMatrix
 
 private theorem generalized : A.IsGeneralizedCartan where
   diag _ := rfl
@@ -13593,6 +13593,10 @@ private instance : Finite (P.weylGroup generalized) := by
     · simp_all [CoxeterSystem.wordProd_cons]
     · simp only [Bool.not_true, Bool.false_eq_true, ↓reduceIte, CoxeterSystem.wordProd_cons] at hb ⊢
       rw [← hb, CoxeterSystem.simple_mul_simple_self]
+
+private instance finiteWeylSl2 : Finite (P.weylGroup
+    (LieLean.QuantumGroup.sl2Datum).isGeneralizedCartan_cartanMatrix) :=
+  inferInstanceAs (Finite (P.weylGroup generalized))
 
 private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
   change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root

@@ -7,6 +7,11 @@ import Categorification.Algebra.BalancedTensorScalar
 import Categorification.Algebra.CornerCoinduced
 import Categorification.Algebra.CornerTwoStepCoefficient
 import Categorification.Algebra.CornerTwoStepMixedCoefficient
+import Categorification.Algebra.DGBimoduleTensorShift
+import Categorification.Algebra.DGBimoduleTruncation
+import Categorification.Algebra.DGDerivedTensorIsoIdModuleCat
+import Categorification.Algebra.DGDerivedTensorIsoIdOfRegular
+import Categorification.Algebra.DGDerivedTensorQuasiIso
 import Categorification.Algebra.DegreewiseTensor
 import Categorification.Algebra.DegreewiseTensorElements
 import Categorification.Algebra.DerivedRightTensorDualAdjunction
@@ -19,6 +24,8 @@ import Categorification.Algebra.DerivedTensorCompCommShift
 import Categorification.Algebra.DerivedTensorComparisonNatural
 import Categorification.Algebra.DerivedTensorDualAdjunction
 import Categorification.Algebra.DerivedTensorInducedVanishing
+import Categorification.Algebra.DerivedTensorIsoIdOfGenerators
+import Categorification.Algebra.DerivedTensorIsoIdOfSummands
 import Categorification.Algebra.DerivedTensorMateAssembly
 import Categorification.Algebra.DerivedTensorStratifyingQuotient
 import Categorification.Algebra.DerivedTensorSyzygyChain
@@ -48,6 +55,7 @@ import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerBimoduleEnd
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerFaithfulEmbedding
+import Categorification.Algebra.CornerLocalization
 import Categorification.Algebra.CornerGeneratorTensor
 import Categorification.Algebra.CornerSelfDual
 import Categorification.Algebra.CornerTensor
@@ -107,6 +115,7 @@ import Categorification.Algebra.MapDerivedNatTransLinear
 import Categorification.Algebra.MapDerivedNatTransTriple
 import Categorification.Algebra.MapDerivedSigma
 import Categorification.Algebra.OrderedStandardExt
+import Categorification.Algebra.OrthogonalIdempotentRangeIntertwine
 import Categorification.Algebra.OrthogonalIdempotentRangeSum
 import Categorification.Algebra.ProjectiveKProjective
 import Categorification.Algebra.RCornerTwoStepCoefficient
@@ -272,6 +281,7 @@ import Categorification.Diagrams.BicatInterpMirror
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush
+import Categorification.Diagrams.CLQ.CyclicDown
 import Categorification.Diagrams.CLQ.Decompositions
 import Categorification.Diagrams.CLQ.RouquierInversion
 import Categorification.Diagrams.CLQ.RouquierInversionUp
@@ -882,7 +892,10 @@ import Categorification.WeightedKLR.RedStrands.BlackRouqSigmaQ
 import Categorification.WeightedKLR.RedStrands.BlackRouqSlides
 import Categorification.WeightedKLR.RedStrands.BlackRouqThreeStrand
 import Categorification.WeightedKLR.RedStrands.BlackRouqVacuum
+import Categorification.WeightedKLR.RedStrands.BlackRouqVacuumImage
 import Categorification.WeightedKLR.RedStrands.BlackRouqWeight
+import Categorification.WeightedKLR.RedStrands.BlackRouqWordBlocks
+import Categorification.WeightedKLR.RedStrands.BlackVacuumBlockFunctor
 import Categorification.WeightedKLR.RedStrands.BlocksMidBotCorner
 import Categorification.WeightedKLR.RedStrands.BlocksStandardBasis
 import Categorification.WeightedKLR.RedStrands.BlocksStandardRows
@@ -988,6 +1001,10 @@ import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
 import Categorification.WeightedKLR.RedStrands.RedOrderedConcat
 import Categorification.WeightedKLR.RedStrands.SingStdStandardBasis
 import Categorification.WeightedKLR.RedStrands.SingStdTensorRepresented
+import Categorification.WeightedKLR.RedStrands.SingleRedBlackInductionIdeal
+import Categorification.WeightedKLR.RedStrands.SingleRedBlackVacuumIsoId
+import Categorification.WeightedKLR.RedStrands.SingleRedBlackVacuumWords
+import Categorification.WeightedKLR.RedStrands.SingleRedDerivedTensorIsoId
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicTerminalSymmetric
@@ -1107,6 +1124,8 @@ import Categorification.QuantumGroup.UDotSerreF
 import Categorification.QuantumGroup.UDotSigmaTau
 import Categorification.QuantumGroup.UDotSymm
 import Categorification.QuantumGroup.UDotWords
+import Categorification.TensorProductCategorification.CategoricalAction
+import Categorification.TensorProductCategorification.StandardlyStratified
 import Categorification.TwoRep.AdjointInduction
 import Categorification.TwoRep.AdjointInductionNeg
 import Categorification.TwoRep.AdjointInductionNegCor
@@ -1538,6 +1557,8 @@ import Categorification.WeightedKLR.Rigidity.CupCapProp721DotDirectTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721DotMateDirect
 import Categorification.WeightedKLR.Rigidity.CupCapProp721DotMatePlus
 import Categorification.WeightedKLR.Rigidity.CupCapProp721FCrossDegreewise
+import Categorification.WeightedKLR.Rigidity.CupCapProp721FDotCyclic
+import Categorification.WeightedKLR.Rigidity.CupCapProp721FDotTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721FMixedCrossDegreewise
 import Categorification.WeightedKLR.Rigidity.CupCapProp721Induced
 import Categorification.WeightedKLR.Rigidity.CupCapProp721MateTransport
@@ -1551,6 +1572,9 @@ import Categorification.WeightedKLR.Rigidity.CupCapProp721PackagedAdjunctionEF
 import Categorification.WeightedKLR.Rigidity.CupCapProp721QuantumTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721ResIndCounit
 import Categorification.WeightedKLR.Rigidity.CupCapProp721ResIndTrace
+import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceCyclic
+import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceCyclicAction
+import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceCyclicMat
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceShiftCross
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceShiftCrossDirect
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceShiftCrossing
@@ -1587,6 +1611,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapTraceCutTopOneIntertwine
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutTopOneLabels
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutTopOneRelabel
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowCornerEquiv
+import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowCutCorner
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowDevissage
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowFilt
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowIdentity
@@ -1595,7 +1620,15 @@ import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowLayerEnd
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowLoading
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowResSum
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowStdCorner
+import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowSumEquiv
+import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowTop
 import Categorification.WeightedKLR.Rigidity.CutLoadingLayerMap
+import Categorification.WeightedKLR.Rigidity.QuantumCoevaluation
+import Categorification.WeightedKLR.Rigidity.QuantumCupCapTensor
+import Categorification.WeightedKLR.Rigidity.QuantumDualTwist
+import Categorification.WeightedKLR.Rigidity.QuantumIrreducibleFinite
+import Categorification.WeightedKLR.Rigidity.QuantumLowestVector
+import Categorification.WeightedKLR.Rigidity.QuantumTracePairing
 import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationWrapHyp
 import Categorification.WeightedKLR.Rigidity.SMoveCutParabolic
 import Categorification.WeightedKLR.Rigidity.SMoveDiagonalCoefficientCovers

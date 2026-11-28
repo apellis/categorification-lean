@@ -13481,3 +13481,228 @@ nonzero black weight there are no simple tops. -/
 example := topsResolvable_noRed suGrade (ν := {()}) (by simp)
 
 end NonVacuity.WebsterSimpleUpResolution
+
+/-! A derived tensor fixing the regular bimodule is the identity (Webster Prop 7.22 gap (b)). -/
+section NonVacuityRegularSection
+open CategoryTheory DG DG.DerivedCategory MulOpposite Categorification
+open scoped DG.DegreeZero
+
+noncomputable section
+
+/-- The regular bimodule `T` satisfies the hypotheses with `φ` the canonical iso. -/
+example (T : Type) [Ring T] [HasDerivedCategory.{0, 0} T] :
+    dgDerivedTensor.{0} T T T ≅ 𝟭 _ :=
+  dgDerivedTensorIsoIdOfRegularIso (X := T) (dgDerivedTensorRegularObjIso T) fun t =>
+    (dgDerivedTensorRegularObjIso_rightMul (X := T) t).trans
+      (congrArg (fun g => (dgDerivedTensorRegularObjIso T).hom ≫ Q.map g)
+        (DGModuleCat.hom_ext_apply fun x => op_smul_eq_mul t x))
+
+instance : DG.HasDerivedCategory.{0, 0} ℚ := DG.HasDerivedCategory.small ℚ
+
+example : dgDerivedTensor.{0} ℚ ℚ ℚ ≅ 𝟭 _ :=
+  dgDerivedTensorIsoIdOfRegularIso (X := ℚ) (dgDerivedTensorRegularObjIso ℚ) fun t =>
+    (dgDerivedTensorRegularObjIso_rightMul (X := ℚ) t).trans
+      (congrArg (fun g => (dgDerivedTensorRegularObjIso ℚ).hom ≫ Q.map g)
+        (DGModuleCat.hom_ext_apply fun x => op_smul_eq_mul t x))
+
+end
+
+end NonVacuityRegularSection
+
+/-! Uniqueness of derived tensors fixing the vacuum, one red strand (Webster Prop 7.22). -/
+section NonVacuityVacuumUniquenessSection
+open CategoryTheory CategoryTheory.Limits MulOpposite Categorification DG.DegreeZero
+open scoped DG.DegreeZero
+
+attribute [local instance] tensorFunctorSignCommShift homotopyTensorFunctorSignCommShift
+
+noncomputable section
+
+/-- The bridge with `X = T`, `S' = 𝟭` and `φ` the identity, for any ring. -/
+example (T : Type) [Ring T] [DG.HasDerivedCategory.{0, 0} T]
+    [HasDerivedCategory.{0} (ModuleCat.{0} T)] :
+    𝟭 (DerivedCategory (ModuleCat.{0} T)) ≅ 𝟭 _ :=
+  derivedTensorIsoIdOfRegularIsoModuleCat (X := T) (𝟭 _)
+    (Functor.isoWhiskerRight (dgDerivedTensorRegularIso T) _ ≪≫ Functor.leftUnitor _ ≪≫
+      (Functor.rightUnitor _).symm)
+    (Iso.refl _) fun _ => by simp
+
+/-- The one-red-strand theorem with `S' = Φ = 𝟭`, `p 𝐢 = e(𝐢) T^λ_ν`, `κ` the identity and
+`hgen` discharged by the identity functor, for arbitrary data. -/
+example {I : Type} [DecidableEq I] {k : Type} [CommRing k]
+    (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin 1 → I →₀ ℕ) (ν : Multiset I)
+    [DG.HasDerivedCategory.{0, 0} (Stendhal.TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ]
+    [HasDerivedCategory.{0} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ)] :
+    𝟭 (DerivedCategory (ModuleCat.{0} (Stendhal.TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ)) ≅ 𝟭 _ :=
+  Stendhal.SingleRed.derivedTensorIsoIdOfVacuum Q Λ ν
+    (X := (Stendhal.TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ) (𝟭 _)
+    (Functor.isoWhiskerRight (dgDerivedTensorRegularIso _) _ ≪≫ Functor.leftUnitor _ ≪≫
+      (Functor.rightUnitor _).symm)
+    (𝟭 _) (Functor.rightUnitor _)
+    (fun s => (DerivedCategory.singleFunctor _ 0).obj
+      (ModuleCat.of _ (idemLeftIdeal (Stendhal.SingleRed.redFirstIdem Q Λ ν s))))
+    (fun _ => Iso.refl _) (fun c _ a b => ⟨(DerivedCategory.singleFunctor _ 0).map
+      (ModuleCat.ofHom (idemRightMul _ _ c (Stendhal.SingleRed.redFirstIdem_isIdempotentElem
+        _ _ _ b))), by simp⟩)
+
+attribute [local instance] DG.HasDerivedCategory.small in
+attribute [local instance] DerivedCategory.smallModuleCat in
+/-- A concrete instance: one colour, `k = ℚ`, `Q = 0`, `λ = 2ϖ`, one black strand. -/
+example : 𝟭 (DerivedCategory (ModuleCat.{0}
+      (Stendhal.TensorProductAlgebra ℚ (fun _ _ : Unit => 0) (fun _ : Fin 1 => Finsupp.single () 2)
+        ({()} : Multiset Unit))ᵐᵒᵖ)) ≅ 𝟭 _ :=
+  Stendhal.SingleRed.derivedTensorIsoIdOfVacuum _ _ _
+    (X := (Stendhal.TensorProductAlgebra ℚ (fun _ _ : Unit => 0) (fun _ : Fin 1 => Finsupp.single () 2)
+        ({()} : Multiset Unit))ᵐᵒᵖ) (𝟭 _)
+    (Functor.isoWhiskerRight (dgDerivedTensorRegularIso _) _ ≪≫ Functor.leftUnitor _ ≪≫
+      (Functor.rightUnitor _).symm)
+    (𝟭 _) (Functor.rightUnitor _)
+    (fun s => (DerivedCategory.singleFunctor _ 0).obj
+      (ModuleCat.of _ (idemLeftIdeal (Stendhal.SingleRed.redFirstIdem _ _ _ s))))
+    (fun _ => Iso.refl _) (fun c _ a b => ⟨(DerivedCategory.singleFunctor _ 0).map
+      (ModuleCat.ofHom (idemRightMul _ _ c (Stendhal.SingleRed.redFirstIdem_isIdempotentElem
+        _ _ _ b))), by simp⟩)
+
+end
+
+end NonVacuityVacuumUniquenessSection
+
+/-! Quantum coevaluation and trace of `V_μ` on `sl₂` (Webster §7.1). -/
+section NonVacuityQuantumCoevSection
+/-! Non-vacuity examples for the quantum coevaluation and trace (sl₂, `μ = 2ϖ`, `w₀ = s`). -/
+
+namespace NonVacuity.QuantumCoevaluation
+
+open Categorification.Stendhal Categorification.Stendhal.QuantumDual
+
+noncomputable section
+
+private abbrev A : Matrix Unit Unit ℤ := LieLean.QuantumGroup.sl2Datum.cartanMatrix
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+private theorem longest : ∀ i, (P.coxeterSystem generalized).IsLeftDescent
+    ((P.coxeterSystem generalized).wordProd ([()] : List Unit).reverse) i := by
+  intro i
+  cases i
+  simp [CoxeterSystem.IsLeftDescent, CoxeterSystem.length_simple]
+
+private instance : Finite (P.weylGroup generalized) := by
+  refine Finite.of_surjective
+    (fun b : Bool => if b then (P.coxeterSystem generalized).simple () else 1) ?_
+  intro x
+  obtain ⟨l, rfl⟩ := (P.coxeterSystem generalized).wordProd_surjective x
+  induction l with
+  | nil => exact ⟨false, by simp⟩
+  | cons a l ih =>
+    obtain ⟨b, hb⟩ := ih
+    refine ⟨!b, ?_⟩
+    cases a
+    cases b
+    · simp_all [CoxeterSystem.wordProd_cons]
+    · simp only [Bool.not_true, Bool.false_eq_true, ↓reduceIte, CoxeterSystem.wordProd_cons] at hb ⊢
+      rw [← hb, CoxeterSystem.simple_mul_simple_self]
+
+private instance finiteWeylSl2 : Finite (P.weylGroup
+    (LieLean.QuantumGroup.sl2Datum).isGeneralizedCartan_cartanMatrix) :=
+  inferInstanceAs (Finite (P.weylGroup generalized))
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private abbrev μ : LieLean.QuantumGroup.GrandLoop.Dom LieLean.QuantumGroup.sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun i => by cases i; change (0 : ℤ) ≤ 2 * 1; norm_num⟩
+
+private theorem hmatch : ∀ j, (weight : Module.Dual ℝ _) (P.coroot j) =
+    ((μ.1 (LieLean.QuantumGroup.sl2RootDatum.coroot j) : ℤ) : ℝ) := fun i => by
+  cases i
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+example := finiteDimensional_irreducible (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := eq_smul_quantumTrace_of_invariant (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+example := quantumTrace_lowest_hwv (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := evaluationPairing_lowest_hwv (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := coevaluationElement_smul (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := contraction_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+example := contractionRight_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+example := eq_smul_coevaluationElement_of_invariant (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()]
+  reduced longest
+
+example := tensorForm_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+/-- `id ⊗ qtr_μ ⊗ id` from `V_μ ⊗ V_{μ*} ⊗ V_μ` to `V_μ` (`k = 0`, `m = 1`). -/
+example := intertwines_tensorQuantumTrace (k := 0) (m := 1) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch
+  [()] reduced longest Fin.elim0 ![μ, dualWeight P μ weight dominant hmatch [()] reduced longest, μ]
+  ![μ] (fun i => i.elim0) rfl rfl (fun i => by fin_cases i; rfl)
+
+/-- `id ⊗ coev_μ ⊗ id` from `V_μ` to `V_μ ⊗ V_μ ⊗ V_{μ*}` (`k = 1`, `m = 0`). -/
+example := intertwines_tensorCoevaluation (k := 1) (m := 0) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch
+  [()] reduced longest Fin.elim0 ![μ, μ, dualWeight P μ weight dominant hmatch [()] reduced longest]
+  ![μ] (fun i => by fin_cases i; rfl) rfl rfl (fun i => i.elim0)
+
+end
+
+end NonVacuity.QuantumCoevaluation
+
+end NonVacuityQuantumCoevSection
+
+/-! Symmetry of the trace of `Res ⊣ Ind` against cyclic 2-morphisms (Webster Prop 7.21). -/
+section NonVacuityTraceCyclicSection
+open CategoryTheory Categorification Categorification.Stendhal.CupCap
+
+/-- `unit_map_counit_comm_of_cyclic` with every hypothesis proved: the identity adjunction on
+`Type`, which is its own inverse adjunction, and `θ = 𝟙`. -/
+example (X : Type) (w : X ⟶ X) :=
+  unit_map_counit_comm_of_cyclic (Adjunction.id : 𝟭 Type ⊣ 𝟭 Type) Adjunction.id (𝟙 _)
+    (by simp) X w
+
+/-- `transport_commute` with every hypothesis proved: `φ = id`, `a = c = id`, `c₀ = 1`. -/
+example : (RingEquiv.refl ℤ) 1 * (NonUnitalRingHom.id ℤ) 1 =
+    (NonUnitalRingHom.id ℤ) 1 * (RingEquiv.refl ℤ) 1 :=
+  transport_commute (φ := NonUnitalRingHom.id ℤ) (φ' := NonUnitalRingHom.id ℤ)
+    (RingEquiv.refl ℤ) (RingEquiv.refl ℤ) (fun _ => rfl) (c₀ := 1) (fun t => by simp) 1
+
+/-- `conjugateEquiv_revAdjunction` with every hypothesis proved, in the bicategory of
+categories, for the identity adjunction. -/
+example (C : Cat.{0, 0}) (α : 𝟙 C ⟶ 𝟙 C) :
+    Bicategory.conjugateEquiv (RevBicat.adjunction (Bicategory.Adjunction.id C))
+        (RevBicat.adjunction (Bicategory.Adjunction.id C)) α =
+      (Bicategory.conjugateEquiv (Bicategory.Adjunction.id C)
+        (Bicategory.Adjunction.id C)).symm α :=
+  conjugateEquiv_revAdjunction _ _ α
+
+end NonVacuityTraceCyclicSection

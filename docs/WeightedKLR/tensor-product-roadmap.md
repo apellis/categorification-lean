@@ -952,10 +952,20 @@ Thm 5.28 (v3; projective resolutions of simples in `C↑`) is in progress. Done:
   by dot polynomials times `e_{i,m}`, and `1` splits through `e_{i,m}`, so every finite-dimensional
   graded module has a resolution in `C↑` (`CycKLR.exists_upResolution_of_forall`,
   `KLR/NilHeckeCornerPositivity.lean`). Only the positivity of the corner is used; it is not
-  identified with the cohomology ring of a Grassmannian.
+  identified with the cohomology ring of a Grassmannian;
+* resolutions by resolved modules: if `⋯ → X_1 → X_0 → N` is exact and each `X_n` has a
+  resolution in `C↑` with constant `c - n`, so does `N` (`GFin.UpResolution.ofResolution`,
+  `Algebra/Graded/UpResolutionTotal.lean`; the total complex used with Cor 5.24 in the general
+  case);
+* external tensor products of resolutions in `C↑` (`GFin.UpResolution.extTensor`,
+  `Algebra/Graded/UpResolutionTensor.lean`).
 
-Open: one red strand (cyclotomic induction of `ẽ_i^a L ⊠ L(i^a)`, KL I Lemma 3.9), and general `λ`
-by standardization.
+Open: one red strand, and general `λ` by standardization. The printed one-red-strand step has a
+gap: it claims that the other composition factors of `Ind(ẽ_i^a L ⊠ L(i^a)) ↠ L` are smaller than
+`L` in the string order, but for `sl_3` with `Λ = ω_i + ω_j` the module `F_j L(i)` has
+composition factors `L(ij)`, `L(ij){2}`, `L(ji){1}`, `L(ji){3}` and `F_i L(j)` contains `L(ij){1}`,
+so neither simple is smaller than the other. In this example the extra factors are positive
+shifts, which the bootstrapping lemma handles; a general argument is open.
 
 Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is
 proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) = 0` when `t` is

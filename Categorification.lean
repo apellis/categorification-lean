@@ -1116,8 +1116,8 @@ import Categorification.QuantumGroup.UDotSerreF
 import Categorification.QuantumGroup.UDotSigmaTau
 import Categorification.QuantumGroup.UDotSymm
 import Categorification.QuantumGroup.UDotWords
-import Categorification.TensorProductCategorification.StandardlyStratified
 import Categorification.TensorProductCategorification.CategoricalAction
+import Categorification.TensorProductCategorification.StandardlyStratified
 import Categorification.TwoRep.AdjointInduction
 import Categorification.TwoRep.AdjointInductionNeg
 import Categorification.TwoRep.AdjointInductionNegCor

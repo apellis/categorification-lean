@@ -2988,6 +2988,7 @@ import Categorification.WeightedKLR.RedStrands.GradedBraidingBimodule
 import Categorification.WeightedKLR.RedStrands.GradedRightStandard
 import Categorification.WeightedKLR.RedStrands.GradedRightStandardModule
 import Categorification.WeightedKLR.RedStrands.GradedStandardization
+import Categorification.WeightedKLR.RedStrands.GradedStandardizationExact
 import Categorification.WeightedKLR.RedStrands.GradedTwoPieceStandard
 import Categorification.WeightedKLR.RedStrands.HalfTwistCokernel
 import Categorification.WeightedKLR.RedStrands.HalfTwistCorner

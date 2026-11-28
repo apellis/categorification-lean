@@ -59,12 +59,13 @@ theorem rightAdjointShiftCommIso_whisker [HasShift A₁ ℤ] [HasShift A₂ ℤ]
     [FA'.CommShift ℤ] (adj₁ : K₁ ⊣ T₁) (adj₂ : K₂ ⊣ T₂) (adjA : EA ⊣ FA)
     (adjB : EB ⊣ FB) (adjA' : EA' ⊣ FA') (adjB' : EB' ⊣ FB') (c : K₁ ⋙ EB ≅ EA ⋙ K₂)
     (c' : K₁ ⋙ EB' ≅ EA' ⋙ K₂) {α : EA ⟶ EA'} {β : EB ⟶ EB'}
-    [NatTrans.CommShift (conjugateEquiv adjA' adjA α) ℤ]
+    (hα : NatTrans.CommShift (conjugateEquiv adjA' adjA α) ℤ)
     (h : Functor.whiskerLeft K₁ β ≫ c'.hom = c.hom ≫ Functor.whiskerRight α K₂) (n : ℤ) :
     Functor.whiskerRight (conjugateEquiv adjB' adjB β) (T₁ ⋙ shiftFunctor A₁ n) ≫
         (rightAdjointShiftCommIso adj₁ adj₂ adjA adjB c n).hom =
       (rightAdjointShiftCommIso adj₁ adj₂ adjA' adjB' c' n).hom ≫
         Functor.whiskerLeft (T₂ ⋙ shiftFunctor A₂ n) (conjugateEquiv adjA' adjA α) := by
+  have := hα
   have key := rightAdjointCommIso_whisker adj₁ adj₂ adjA adjB adjA' adjB' c c' h
   ext x
   have k' := congrArg (fun t => NatTrans.app t x) key

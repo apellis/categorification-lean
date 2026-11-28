@@ -13005,3 +13005,209 @@ example := standardizationMap_bijective qsymm grading dots (b := blocks)
   (BlockAlgebra ℚ q w blocks) (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
 
 end NonVacuity.WebsterRootStandardEnd
+
+/-! Webster Prop 7.22 (c) for the coevaluation heads on the `sl₂` datum. -/
+section NonVacuitySMoveCoevaluationTor
+open Categorification CategoryTheory QuantumGroup KLR Stendhal
+
+noncomputable section
+
+namespace SMoveCoevaluationTor
+
+attribute [local instance] ModuleCat.moduleOfAlgebraModule
+  ModuleCat.isScalarTower_of_algebra_moduleCat
+
+private theorem rouquierZero :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private abbrev datum := UDot.sl2RootDatum
+
+private theorem regular : (CycKLR.projectiveRootDatum datum).IsXRegular := by
+  change LinearIndependent ℤ (CycKLR.projectiveRootDatum datum).root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  change (1 : ℤ) * 2 = 0 at hh
+  omega
+
+private theorem dominantTwo : ∀ i, ((2 : ℕ) : ℤ) = datum.pair (datum.iY i) 2 := by
+  intro i
+  change 2 = (1 : ℤ) * 2
+  decide
+
+private def A : Matrix Unit Unit ℤ := fun _ _ => 2
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private theorem finiteCartan : A.IsFiniteCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+  exists_posDef := by
+    refine ⟨fun _ => 1, fun _ => one_pos, ?_⟩
+    have h : Matrix.diagonal (fun _ : Unit => (1 : ℤ)) * A = Matrix.diagonal fun _ => 2 := by
+      ext i j
+      cases i; cases j
+      simp [A, Matrix.mul_apply]
+    rw [h, Matrix.posDef_diagonal_iff]
+    intro _
+    norm_num
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+
+private abbrev P' :
+    Matrix.Realization (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)).toLusztig.cartanMatrix
+    ℝ (Matrix.Realization.StdSpace A ℝ) := P
+
+private instance : Finite (P'.weylGroup
+    (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)).toLusztig.isGeneralizedCartan_cartanMatrix) :=
+  P.finite_weylGroup finiteCartan
+
+private abbrev ν : Multiset Unit :=
+  KLR.KLRAlgebra.expandDiv (coevaluationDividedWord
+    (P'.cartanDatum
+      (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)).toLusztig.isGeneralizedCartan_cartanMatrix)
+    (weight : P'.integralWeights) [()])
+
+private abbrev Ξ : Fin (1 + (1 + 1)) → Unit →₀ ℕ :=
+  SMove.sMoveCoevaluationLabels (fun _ => 2) datum 2 ν
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Proposition 7.22 (c) for the coevaluation heads, in type `A₁`
+with `λ = 2ϖ` (the coevaluation word `[(i, 2)]` of `w₀ = s_i`) and red labels `(λ, λ*, λ)`:
+the S-move Tor of the coevaluation heads at `λ*` and `λ` is `k` in degree `-|ν|` and zero in
+every other degree. Every hypothesis is discharged: Rouquier `Q`, the labels, the finite Weyl
+group, dominance, the reduced expression of `w₀`, the derived-category and Ext instances. -/
+example :=
+  letI := DG.HasDerivedCategory.standard (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (Ξ ∘ Fin.cast (Nat.add_assoc 1 1 1)) ν)
+  letI := DG.HasDerivedCategory.standard ℤ
+  letI := DG.HasDerivedCategory.standard (BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+    (Λ := Ξ ∘ Fin.cast (Nat.add_assoc 1 1 1)) (ν := ν)
+    (List.map (1 : Equiv.Perm (Fin (1 + 1 + 1))) (List.finRange (1 + 1 + 1))))
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (Ξ ∘ Fin.natAdd 1) ν))
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) datum 2 ν) ν))
+  (SMove.derivedTensorHomology_reflect_coevaluationHead_one_dimensional
+    rouquierZero (fun _ => 2) datum 2 dominantTwo regular P weight [()] Ξ
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) rouquierZero.klrSymm
+    (SMove.sMoveCoevaluationLabels_natAdd (fun _ => 2) datum 2 dominantTwo ν _
+      (SMove.coe_expandDiv_dualCoevaluationDividedWord
+        (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) P weight [()]))
+    (SMove.rightLabels_sMoveCoevaluationLabels (fun _ => 2) datum 2 ν)
+    dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) : Nonempty _ ∧ _)
+
+end SMoveCoevaluationTor
+
+end
+
+end NonVacuitySMoveCoevaluationTor
+
+/-! Mixed inversion, mixed square and dot slides of the derived black Rouquier family. -/
+section NonVacuityBlackMixedTenthSection
+open Categorification CategoryTheory QuantumGroup UDot KLR KLR.Unfurling Stendhal
+
+namespace NonVacuityBlackMixedTenth
+
+/- The library statements are stated over an arbitrary colour type, with classical
+decidability; instantiate them in the same way. -/
+attribute [local instance 2000] Classical.propDecidable
+
+/-- One arrow `false → true`. -/
+noncomputable def arr : Bool → Bool → ℕ := fun a b => if a = false ∧ b = true then 1 else 0
+
+private theorem oneArrowParameters :
+    KLR.IsRouquierQ (coverCartan arr) (unfQ (k := ZMod 2) arr) where
+  symm i j hij := (unfQ_klrSymm arr i j hij).symm
+  homogeneous i j hij := by
+    rw [coverCartan_dot_self, coverCartan_dot_self, coverCartan_dot_of_ne arr hij]
+    have hh := (unfGrading (k := ZMod 2) arr).isWeightedHomogeneous i j hij
+    change (unfQ (k := ZMod 2) arr i j).IsWeightedHomogeneous ![(2 : ℤ), 2]
+      ((if i = j then -2 else 2 * (arr j i : ℤ)) + (if j = i then -2 else 2 * (arr i j : ℤ)))
+      at hh
+    rw [ite_eq_right hij, ite_eq_right hij.symm] at hh
+    convert hh using 1
+    push_cast
+    ring
+  unit_coeff i j hij := KLR.isUnit_extremalCoeff _ (unfQ_klrSymm arr)
+    (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
+
+/-- One red strand, labelled by the fundamental weight of `true`. -/
+noncomputable def lam : Fin 1 → Bool →₀ ℕ := fun _ => Finsupp.single true 1
+
+/-- Derived categories of module categories, by the standard construction. -/
+@[instance_reducible] noncomputable def standardDerived (R : Type) [Ring R] :
+    HasDerivedCategory (ModuleCat.{0} R) :=
+  HasDerivedCategory.standard _
+
+attribute [local instance] standardDerived
+
+/-- Mixed inversion for Webster's derived action, with the empty set of adjoined relations
+(Theorem 4.30 holds vacuously for it) and `Λ₀ = λ` in the coordinate datum. -/
+example := blackRouqFamily_mixedInversion (Λ := lam) (C := coverCartan arr)
+  (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+
+/-- The mixed quadratic relation on weight spaces, for the distinct colours `true ≠ false`. -/
+example {x y z t : Bool ⊕ Fin 1 → ℤ}
+    (h₁ : x + (coordinateDatum lam (coverCartan arr)).iX false = y)
+    (h₂ : y + (coordinateDatum lam (coverCartan arr)).iX true = t)
+    (h₃ : x + (coordinateDatum lam (coverCartan arr)).iX true = z)
+    (h₄ : z + (coordinateDatum lam (coverCartan arr)).iX false = t) :=
+  blackRouqCross_mixed_square lam oneArrowParameters (coordinateDatum lam (coverCartan arr))
+    (coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr) true false (by simp)
+    h₁ h₂ h₃ h₄
+
+/-- The two mixed dot slides on weight spaces. -/
+example {x y z t : Bool ⊕ Fin 1 → ℤ}
+    (h₁ : x + (coordinateDatum lam (coverCartan arr)).iX false = y)
+    (h₂ : y + (coordinateDatum lam (coverCartan arr)).iX true = t)
+    (h₃ : x + (coordinateDatum lam (coverCartan arr)).iX true = z)
+    (h₄ : z + (coordinateDatum lam (coverCartan arr)).iX false = t) :=
+  And.intro
+    (blackRouqCross_mixed_slide_left lam oneArrowParameters
+      (coordinateDatum lam (coverCartan arr)) (coordinateHighest lam (coverCartan arr))
+      (unfQ_klrSymm arr) true false (by simp) h₁ h₂ h₃ h₄)
+    (blackRouqCross_mixed_slide_right lam oneArrowParameters
+      (coordinateDatum lam (coverCartan arr)) (coordinateHighest lam (coverCartan arr))
+      (unfQ_klrSymm arr) true false (by simp) h₁ h₂ h₃ h₄)
+
+end NonVacuityBlackMixedTenth
+
+
+end NonVacuityBlackMixedTenthSection

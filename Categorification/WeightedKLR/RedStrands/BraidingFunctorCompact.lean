@@ -28,8 +28,7 @@ module over a Noetherian ring (the corner is finite-dimensional) with finite pro
 Webster works with graded modules and the bounded above derived category; here the functor is
 the ungraded one of `braidingFunctor`, on the unbounded derived category.
 
-Route hypotheses: those of Corollary 6.10 (`AllFiniteDeltaInjective`,
-`RowFigureFiveHypotheses`), through Lemma 6.11 and Corollary 5.22.
+Route hypothesis: that of Corollary 6.10 (`RowFigureFiveHypotheses`), through Lemma 6.11.
 -/
 
 noncomputable section
@@ -174,10 +173,8 @@ variable {I : Type} {k : Type} {Y : Type*} [DecidableEq I] [Field k] [AddCommGro
 include hR in
 /-- **Webster, Lemma 6.13** (arXiv:1309.3796v3), ungraded reading: the derived braiding functor
 `𝔅((1, …, ℓ), w)` sends compact objects (perfect complexes) to compact objects. Route
-hypotheses: those of Corollary 6.10 (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`),
-through Lemma 6.11 and Corollary 5.22. -/
+hypothesis: that of Corollary 6.10 (`RowFigureFiveHypotheses`), through Lemma 6.11. -/
 theorem isCompact_braidingFunctor_obj
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
@@ -188,6 +185,8 @@ theorem isCompact_braidingFunctor_obj
     (hX : IsCompact.{0} X) :
     IsCompact.{0} ((braidingFunctor.{0} k Q Λ ν (List.finRange ℓ)
       ((List.finRange ℓ).map w)).obj X) := by
+  have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm :=
+    fun _ _ => allFiniteDeltaInjective_of_isRouquierQ hQ hQ.klrSymm _
   refine isCompact_obj_of_isCompact_obj_self _ ?_ hX
   refine IsCompact.of_iso (derivedTensorRegularCoefficientIso _ _ _) ?_
   by_cases hw : w = 1
@@ -197,7 +196,7 @@ theorem isCompact_braidingFunctor_obj
     (List.finRange ℓ) ((List.finRange ℓ).map w) fun t ht =>
       exists_hasFiltration_violCorner_of_braidFunctor (isReducedChoice_canChoice ν) hQ.klrSymm
         hQ w t ((redWord_eq_finRange_iff t).1 ht)
-        (hasCornerStandardFiltration_braidF.{0} C hQ hR hall H w hw Λ wt hwt t
+        (hasCornerStandardFiltration_braidF.{0} C hQ hR H w hw Λ wt hwt t
           ((redWord_eq_finRange_iff t).1 ht))
   refine hm.isCompact_Q fun c _ => ?_
   have := module_finite_violLoadingStandard (k := k) (Q := Q) (Λ := Λ) c.2.1

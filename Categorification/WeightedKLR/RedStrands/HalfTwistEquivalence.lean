@@ -178,9 +178,7 @@ theorem exists_hasFiltration_violCorner_halfTwist {t : Seq (stendhalWeight (ℓ 
       HasFiltration (fun s => ModuleCat.of (CL κw)ᵐᵒᵖ
           (ViolLoadingStandard (k := k) (Q := QL) (Λ := Λ) s.1 κw)) m
         (ModuleCat.of (CL κw)ᵐᵒᵖ (violCorner k QL Λ ν t κw)) := by
-  have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective QL Λ' hQ.klrSymm :=
-    fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
-  obtain ⟨f, hf, hcls⟩ := FirstWeight.hasCongruentBraidClass.{0} C hQ hR hall H w hw Λ wt hwt
+  obtain ⟨f, hf, hcls⟩ := FirstWeight.hasCongruentBraidClass.{0} C hQ hR H w hw Λ wt hwt
   have h := exists_labelled_hasFiltration_of_cornerRelabel w
     (braidRightSequenceCutEquiv (Λ := Λ) (FirstWeight.isReducedChoice_canChoice ν)
       hQ.klrSymm hQ w t ht)

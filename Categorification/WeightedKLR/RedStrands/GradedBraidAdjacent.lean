@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.GradedBraidRowClass
+import Categorification.WeightedKLR.RedStrands.RouquierDeltaInjective
 import Categorification.WeightedKLR.RedStrands.GradedBraidGenerators
 import Categorification.WeightedKLR.RedStrands.GradedBraidCorollary
 import Categorification.WeightedKLR.RedStrands.TensorBraiding
@@ -23,9 +24,10 @@ Webster states the corollary for his braiding, normalized by
 `y ⊗ v_h ↦ v^{⟨wt y, λ_{n+2}⟩} v_h ⊗ y`; the two differ by the scalar `v^{⟨λ_{n+1}, λ_{n+2}⟩}`.
 The factor `v²` comes from the degree `-2` of the red/red crossing in the grading used here.
 
-Route hypotheses: `AllFiniteDeltaInjective` (Corollary 5.22) and, at every row of words with
-an empty word at `n + 2`, `RowFigureFiveHypotheses` (the injectivity hypothesis of Lemma 6.8;
-the kernel filtration of Lemma 6.8 and `StackedStandard` of Proposition 6.9 are proved).
+Route hypothesis: at every row of words with an empty word at `n + 2`,
+`RowFigureFiveHypotheses` (the injectivity hypothesis of Lemma 6.8; the kernel filtration of
+Lemma 6.8 and `StackedStandard` of Proposition 6.9 are proved). `AllFiniteDeltaInjective`
+(Corollary 5.22) holds for Rouquier parameters (`allFiniteDeltaInjective_of_isRouquierQ`).
 -/
 
 noncomputable section
@@ -92,11 +94,10 @@ theorem pairDepth_wordWeight_reverse (l : List I) :
 strands and the transposition `π` of the strands `n + 1, n + 2`, the class map of the graded
 braid functor `𝔅_π` is `x ↦ B(v² R x, -)`, with `R` the braiding of the factors `n + 1, n + 2`
 (`adjacentBraiding`, normalized by `R (y ⊗ v_h) = v^{-(ν, λ_{n+2})} v_h ⊗ y` for `y` of depth
-`ν`). Webster's braiding is `v^{⟨λ_{n+1}, λ_{n+2}⟩} R`. Route hypotheses:
-`AllFiniteDeltaInjective` (Corollary 5.22) and `RowFigureFiveHypotheses` (injectivity in
-Lemma 6.8) at every row of words with an empty word at `n + 2`. -/
+`ν`). Webster's braiding is `v^{⟨λ_{n+1}, λ_{n+2}⟩} R`. Route hypothesis:
+`RowFigureFiveHypotheses` (injectivity in Lemma 6.8) at every row of words with an empty word at
+`n + 2`. -/
 theorem braidClass_pairSwap
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
     (H : ∀ (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Λ u hu)
     [∀ ν, DG.HasDerivedCategory.{w, 0} (IsIdempotentElem.Corner
@@ -112,6 +113,8 @@ theorem braidClass_pairSwap
           (by simp only [Function.comp_apply]; exact congrArg wt (Equiv.swap_apply_left _ _))
           (by simp only [Function.comp_apply]; exact congrArg wt (Equiv.swap_apply_right _ _))
           (fun j => by simp only [Function.comp_apply, pairSwap_natAdd])).toLinearMap) := by
+  have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm :=
+    fun _ _ => allFiniteDeltaInjective_of_isRouquierQ hQ hQ.klrSymm _
   refine ext_tensorSpace_wordTensor C hR wt (dualAction (wt ∘ pairSwap n m)) _ _
     (fun i z => braidClass_F_dualAction C hQ hR Λ wt hwt (pairSwap n m) i z)
     (fun i z => by

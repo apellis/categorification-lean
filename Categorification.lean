@@ -2909,6 +2909,7 @@ import Categorification.WeightedKLR.RedStrands.RightStandardProjectiveDimension
 import Categorification.WeightedKLR.RedStrands.RightStandardReflection
 import Categorification.WeightedKLR.RedStrands.RightStandardRelabel
 import Categorification.WeightedKLR.RedStrands.ViolCornerRelabelFiltration
+import Categorification.WeightedKLR.RedStrands.RouquierDeltaInjective
 import Categorification.WeightedKLR.RedStrands.RowFigureFiveBraid
 import Categorification.WeightedKLR.RedStrands.RowFigureFiveLoading
 import Categorification.WeightedKLR.RedStrands.RowStandardK0

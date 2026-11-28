@@ -225,7 +225,7 @@ def braidingFunctorCompIsoAt (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multise
   subst h₂ h₁ h₀
   exact braidingFunctorCompIsoOfRelabel a
     (FirstWeight.braidingFunctorCompIsoOfLengthAdd C hQ hR
-      (fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm) H (Λ ∘ a) (wt ∘ a)
+      H (Λ ∘ a) (wt ∘ a)
       (fun r i => hwt (a r) i) ν v w hw hL)
 
 variable (k) in

@@ -198,7 +198,7 @@ theorem halfTwist_hasFiltration
   obtain ⟨m, hm⟩ := exists_hasFiltration_violCorner_of_braidFunctor
     (FirstWeight.isReducedChoice_canChoice ν) hQ.klrSymm hQ w t ht
     (FirstWeight.hasCornerStandardFiltration_braidF.{0} C hQ hR
-      (fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm) H w hw Λ wt hwt t ht)
+      H w hw Λ wt hwt t ht)
   obtain ⟨Φ, hΦ⟩ := exists_halfTwistSelfDual C hQ Λ ν w hR H wt hwt hw hκ t ht
   exact ⟨⟨m, hm⟩, m, hm.of_equiv (Y' := ModuleCat.of 𝒞ᵐᵒᵖ (FlipDual k QL Λ t κ)) (flipDualEquiv Φ hΦ)⟩
 

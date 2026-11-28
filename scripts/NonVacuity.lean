@@ -2901,11 +2901,9 @@ open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
 the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The
 finite-dimensionality of the algebras `T^λ` is discharged (`tensorProductAlgebra_finite`); the
-route hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses`,
-the injectivity hypothesis of Lemma 6.8) are assumed here, not discharged. -/
-example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
-    (H : ∀ (u : Fin (0 + 2 + 0) → List Unit) (hu : u (rightPos 0 0) = []),
+route hypothesis `RowFigureFiveHypotheses` (the injectivity hypothesis of Lemma 6.8) is assumed
+here, not discharged. -/
+example (H : ∀ (u : Fin (0 + 2 + 0) → List Unit) (hu : u (rightPos 0 0) = []),
       RowFigureFiveHypotheses D params level u hu) :=
   letI : ∀ ν, DG.HasDerivedCategory (IsIdempotentElem.Corner
       (Stendhal.BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ (fun _ _ => 0) level ν
@@ -2914,7 +2912,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       (Stendhal.BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ (fun _ _ => 0) level ν
         ((List.finRange (0 + 2 + 0)).map (pairSwap 0 0))))ᵐᵒᵖ :=
     fun _ => DG.HasDerivedCategory.standard _
-  braidClass_pairSwap D params regular (n := 0) (m := 0) level (factors 2) level_eq hall H
+  braidClass_pairSwap D params regular (n := 0) (m := 0) level (factors 2) level_eq H
 
 /-- Webster, arXiv:1309.3796v3, §6.1, proof of Lemma 6.8, for two red `sl₂` strands of weight
 `ω` merged into one block: the kernel of `T^λ e(s)` onto its partial standard module is filtered
@@ -2938,11 +2936,8 @@ attribute [local instance 1200] Ring.toIntAlgebra in
 open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Lemma 6.11, for two red `sl₂` strands of weight `ω` and the
 crossing: the graded braid functor sends each sequence projective to a module with a standard
-filtration. The route hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are
-assumed here, not discharged. -/
-example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
-    (H : ∀ (n m : ℕ), n + 2 + m = 2 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+filtration. The route hypothesis `RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example (H : ∀ (n m : ℕ), n + 2 + m = 2 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D params Ω u hu)
     {ν : Multiset Unit} (t : KLR.Seq (Stendhal.stendhalWeight 2 ν))
@@ -2954,7 +2949,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       DG.HasDerivedCategory (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
         (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.standard _
   letI : DG.HasDerivedCategory ℤ := DG.HasDerivedCategory.standard _
-  hasCornerStandardFiltration_braidF D params regular hall H (Equiv.swap 0 1) (by decide)
+  hasCornerStandardFiltration_braidF D params regular H (Equiv.swap 0 1) (by decide)
     level (factors 2) level_eq t ht
 
 /-- `T^λ` is finite-dimensional for three red strands (`tensorProductAlgebra_finite`). -/
@@ -2972,11 +2967,9 @@ private theorem levelThree_eq (r : Fin 3) (i : Unit) :
 attribute [local instance 1200] Ring.toIntAlgebra in
 open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Lemma 6.12, second clause, for three red `sl₂` strands of weight
-`ω`, `τ = (0 1)` and `s = (1 2)`: `𝔅(1, τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅(1, τ s)`. The route hypotheses
-(`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
-example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
-    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+`ω`, `τ = (0 1)` and `s = (1 2)`: `𝔅(1, τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅(1, τ s)`. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit) :=
   letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
@@ -2986,18 +2979,15 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
         (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
-  braidingFunctorCompIsoOfLengthAdd D params regular hall H levelThree (factors 3) levelThree_eq ν
+  braidingFunctorCompIsoOfLengthAdd D params regular H levelThree (factors 3) levelThree_eq ν
     (Equiv.swap 0 1) (Equiv.swap 1 2) (by decide) (by decide)
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Lemma 6.13 (ungraded reading), for three red `sl₂` strands of
 weight `ω` and `w = (0 1)`: `𝔅(1, w)` sends the regular module to a compact object. The route
-hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not
-discharged. -/
-example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
-    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+hypothesis `RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit) :=
   letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
@@ -3007,18 +2997,16 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
         (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
-  isCompact_braidingFunctor_obj D params regular hall H levelThree (factors 3) levelThree_eq ν
+  isCompact_braidingFunctor_obj D params regular H levelThree (factors 3) levelThree_eq ν
     (Equiv.swap 0 1) DG.DerivedCategory.isCompact_Q_self
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Proposition 6.20, for three red `sl₂` strands of weight `ω`,
 `w = (0 1)` and the upper set of all loadings: the thick closures of the `𝔅_w(S_s)` and of the
-block-permuted standards `S'_{w s}` agree. The route hypotheses (`AllFiniteDeltaInjective`,
-`RowFigureFiveHypotheses`) are assumed here, not discharged. -/
-example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
-    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+block-permuted standards `S'_{w s}` agree. The route hypothesis `RowFigureFiveHypotheses` is
+assumed here, not discharged. -/
+example (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit) :=
   letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
@@ -3028,18 +3016,16 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
         (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
-  thickClosure_braidingFunctor_violLoadingStandard D params regular hall H levelThree
+  thickClosure_braidingFunctor_violLoadingStandard D params regular H levelThree
     (factors 3) levelThree_eq ν (Equiv.swap 0 1) Set.univ fun _ _ _ _ _ => trivial
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, proof of Theorem 6.14 (injectivity of `ι`), for three red `sl₂`
 strands of weight `ω` and the reversed bottom red order `(2, 1, 0)`: `e(t) V e_κ` is isomorphic to
-`y · e(t⁰) V e_κ`, with no injectivity input. The route hypotheses (`BaseCrossing`,
-`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
-noncomputable example (hbase : Stendhal.BaseCrossing (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)))
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+`y · e(t⁰) V e_κ`, with no injectivity input. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+noncomputable example
     (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit)
@@ -3051,7 +3037,7 @@ noncomputable example (hbase : Stendhal.BaseCrossing (fun _ _ : Unit => (0 : MvP
       DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
         (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
-  Stendhal.FirstWeight.halfTwistInclusionEquiv D params regular hbase hall H levelThree
+  Stendhal.FirstWeight.halfTwistInclusionEquiv D params regular H levelThree
     (factors 3) levelThree_eq ν (Equiv.swap 0 2) (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
 

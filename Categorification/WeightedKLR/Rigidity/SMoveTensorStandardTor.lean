@@ -82,7 +82,7 @@ def tensorRightStandardCoefficientEquiv (t : Seq μ) :
   right_inv _ := rfl
 
 /-- Restricting the left standard to the corner gives the reflected loading standard. -/
-def restrictLeftStandardEquiv {s : Seq μ} (hs : IsRedOrdered s) :
+def restrictLeftStandardTensorEquiv {s : Seq μ} (hs : IsRedOrdered s) :
     (ModuleCat.restrictScalars (φ).symm.symm.toRingHom).obj
         (ModuleCat.of T (leftStandard Q (Λ ∘ σ) s hs)) ≃ₗ[C]
       ReflectedLoadingStandard (k := k) (Q := Q) (Λ := Λ) σ s where
@@ -132,7 +132,7 @@ theorem corner_filtration_left {m' : List {s : Seq μ // IsRedOrdered s}} {Y : M
   have h₁ := hY.restrictScalars (φ).symm.symm.toRingHom
   exact h₁.mono (L' := fun s : {s : Seq μ // IsRedOrdered s} =>
     ReflectedLoadingStandard (k := k) (Q := Q) (Λ := Λ) σ s.1)
-    fun s => ⟨restrictLeftStandardEquiv hρ hQ σ s.2⟩
+    fun s => ⟨restrictLeftStandardTensorEquiv hρ hQ σ s.2⟩
 
 variable [HasDerivedCategory.{w, 0}
     (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) (List.map σ (List.finRange ℓ)))]

@@ -48,7 +48,7 @@ namespace Ind
 theorem smul_unitGen (z : Corner φ) : z.1 • unitGen φ = z :=
   Subtype.ext z.2
 
-theorem op_smul_unitGen (a : A) : (op a • unitGen φ : Corner φ) = φ a • unitGen φ :=
+theorem op_smul_unitGen_eq (a : A) : (op a • unitGen φ : Corner φ) = φ a • unitGen φ :=
   Subtype.ext (by
     change φ 1 * φ a = φ a * φ 1
     rw [← map_mul, ← map_mul, mul_one, one_mul])
@@ -63,7 +63,7 @@ def homRes (f : Ind N φ →ₗ[B] P) : N →ₗ[A] Res φ P where
     simp only [Res.val_add, Res.val_mk, tmul_add, map_add])
   map_smul' a n := Res.ext (by
     change f (tmul (unitGen φ) (a • n)) = φ a • f (tmul (unitGen φ) n)
-    rw [← op_smul_tmul, op_smul_unitGen, ← smul_tmul, map_smul])
+    rw [← op_smul_tmul, op_smul_unitGen_eq, ← smul_tmul, map_smul])
 
 @[simp] theorem homRes_apply_val (f : Ind N φ →ₗ[B] P) (n : N) :
     (homRes f n).val = f (tmul (unitGen φ) n) := rfl

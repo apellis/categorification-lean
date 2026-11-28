@@ -12,7 +12,8 @@ import Categorification.WeightedKLR.RedStrands.TensorRescale
 
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, §5.1. The dot
 `y = x_n · ν_i(1)` on the newly appended black strand (`appendedDot`) is the product of the
-projection of the affine dot `x_n` with the image `ν_i(1)` of the unit (`appendedDot_eq`), and
+projection of the affine dot `x_n` with the image `ν_i(1)` of the unit
+(`appendedDot_eq_projection`), and
 the crossing `τ = -ψ_n · ν_i(ν_i(1))` (`appendedCross`) is minus the projection of the affine
 crossing `ψ_n` times `ν_i(ν_i(1))` (`appendedCross_eq`). Both are fixed by rescaling the black
 crossings with same-colour scalars `1` (`tensorRescale_appendedDot`,
@@ -62,7 +63,7 @@ theorem appendBlack_one_eq :
   rw [tensorProductAlgebra_one, appendBlack_mk_val]
 
 /-- **The dot on the new strand is the projected affine dot times `ν_i(1)`.** -/
-theorem appendedDot_eq :
+theorem appendedDot_eq_projection :
     appendedDot Q Λ i ν =
       affineTensorProjection (Q := Q) Λ νᵢ (KLRAlgebra.x (newPos i ν)) *
         appendBlack Q Λ i ν 1 := by
@@ -158,8 +159,8 @@ private theorem scaleE_mul_twoAppended :
 /-- Rescaling the black crossings fixes the dot on the new strand. -/
 theorem tensorRescale_appendedDot :
     tensorRescale Λ νᵢ hs hQ (appendedDot Q Λ i ν) = appendedDot Q' Λ i ν := by
-  rw [appendedDot_eq, appendedDot_eq, map_mul, tensorRescale_x, tensorRescale_appendBlack,
-    map_one]
+  rw [appendedDot_eq_projection, appendedDot_eq_projection, map_mul, tensorRescale_x,
+    tensorRescale_appendBlack, map_one]
 
 /-- Rescaling the black crossings with same-colour scalars `1` fixes the crossing of the new
 strands. -/

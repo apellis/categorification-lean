@@ -67,7 +67,7 @@ theorem clOpEquivQ_appendedDot :
   refine congrArg op ?_
   rw [natEmb_blackMapQ_dot]
   change ordinaryToDownwardMatrix _ _ Λ _ (tensorRescale Λ _ _ _ (appendedDot Q Λ i ν)) = _
-  rw [tensorRescale_appendedDot, appendedDot_eq, map_mul, ordinaryToDownwardMatrix_x,
+  rw [tensorRescale_appendedDot, appendedDot_eq_projection, map_mul, ordinaryToDownwardMatrix_x,
     ordinaryToDownwardMatrix_appendBlack, map_one]
   rfl
 

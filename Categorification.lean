@@ -2650,6 +2650,7 @@ import Categorification.Algebra.Graded.UpResolutionBootstrap
 import Categorification.Algebra.Graded.UpResolutionTotal
 import Categorification.Algebra.Graded.UpResolutionTensor
 import Categorification.Algebra.Graded.UpResolutionProjDim
+import Categorification.Algebra.Graded.UpResolutionHead
 import Categorification.Algebra.Graded.HomFormEquiv
 import Categorification.Algebra.Graded.HomFormPolynomial
 import Categorification.Algebra.Graded.IdealTensor

@@ -23,6 +23,7 @@ import Categorification.Algebra.CompactGeneratorEquivalence
 import Categorification.Algebra.CompactGeneratorIsIso
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerBimodule
+import Categorification.Algebra.CornerBimoduleEnd
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerSelfDual
 import Categorification.Algebra.CornerTensor
@@ -3046,6 +3047,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLBlackActionQ
 import Categorification.WeightedKLR.RedStrands.BraidingFunctorRelabel
 import Categorification.WeightedKLR.RedStrands.BraidingEquivalence
 import Categorification.WeightedKLR.RedStrands.BraidGroupAction
+import Categorification.WeightedKLR.RedStrands.RingelDuality
 import Categorification.WeightedKLR.RedStrands.BlackModuleFactorCommutationQ
 import Categorification.WeightedKLR.RedStrands.BlackModuleSecondFactorCommutationQ
 import Categorification.WeightedKLR.RedStrands.BlackModuleFactorEFOutsideContentQ

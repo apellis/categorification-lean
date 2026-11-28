@@ -1448,9 +1448,11 @@ isomorphism of functors: the braid group on `ℓ + 1` strands maps to the group 
 classes of autoequivalences of the product of the derived categories of all red orders
 (`braidActionHom`, `BraidGroupAction.lean`), positive lifts along reduced words go to `𝔅_w`, and
 every factorization `τ^p ξ₁ ⋯ ξₙ` of a braid gives the class of `𝔅_{w₀}^p 𝔅_{w₁} ⋯ 𝔅_{wₙ}`
-(`braidActionHom_eq_factorization`). Open in §6.1: the strong action of Cor 6.18 (Zamolodchikov
-coherence), Cor 6.19 (Ringel duality), Prop 6.20 (mutation of the semi-orthogonal
-decomposition); §6.2: Prop 6.21 (Serre functor).
+(`braidActionHom_eq_factorization`). Cor 6.19 is proved under the same hypothesis: the
+endomorphism ring of the tilting generator `B(1, κ)` for the half twist is the corner at
+`(1, …, ℓ)` (`ringelDualEquiv`, `RingelDuality.lean`). Open in §6.1: the strong action of
+Cor 6.18 (Zamolodchikov coherence), Prop 6.20 (mutation of the semi-orthogonal decomposition,
+which needs the second part of Prop 5.26); §6.2: Prop 6.21 (Serre functor).
 
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric

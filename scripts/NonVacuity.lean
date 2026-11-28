@@ -2572,6 +2572,11 @@ example := Stendhal.FirstWeight.ordinary_hom_eq_corner shuffleLevels (CartanDatu
 example := Stendhal.FirstWeight.tensorWordProjective_factorial (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params dividedRedWord
 example := Stendhal.FirstWeight.tensorWordVector_factorial dividedRedWord twoTensorFactors
+/-- Webster's Lemma 5.19 (arXiv:1309.3796v3) for a level-two `sl₂` tensor word. -/
+example := Stendhal.FirstWeight.tensorWordUndivided_eq_sum_standardVector params
+  (fun _ : Fin 2 => Finsupp.single () 2) dividedRedWord twoTensorFactors
+  (fun _ i => by cases i; rw [Finsupp.single_eq_same]; exact dominantTwo ())
+  (ρ := TypeA.canWord _) (fun _ => ⟨TypeA.isReduced_canWord _ _, TypeA.wordProd_canWord _ _⟩)
 example := Stendhal.FirstWeight.span_tensorWordProjective (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params (Multiset.replicate 3 ())
 
@@ -13211,3 +13216,26 @@ end NonVacuityBlackMixedTenth
 
 
 end NonVacuityBlackMixedTenthSection
+
+namespace NonVacuity.WebsterRootStandardEndRouquier
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.StendhalAlgebra
+
+private noncomputable abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private theorem params : KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) q where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+private noncomputable def w := fun _ : Fin 1 => Finsupp.single () 1
+/-- One black strand to the left of the red strand, so `α(0) ≠ 0`. -/
+private def blocks : Fin 2 → Multiset Unit := ![{()}, 0]
+
+/-- `End(S_α)` is the block algebra at Rouquier parameters, with no grading hypothesis. -/
+example := bijective_blockAction_of_isRouquierQ (Λ := w) params (b := blocks) rfl
+noncomputable example := blockActionEquivOfIsRouquierQ (Λ := w) params (b := blocks) rfl
+/-- Full faithfulness of standardization at Rouquier parameters. -/
+example := standardizationMap_bijective_of_isRouquierQ (Λ := w) params (b := blocks)
+  (BlockAlgebra ℚ q w blocks) (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
+
+end NonVacuity.WebsterRootStandardEndRouquier

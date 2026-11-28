@@ -3121,6 +3121,8 @@ import Categorification.WeightedKLR.RedStrands.TildeLeftRedInduction
 import Categorification.WeightedKLR.RedStrands.PrependRedBlocks
 import Categorification.WeightedKLR.RedStrands.PrependRedBlockHom
 import Categorification.WeightedKLR.RedStrands.PrependRedRootUpper
+import Categorification.WeightedKLR.RedStrands.PrependRedStandard
+import Categorification.WeightedKLR.RedStrands.PrependRedBlockAction
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
 import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition
@@ -3219,6 +3221,7 @@ import Categorification.WeightedKLR.RedStrands.FiSequence
 import Categorification.WeightedKLR.RedStrands.FiFiltrationStatement
 import Categorification.WeightedKLR.RedStrands.FiTopEquiv
 import Categorification.Algebra.PiTensorProductSnoc
+import Categorification.Algebra.PiTensorProductCons
 import Categorification.WeightedKLR.RedStrands.BlockAlgebraSplit
 import Categorification.Algebra.InductionAlongTensorSplit
 import Categorification.WeightedKLR.RedStrands.FiInitInduction

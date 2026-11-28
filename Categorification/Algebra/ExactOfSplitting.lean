@@ -23,6 +23,8 @@ cube on a standard module split into those matched downward (`B`) and those matc
 ## Main results
 
 * `LinearMap.ker_le_range_of_sup_eq_top`.
+* `LinearMap.ker_le_range_of_filtered_matching`: the same with the matching only on leading
+  terms of a filtration.
 * `LinearMap.ker_le_range_of_subcomplex`: exactness in degree one of a three-term complex from
   exactness of a subcomplex and of the quotient complex (the middle of the long exact sequence).
   In the proof of Lemma 6.9 the subcomplex is the face of the cube where the first between strand
@@ -64,6 +66,42 @@ theorem exact_of_sup_eq_top {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] 
     exact ⟨y, hy⟩
   · rintro ⟨y, rfl⟩
     rw [← comp_apply, hd, zero_apply]
+
+/-- **Exactness from a filtered matching.** Let `p` be a projection of `C₁` whose kernel part
+lies in `B` (`z - p z ∈ B`), with `d₁` injective on `B`. Let `F` be an increasing filtration of
+the values of `p`, starting at `0` and exhausting them. If each element of `F (n + 1)` agrees
+with `p ∘ d₂` of some element up to `F n`, then `ker d₁ ≤ range d₂`.
+
+This is the form used for the y*-matching in the proof of Lemma 6.9: `p` is the projection to the
+span of the up cells along the down cells, and `F` is the leading-term filtration. -/
+theorem ker_le_range_of_filtered_matching {d₂ : C₂ →ₗ[R] C₁} {d₁ : C₁ →ₗ[R] C₀}
+    (hd : d₁.comp d₂ = 0) {B : Submodule R C₁} (p : C₁ →ₗ[R] C₁) (hp : ∀ z, z - p z ∈ B)
+    (hB : ∀ b ∈ B, d₁ b = 0 → b = 0) (F : ℕ → Submodule R C₁) (hF0 : F 0 = ⊥)
+    (hFex : ∀ z, ∃ n, p z ∈ F n)
+    (hA : ∀ n, ∀ a ∈ F (n + 1), ∃ y, p (d₂ y) - a ∈ F n) :
+    ker d₁ ≤ range d₂ := by
+  have key : ∀ n, ∀ z, d₁ z = 0 → p z ∈ F n → z ∈ range d₂ := by
+    intro n
+    induction n with
+    | zero =>
+      intro z hz hpz
+      rw [hF0, Submodule.mem_bot] at hpz
+      have hzB : z ∈ B := by simpa [hpz] using hp z
+      rw [hB z hzB hz]
+      exact Submodule.zero_mem _
+    | succ n ih =>
+      intro z hz hpz
+      obtain ⟨y, hy⟩ := hA n _ hpz
+      have hz' : d₁ (z - d₂ y) = 0 := by
+        rw [map_sub, hz, ← comp_apply, hd, zero_apply, sub_zero]
+      have hpz' : p (z - d₂ y) ∈ F n := by
+        rw [map_sub, ← neg_sub]
+        exact Submodule.neg_mem _ hy
+      obtain ⟨x, hx⟩ := ih _ hz' hpz'
+      exact ⟨x + y, by rw [map_add, hx, sub_add_cancel]⟩
+  intro z hz
+  obtain ⟨n, hn⟩ := hFex z
+  exact key n z (mem_ker.1 hz) hn
 
 section Subcomplex
 

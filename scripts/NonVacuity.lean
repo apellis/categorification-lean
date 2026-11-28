@@ -13005,3 +13005,26 @@ example := standardizationMap_bijective qsymm grading dots (b := blocks)
   (BlockAlgebra ℚ q w blocks) (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
 
 end NonVacuity.WebsterRootStandardEnd
+
+namespace NonVacuity.WebsterRootStandardEndRouquier
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.StendhalAlgebra
+
+private noncomputable abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private theorem params : KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) q where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+private noncomputable def w := fun _ : Fin 1 => Finsupp.single () 1
+/-- One black strand to the left of the red strand, so `α(0) ≠ 0`. -/
+private def blocks : Fin 2 → Multiset Unit := ![{()}, 0]
+
+/-- `End(S_α)` is the block algebra at Rouquier parameters, with no grading hypothesis. -/
+example := bijective_blockAction_of_isRouquierQ (Λ := w) params (b := blocks) rfl
+noncomputable example := blockActionEquivOfIsRouquierQ (Λ := w) params (b := blocks) rfl
+/-- Full faithfulness of standardization at Rouquier parameters. -/
+example := standardizationMap_bijective_of_isRouquierQ (Λ := w) params (b := blocks)
+  (BlockAlgebra ℚ q w blocks) (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
+
+end NonVacuity.WebsterRootStandardEndRouquier

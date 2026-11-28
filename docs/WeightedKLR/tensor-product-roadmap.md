@@ -904,6 +904,18 @@ base crossing the cokernel is `S(₂Fᵢ N)` (`RedFirstBaseCrossingCokernel.lean
 nonzero element killed by `e⁰ T^λ` (`LastIndStandardCornerFaithful.lean`). The criteria are in
 `Algebra/CornerCopresentationCriteria.lean`.
 
+Thm 5.27 (v3: Thm 5.30), (1) ⇔ (3), is proved for Rouquier parameters
+(`Stendhal.injective_iff_isSummand_redFirstProjective`, `RedStrands/ProjectiveInjective.lean`):
+an indecomposable finitely generated projective module is injective exactly when it is a summand
+of `P⁰`. The direction (1) ⇒ (3) does not pass through (2): projective modules have no nonzero
+element killed by `e⁰ T^λ`, so they embed into sums of copies of the self-dual `P⁰`, and the
+Krull–Schmidt exchange step (`Algebra/CornerFaithfulEmbedding.lean`, from Fitting's lemma) gives
+a single copy. (1) ⇔ (2) is `Stendhal.injective_iff_isSummandOfInjectiveHull_standard`: an
+indecomposable standard module is read as an indecomposable summand of some `S_c`; injective
+hulls are built in `Algebra/InjectiveHull.lean` (maximal essential extensions), and a nonzero
+submodule of `P` embeds into a standard module through the standard filtration of `T^λ e(s)`
+(`Algebra/ModuleFiltrationEmbedding.lean`).
+
 Prop 5.30 (v3: Prop 5.33) is proved with no extra hypothesis: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
 `T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,
 `y_s = θ̇_s θ_s`, with `a ↦ (θ̇_s e_s x ↦ θ̇_s e_s a x)` (`redFirstEndEquiv_apply`). The generic
@@ -927,6 +939,48 @@ projective resolutions); self-dual projectives and double centralizer
 (Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
 Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
 
+Thm 5.28 (v3; projective resolutions of simples in `C↑`) is in progress. Done:
+* generic steps: up-resolutions with their shift, horseshoe (Lemma 5.29 for `C↑`) and cone steps
+  (`Algebra/Graded/UpResolution.lean`); gluing resolutions of composition factors
+  (`GFin.exists_upResolution_of_isSubquotient`, `Algebra/Graded/UpResolutionSimple.lean`);
+  bootstrapping along positive shifts, for kernels containing copies `L{s}`, `s ≥ 1`, of the
+  module being resolved (`GFin.Bootstrap.upResolution`, `Algebra/Graded/UpResolutionBootstrap.lean`);
+* positivity: for a degree-zero idempotent `e` with `A e A = A` and `e A e` nonnegatively graded
+  with `(e A e)_0 = k e`, every finite-dimensional graded module has a resolution in `C↑`
+  (`GFin.exists_upResolution_of_corner`, `Algebra/Graded/CornerResolution.lean`);
+* the base case: in the cyclotomic nilHecke algebra `R^Λ(m i)` the corner at `e_{i,m}` is spanned
+  by dot polynomials times `e_{i,m}`, and `1` splits through `e_{i,m}`, so every finite-dimensional
+  graded module has a resolution in `C↑` (`CycKLR.exists_upResolution_of_forall`,
+  `KLR/NilHeckeCornerPositivity.lean`). Only the positivity of the corner is used; it is not
+  identified with the cohomology ring of a Grassmannian;
+* resolutions by resolved modules: if `⋯ → X_1 → X_0 → N` is exact and each `X_n` has a
+  resolution in `C↑` with constant `c - n`, so does `N` (`GFin.UpResolution.ofResolution`,
+  `Algebra/Graded/UpResolutionTotal.lean`; the total complex used with Cor 5.24 in the general
+  case);
+* external tensor products of resolutions in `C↑` (`GFin.UpResolution.extTensor`,
+  `Algebra/Graded/UpResolutionTensor.lean`).
+
+* general `λ` by standardization (`RedStrands/StandardHeadResolution.lean`): if the graded simple
+  tops over `T^{λ'}_θ` and over the cyclotomic `R^{λ_ℓ}_β` have resolutions in `C↑`, so do those
+  over `T^λ_ν` (`topsResolvable_of_factors`). Standardization is exact (`standardizationSES`),
+  has bounded projective dimension on projectives
+  (`exists_hasProjectiveDimensionLT_stdOf_projective`) and preserves `C↑`
+  (`exists_upResolution_standardizationGFin`); the simple at a cut is the head of the
+  standardization of a factor simple (`exists_headAtCut_isUngradedSubquotient`), and the head
+  lemma `GFin.exists_upResolution_of_head` applies by induction on the number of black strands
+  before the last red strand. With the base cases `topsResolvable_vacuum` and
+  `topsResolvable_noRed`, Thm 5.28 follows from its one-red-strand case
+  (`topsResolvable_of_cyclotomic`, explicit hypothesis `hcyc`). Extra hypothesis: nonnegative dot
+  degrees. These statements use the classical `DecidableEq I`, like the standard stratification
+  they rest on.
+
+Open: one red strand (`hcyc`, tracked for removal). The printed one-red-strand step has a
+gap: it claims that the other composition factors of `Ind(ẽ_i^a L ⊠ L(i^a)) ↠ L` are smaller than
+`L` in the string order, but for `sl_3` with `Λ = ω_i + ω_j` the module `F_j L(i)` has
+composition factors `L(ij)`, `L(ij){2}`, `L(ji){1}`, `L(ji){3}` and `F_i L(j)` contains `L(ij){1}`,
+so neither simple is smaller than the other. In this example the extra factors are positive
+shifts, which the bootstrapping lemma handles; a general argument is being researched.
+
 Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is
 proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) = 0` when `t` is
 not below `s`, and `Ext^{n+1}(S_t, S_s) = 0` when `s ≤ t`. Full faithfulness is proved for the
@@ -942,25 +996,6 @@ Generation (`StandardGeneration.lean`): in the ungraded `D(T^λ)`, every standar
 perfect (`isCompact_stdModule`) and the standards generate the perfect complexes as a thick
 subcategory (`thickClosure_stdModule_eq_isCompact`). Webster's statement is in the graded
 `Ṽ^λ` of Def 4.8; the ungraded thick-closure reading follows Lemma 6.13. Prop 6.20 uses it.
-
-Thm 5.28 (v3; resolutions in `C↑` of simple modules). The general-`λ` step is proved
-(`RedStrands/StandardHeadResolution.lean`, `topsResolvable_of_factors`): for Rouquier parameters
-and nonnegative dot degrees, resolutions in `C↑` of the graded simple tops over `T^{λ'}_θ` and
-over the cyclotomic `R^{λ_ℓ}_β` give resolutions of the graded simple tops over `T^λ_ν`. Inputs:
-standardization is exact (`standardizationSES`), has bounded projective dimension on projectives
-(`exists_hasProjectiveDimensionLT_stdOf_projective`) and preserves `C↑`
-(`exists_upResolution_standardizationGFin`); the simple head at a cut is a subquotient of the
-standardization (`exists_headAtCut_isUngradedSubquotient`); the head lemma
-`GFin.exists_upResolution_of_head`. With the base cases (`topsResolvable_vacuum`,
-`topsResolvable_noRed`) this reduces Thm 5.28 to one red strand
-(`topsResolvable_of_cyclotomic`, hypothesis `hcyc`: the graded simples over every cyclotomic KLR
-algebra have resolutions in `C↑`). Extra hypothesis: nonnegative dot degrees (`hG`), used for the
-degree bound of standardization. Open, tracked for removal: `hcyc`. Webster's printed proof of
-the one-red step claims that the kernel of `Ind(ẽ_i^a L ⊠ L(i^a)) ↠ L` has composition factors
-smaller in the string order, which fails in type `A_2` (`F_j L(i)` and `F_i L(j)` share factors
-up to shift); a repair (the extra factors being positive shifts, as needed by
-`GFin.Bootstrap.upResolution`) is being researched. The theorems use the classical
-`DecidableEq I`, like the standard stratification they rest on.
 
 ### Phase D: §6, braiding functors
 
@@ -1461,9 +1496,10 @@ partial standardizations, apply the induction in (6.21), and identify the derive
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
-(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
-`RowFigureFiveHypotheses` (the two hypotheses of Lemma 6.8) at every row; finite-dimensionality of `T^λ` is
-`tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
+(proved for adjacent transpositions as `braidClass_pairSwap`, under `RowFigureFiveHypotheses` (the
+injectivity hypothesis of Lemma 6.8) at every row; `AllFiniteDeltaInjective` holds for Rouquier
+parameters (`allFiniteDeltaInjective_of_isRouquierQ`) and finite-dimensionality of `T^λ` is
+`tensorProductAlgebra_finite`; removing the injectivity hypothesis is open), Lemma 6.11 (proved for
 `w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses; the diagram
 filtration of the step `p_n → f_n` is proved, `BraidColumnCutFiltration.lean`), Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
@@ -1513,6 +1549,12 @@ head `Stendhal.coevaluationHead`, with kernel the trace of the projectives with
 `κ(2) < 2ρ∨(λ)` (`CycKLR.coevaluationTrace_eq_iff_isSimpleModule`). The proof does
 not use crystals: it erases the red strands onto the cyclotomic quotient, using the
 second red strand's cyclotomic relation at the lowest weight from Kang–Kashiwara.
+Proposition 7.8 is proved (ungraded) in a repaired reading (ERRATA, Webster entry 12):
+the terms of the resolution of `L_λ` are sums of standardizations of finite-dimensional
+factor modules, and the last term is `M_λ`
+(`Stendhal.exists_stdResolution_coevaluationHead`). Corollary 7.9 follows
+(`Stendhal.ext_coevaluationHead`). For Rouquier `Q` with symmetric parameters neither carries an
+extra hypothesis (`_of_rouquier`).
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,

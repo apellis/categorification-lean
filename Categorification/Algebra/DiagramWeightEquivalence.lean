@@ -9,6 +9,7 @@ import Categorification.Algebra.DerivedTensorTriangulated
 import Categorification.Algebra.WeightSumRepresentable
 import Categorification.Algebra.WeightConstForgetShift
 import Categorification.Algebra.CompactGeneratorEquivalence
+import Categorification.Algebra.DerivedTensorCoproducts
 
 /-!
 # Graded derived diagram tensors which are equivalences
@@ -90,6 +91,7 @@ local notation "ΦB" => CatModule.weightForgetDerived.{u, w} B
 
 open CatModule.DerivedCategory
 
+omit [(derivedTensor.{w} A B M).IsEquivalence] in
 /-- The graded derived tensor preserves coproducts, since the ungraded one does and forgetting
 the weights reflects isomorphisms. -/
 theorem preservesColimitsOfShape_diagramWeightDerivedTensor (J : Type u) :

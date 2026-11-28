@@ -16,8 +16,9 @@ other composition factors are lower in the standard order):
 * `GFin.UpResolution.ofKernel` : for `0 → K → M → L → 0`, up-resolutions of `M` and `L` give one
   of `K`.
 * `GFin.exists_upResolution_of_head` : let `ε ∈ A` and let `L` be a graded simple module that is
-  an ungraded subquotient of a module `M` with an up-resolution, with `ε L ≠ 0` and `dim ε M ≤ dim ε L`. If every graded
-  simple subquotient of `M` killed by `ε` has an up-resolution, so does `L`.
+  an ungraded subquotient of a module `M` with an up-resolution, with `ε L ≠ 0` and
+  `dim ε M ≤ dim ε L`. If every graded simple subquotient of `M` killed by `ε` has an
+  up-resolution, so does `L`.
 -/
 
 noncomputable section

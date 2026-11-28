@@ -3124,6 +3124,7 @@ import Categorification.WeightedKLR.RedStrands.PrependRedRootUpper
 import Categorification.WeightedKLR.RedStrands.PrependRedStandard
 import Categorification.WeightedKLR.RedStrands.PrependRedBlockAction
 import Categorification.WeightedKLR.RedStrands.PrependRedBlockInjective
+import Categorification.WeightedKLR.RedStrands.PrependRedBlockCorner
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
 import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition

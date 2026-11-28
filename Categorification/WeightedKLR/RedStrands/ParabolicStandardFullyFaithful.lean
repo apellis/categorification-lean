@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandard
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebraAction
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardUnitExt
 
 /-!
@@ -41,11 +41,6 @@ variable {N N' : Type*} [AddCommGroup N] [Module k N] [Module (parabolicFactorAl
   [IsScalarTower k (parabolicFactorAlgebra Q Λ θ β) N]
   [AddCommGroup N'] [Module k N'] [Module (parabolicFactorAlgebra Q Λ θ β) N']
   [IsScalarTower k (parabolicFactorAlgebra Q Λ θ β) N']
-
-theorem parabolicStandardMapT_unit (g : N →ₗ[D] N') (n : N) :
-    parabolicStandardMapT Q Λ hQ g (parabolicStandardTUnit Q Λ θ β hQ n) =
-      parabolicStandardTUnit Q Λ θ β hQ (g n) :=
-  rfl
 
 /-- Unit vectors are fixed by the image of the identity of the parabolic subalgebra. -/
 theorem parabolicStandardTUnit_eq_concat_one_smul (n : N) :

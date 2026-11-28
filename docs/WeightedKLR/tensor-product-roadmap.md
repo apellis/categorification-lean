@@ -904,6 +904,15 @@ base crossing the cokernel is `S(₂Fᵢ N)` (`RedFirstBaseCrossingCokernel.lean
 nonzero element killed by `e⁰ T^λ` (`LastIndStandardCornerFaithful.lean`). The criteria are in
 `Algebra/CornerCopresentationCriteria.lean`.
 
+Thm 5.27 (v3: Thm 5.30), (1) ⇔ (3), is proved for Rouquier parameters
+(`Stendhal.injective_iff_isSummand_redFirstProjective`, `RedStrands/ProjectiveInjective.lean`):
+an indecomposable finitely generated projective module is injective exactly when it is a summand
+of `P⁰`. The direction (1) ⇒ (3) does not pass through (2): projective modules have no nonzero
+element killed by `e⁰ T^λ`, so they embed into sums of copies of the self-dual `P⁰`, and the
+Krull–Schmidt exchange step (`Algebra/CornerFaithfulEmbedding.lean`, from Fitting's lemma) gives
+a single copy. Open: (2), the identification with injective hulls of standard modules, which
+needs every standard module to have no nonzero element killed by `e⁰ T^λ`.
+
 Prop 5.30 (v3: Prop 5.33) is proved with no extra hypothesis: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
 `T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,
 `y_s = θ̇_s θ_s`, with `a ↦ (θ̇_s e_s x ↦ θ̇_s e_s a x)` (`redFirstEndEquiv_apply`). The generic

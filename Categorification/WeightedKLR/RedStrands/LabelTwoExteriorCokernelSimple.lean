@@ -296,7 +296,6 @@ theorem simple_of_two_vector_span {R L : Type*}
   change (r*s) • x = z
   rw [mul_smul,hs,hr]
 
-set_option maxHeartbeats 750000 in
 /-- The augmentation of the actual exterior complex is a simple module,
 supported on the left exterior loading. -/
 theorem labelTwoExteriorCokernel_simple :

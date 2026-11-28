@@ -290,7 +290,6 @@ variable [IsSimpleModule (TensorKLR Q μ' (ν'' + ν'))
   [IsSimpleModule (KLRAlgebra K Q μ')
     (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M)))]
 
-set_option maxHeartbeats 400000 in
 omit [FiniteDimensional K M] in
 include hν'1 hPQ hP hnil hε in
 /-- Every nonzero `R(μ' + ν'')`-submodule of `e_i M` contains `socVec w₀`. -/

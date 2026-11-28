@@ -161,8 +161,6 @@ theorem dimCh_append_const (j : Seq μ) :
     finrank_fixSub_extTensor (K := K) (e_mul_self j) IsIdempotentElem.one, fixSub_one, finrank_top]
   rfl
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hPQ hP in
 /-- **Recovering `L` from `HW(Δ_{i^ε} L)`** (KL I, Lemma 3.7): if `L`, `L'` are simple
 (finite-dimensional, nilpotent dots) with `ε_i(L) = ε_i(L') = ε = card ν'` and

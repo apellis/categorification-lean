@@ -262,7 +262,6 @@ theorem labSet_union [DecidableEq V] (j : J) : labSet lab (· = j) ∪ labSet la
   simp only [Finset.mem_union, mem_labSet, Finset.mem_univ, iff_true]
   exact em _
 
-set_option synthInstance.maxHeartbeats 200000 in
 /-- **KL III eq. (5.7)**: `∑_{f=0}^{α} x(k)_{j,f} x̄(k)_{j,α-f} = δ_{α,0}`. -/
 theorem sum_xB_mul_xbarB [DecidableEq V] (j : J) (α : ℕ) :
     ∑ f ∈ Finset.range (α + 1), xB k lab j f * xbarB k lab j (α - f) = if α = 0 then 1 else 0 := by
@@ -485,7 +484,6 @@ theorem borelIdeal_map_val (lab : V → J) :
 
 variable [DecidableEq J]
 
-set_option synthInstance.maxHeartbeats 200000 in
 /-- `k[V] / (Sym⁺) ≅ (BorelRing k lab)^ι` with `|ι| = |G_lab|`. -/
 theorem exists_quot_equiv_pi (lab : V → J) :
     ∃ (ι : Type) (_ : Fintype ι), Nonempty ι ∧
@@ -501,14 +499,12 @@ theorem exists_quot_equiv_pi (lab : V → J) :
   rw [← Fintype.card_pos_iff, hcard]
   exact Fintype.card_pos_iff.2 ⟨⟨1, rfl⟩⟩
 
-set_option synthInstance.maxHeartbeats 200000 in
 set_option backward.isDefEq.respectTransparency false in
 instance (lab : V → J) : FiniteDimensional k (BorelRing k lab) := by
   obtain ⟨ι, _, ⟨i₀⟩, -, ⟨e⟩⟩ := exists_quot_equiv_pi k lab
   have : FiniteDimensional k (ι → BorelRing k lab) := LinearEquiv.finiteDimensional e
   exact Module.Finite.of_surjective (LinearMap.proj i₀) fun x => ⟨fun _ => x, rfl⟩
 
-set_option synthInstance.maxHeartbeats 200000 in
 set_option backward.isDefEq.respectTransparency false in
 /-- **The dimension of the Borel ring**: `dim_k BorelRing k lab · ∏_j N_j! = N!`, where
 `N_j = |lab⁻¹(j)|` and `N = |V|`. -/

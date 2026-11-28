@@ -415,7 +415,6 @@ theorem top_iso (c : IndecClass (tensorGrading 𝒜 ℬ)) :
       Graded.shift (ExtTensor.grading (H.fst c).top.grading (H.snd c).top.grading) (H.shift c)) :=
   (H.exists_top_iso c).choose_spec.choose_spec.choose_spec
 
-set_option synthInstance.maxHeartbeats 200000 in
 open scoped Classical in
 theorem mult_mul_finrank (b : IndecClass 𝒜) (b' : IndecClass ℬ)
     (c : IndecClass (tensorGrading 𝒜 ℬ)) (a : ℤ) :
@@ -428,7 +427,6 @@ theorem mult_mul_finrank (b : IndecClass 𝒜) (b' : IndecClass ℬ)
     (e.shift a).trans (GradedEquiv.ofEq (shift_shift _ _ _))
   rw [K0.homRank_congr e', H.homRank_topT_shift]
 
-set_option synthInstance.maxHeartbeats 200000 in
 theorem finrank_endZero_topC (c : IndecClass (tensorGrading 𝒜 ℬ)) :
     finrank k (endZero (A ⊗[k] B) c.top.grading) = 1 := by
   classical
@@ -447,7 +445,6 @@ theorem finrank_endZero_topC (c : IndecClass (tensorGrading 𝒜 ℬ)) :
   have : (finrank k (endZero (A ⊗[k] B) c.top.grading) : ℤ) = 1 := by nlinarith
   exact_mod_cast this
 
-set_option synthInstance.maxHeartbeats 200000 in
 open scoped Classical in
 /-- **Multiplicities of `P_c` in `P_b ⊠ P_{b'}`**: `[P_b ⊠ P_{b'}] = q^{-a_c} [P_c]` for the
 unique `c` with top `(S_b ⊠ S_{b'}){a_c}`. -/

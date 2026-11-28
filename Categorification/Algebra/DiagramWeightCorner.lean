@@ -59,7 +59,8 @@ private instance (h : IsIdempotentElem e) (h' : IsIdempotentElem e') :
   smul_comm a b x := Subtype.ext (show (b.unop.unop.val * x.val) * a.unop.val =
     b.unop.unop.val * (x.val * a.unop.val) from mul_assoc _ _ _)
 
-private theorem rightCornerLeft {i j : ℤ} {a : he'.Cornerᵐᵒᵖ}
+/-- The right action of the corner of `e'` respects the weights of the rectangular corner. -/
+theorem diagramCornerWeight_smul_mem {i j : ℤ} {a : he'.Cornerᵐᵒᵖ}
     {x : cornerBimodule e e'} (ha : a.unop.val ∈ G i) (hx : x ∈ diagramCornerWeight G j) :
     a • x ∈ diagramCornerWeight G (i + j) := by
   have hm : x.val * a.unop.val ∈ G (j + i) := SetLike.GradedMul.mul_mem (A := G) hx ha
@@ -68,7 +69,8 @@ private theorem rightCornerLeft {i j : ℤ} {a : he'.Cornerᵐᵒᵖ}
   rw [cornerBimodule.coe_smul_right he']
   exact hm
 
-private theorem rightCornerRight {i j : ℤ} {b : he.Cornerᵐᵒᵖ}
+/-- The left action of the corner of `e` respects the weights of the rectangular corner. -/
+theorem diagramCornerWeight_op_smul_mem {i j : ℤ} {b : he.Cornerᵐᵒᵖ}
     {x : cornerBimodule e e'} (hb : b.unop.val ∈ G i) (hx : x ∈ diagramCornerWeight G j) :
     op b • x ∈ diagramCornerWeight G (j + i) := by
   have hm : b.unop.val * x.val ∈ G (i + j) := SetLike.GradedMul.mul_mem (A := G) hb hx
@@ -92,7 +94,7 @@ def diagramCornerWeightRightBimodule :
   letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
   exact diagramWeightBimodule (A := he'.Cornerᵐᵒᵖ) (B := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G)
-    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    (diagramCornerWeight_smul_mem G (e := e) he') (diagramCornerWeight_op_smul_mem G (e' := e') he)
 
 /-- Derived right tensor with a rectangular corner, retaining internal weight. -/
 def diagramCornerWeightDerivedRightTensor :
@@ -115,7 +117,7 @@ def diagramCornerWeightDerivedRightTensor :
   intro hL hR
   exact diagramWeightDerivedTensor (A := he'.Cornerᵐᵒᵖ) (B := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G)
-    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    (diagramCornerWeight_smul_mem G (e := e) he') (diagramCornerWeight_op_smul_mem G (e' := e') he)
 
 /-- Loading support in a K-projective model can be tested in the corner algebra:
 each allowed loading kills the ordinary rectangular coefficient by left
@@ -148,8 +150,8 @@ theorem diagramCornerWeightDerivedRightTensor_cohomology_isZero_of_loading_suppo
   let _ := gradedAlgebraBigradedDGRing (oppositeGrade R)
   intro _ _ K M q hK hq X n ι f hs hk
   exact diagramWeightDerivedTensor_cohomology_isZero_of_loading_support
-    (diagramCornerWeight G) (rightCornerLeft G (e := e) he')
-    (rightCornerRight G (e' := e') he) q hK hq X n f hs
+    (diagramCornerWeight G) (diagramCornerWeight_smul_mem G (e := e) he')
+    (diagramCornerWeight_op_smul_mem G (e' := e') he) q hK hq X n f hs
     (fun W i p => Subtype.ext (Subtype.ext (hk W i p.val)))
 
 
@@ -227,8 +229,8 @@ def diagramCornerWeightDerivedRightTensorIsoOfResolution :
   letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
   intro hL hR K N f hK hf ht
   exact diagramWeightDerivedTensorObjIsoOfResolution
-    (diagramCornerWeight G) (rightCornerLeft G (e := e) he')
-    (rightCornerRight G (e' := e') he) f hK hf ht
+    (diagramCornerWeight G) (diagramCornerWeight_smul_mem G (e := e) he')
+    (diagramCornerWeight_op_smul_mem G (e' := e') he) f hK hf ht
 
 section Composition
 
@@ -247,7 +249,8 @@ def cornerRightProduct : cornerBimodule e' g →+ cornerBimodule e e' →+ corne
   map_zero' := AddMonoidHom.ext fun y => Subtype.ext (mul_zero y.val)
   map_add' x z := AddMonoidHom.ext fun y => Subtype.ext (mul_add y.val x.val z.val)
 
-private theorem cornerRightProduct_mem {i j : ℤ} {x : cornerBimodule e' g}
+/-- The product of rectangular corners adds weights. -/
+theorem cornerRightProduct_mem {i j : ℤ} {x : cornerBimodule e' g}
     {y : cornerBimodule e e'} (hx : x ∈ diagramCornerWeight G i)
     (hy : y ∈ diagramCornerWeight G j) :
     cornerRightProduct x y ∈ diagramCornerWeight G (i + j) := by
@@ -284,8 +287,8 @@ def diagramCornerWeightRightCoendProduct :
   exact diagramWeightCoendProduct
     (A := hg.Cornerᵐᵒᵖ) (B := he'.Cornerᵐᵒᵖ) (C := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G) (diagramCornerWeight G) (diagramCornerWeight G)
-    (rightCornerLeft G (e := e') hg) (rightCornerRight G (e' := g) he')
-    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    (diagramCornerWeight_smul_mem G (e := e') hg) (diagramCornerWeight_op_smul_mem G (e' := g) he')
+    (diagramCornerWeight_smul_mem G (e := e) he') (diagramCornerWeight_op_smul_mem G (e' := e') he)
     cornerRightProduct (cornerRightProduct_mem G)
     (fun b x y => Subtype.ext (by
       change y.val * (op b • x : cornerBimodule e' g).val =
@@ -323,8 +326,8 @@ theorem diagramCornerWeightRightCoendProduct_tmul :
   exact congrArg Subtype.val (diagramWeightCoendProduct_tmul
     (A := hg.Cornerᵐᵒᵖ) (B := he'.Cornerᵐᵒᵖ) (C := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G) (diagramCornerWeight G) (diagramCornerWeight G)
-    (rightCornerLeft G (e := e') hg) (rightCornerRight G (e' := g) he')
-    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    (diagramCornerWeight_smul_mem G (e := e') hg) (diagramCornerWeight_op_smul_mem G (e' := g) he')
+    (diagramCornerWeight_smul_mem G (e := e) he') (diagramCornerWeight_op_smul_mem G (e' := e') he)
     cornerRightProduct (cornerRightProduct_mem G) _ X Z Y x y)
 
 /-- The right-module coend product is onto when ordinary products span the
@@ -363,8 +366,8 @@ theorem diagramCornerWeightRightCoendProduct_surjective
   exact diagramWeightCoendProduct_surjective
     (A := hg.Cornerᵐᵒᵖ) (B := he'.Cornerᵐᵒᵖ) (C := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G) (diagramCornerWeight G) (diagramCornerWeight G)
-    (rightCornerLeft G (e := e') hg) (rightCornerRight G (e' := g) he')
-    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    (diagramCornerWeight_smul_mem G (e := e') hg) (diagramCornerWeight_op_smul_mem G (e' := g) he')
+    (diagramCornerWeight_smul_mem G (e := e) he') (diagramCornerWeight_op_smul_mem G (e' := e') he)
     cornerRightProduct (cornerRightProduct_mem G) _ X Z hspan
 
 end Composition
@@ -385,7 +388,7 @@ def diagramCornerWeightRightFamily :
   letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
   letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
   exact diagramWeightLeftFunctor (diagramCornerWeight G)
-    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    (diagramCornerWeight_smul_mem G (e := e) he') (diagramCornerWeight_op_smul_mem G (e' := e') he)
 
 section OrdinaryComparison
 
@@ -474,12 +477,12 @@ def diagramCornerWeightRightSlice
   intro X Z
   exact cornerTensorCutLift (k := k) h₂ h₁ h₀
     (diagramWeightTensorSlice (A := h₀.Cornerᵐᵒᵖ) (B := h₁.Cornerᵐᵒᵖ) (C := h₂.Cornerᵐᵒᵖ)
-      G₁ G₂ (rightCornerLeft G (e := e₁) h₀) (rightCornerRight G (e' := e₀) h₁)
-      (rightCornerLeft G (e := e₂) h₁) (rightCornerRight G (e' := e₁) h₂) X Z)
+      G₁ G₂ (diagramCornerWeight_smul_mem G (e := e₁) h₀) (diagramCornerWeight_op_smul_mem G (e' := e₀) h₁)
+      (diagramCornerWeight_smul_mem G (e := e₂) h₁) (diagramCornerWeight_op_smul_mem G (e' := e₁) h₂) X Z)
     (fun b x y => diagramWeightTensorSlice_balanced
       (A := h₀.Cornerᵐᵒᵖ) (B := h₁.Cornerᵐᵒᵖ) (C := h₂.Cornerᵐᵒᵖ)
-      G₁ G₂ (rightCornerLeft G (e := e₁) h₀) (rightCornerRight G (e' := e₀) h₁)
-      (rightCornerLeft G (e := e₂) h₁) (rightCornerRight G (e' := e₁) h₂)
+      G₁ G₂ (diagramCornerWeight_smul_mem G (e := e₁) h₀) (diagramCornerWeight_op_smul_mem G (e' := e₀) h₁)
+      (diagramCornerWeight_smul_mem G (e := e₂) h₁) (diagramCornerWeight_op_smul_mem G (e' := e₁) h₂)
       X Z (op b) x y)
 
 /-- Ordinary slicing is a left inverse to the forgetful map on the field corner tensor. -/
@@ -528,8 +531,8 @@ theorem diagramCornerWeightRightSlice_leftInverse
     exact (cornerTensorCutLift_tmul (k := k) h₂ h₁ h₀ _ _ y.val x.val).trans
       (diagramWeightTensorSlice_tmul
         (A := h₀.Cornerᵐᵒᵖ) (B := h₁.Cornerᵐᵒᵖ) (C := h₂.Cornerᵐᵒᵖ)
-        G₁ G₂ (rightCornerLeft G (e := e₁) h₀) (rightCornerRight G (e' := e₀) h₁)
-        (rightCornerLeft G (e := e₂) h₁) (rightCornerRight G (e' := e₁) h₂) X Z Y x y)
+        G₁ G₂ (diagramCornerWeight_smul_mem G (e := e₁) h₀) (diagramCornerWeight_op_smul_mem G (e' := e₀) h₁)
+        (diagramCornerWeight_smul_mem G (e := e₂) h₁) (diagramCornerWeight_op_smul_mem G (e' := e₁) h₂) X Z Y x y)
   | add t t' ht ht' => rw [map_add, map_add, ht, ht']
 
 /-- Injectivity of ordinary multiplication implies injectivity of the weight coend multiplication. -/
@@ -619,15 +622,15 @@ def diagramCornerWeightRightCoendNatIso :
   intro hbij
   exact diagramWeightCoendProductNatIso
     (A := h₀.Cornerᵐᵒᵖ) (B := h₁.Cornerᵐᵒᵖ) (C := h₂.Cornerᵐᵒᵖ)
-    G₁ G₂ G₃ (rightCornerLeft G (e := e₁) h₀) (rightCornerRight G (e' := e₀) h₁)
-    (rightCornerLeft G (e := e₂) h₁) (rightCornerRight G (e' := e₁) h₂)
+    G₁ G₂ G₃ (diagramCornerWeight_smul_mem G (e := e₁) h₀) (diagramCornerWeight_op_smul_mem G (e' := e₀) h₁)
+    (diagramCornerWeight_smul_mem G (e := e₂) h₁) (diagramCornerWeight_op_smul_mem G (e' := e₁) h₂)
     cornerRightProduct (cornerRightProduct_mem G)
     (fun b x y => Subtype.ext (by
       change y.val * (op b • x : cornerBimodule e₁ e₀).val =
         (b • y : cornerBimodule e₂ e₁).val * x.val
       rw [cornerBimodule.coe_smul_right h₁]
       exact (mul_assoc _ _ _).symm))
-    (rightCornerLeft G (e := e₂) h₀) (rightCornerRight G (e' := e₀) h₂)
+    (diagramCornerWeight_smul_mem G (e := e₂) h₀) (diagramCornerWeight_op_smul_mem G (e' := e₀) h₂)
     (fun a x y => Subtype.ext (by
       change y.val * (a • x : cornerBimodule e₁ e₀).val =
         (a • cornerRightProduct x y : cornerBimodule e₂ e₀).val

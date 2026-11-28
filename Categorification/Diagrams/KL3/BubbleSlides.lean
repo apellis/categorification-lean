@@ -220,7 +220,6 @@ theorem dg_pull_ccw (lam : X) (i j : I) (m : ℕ) :
           [([dn i], .cross true j i, []), ([], .cap (up i), [up j])]) :=
   NF.dg_pull_ccw (P := pres RD k) lam i j m
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, counterclockwise, `i ≠ j`** (KL III Proposition 3.3, first display, cases
 `i · j = -1` and `i · j = 0`, for an arbitrary Cartan datum): a counterclockwise `i`-bubble with
 `m` dots to the right of an upward `j`-strand (outer region `λ`) equals, with `Q_ij` the KL II
@@ -282,7 +281,6 @@ theorem dg_pull_cw (lam : X) (i j : I) (m : ℕ) :
           [([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])]) :=
   NF.dg_pull_cw (P := pres RD k) lam i j m
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, clockwise, `i ≠ j`**, with the dots on the upward strand of the bubble: a
 clockwise `i`-bubble with `m` dots to the left of an upward `j`-strand (outer region `λ` to the
 right of the strand) equals the bubble with `m + d_ij` dots to the right of the strand plus the

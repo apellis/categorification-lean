@@ -176,7 +176,6 @@ private def middleVector : M →ₗ[k] StandardDotSumQuotient k :=
 private theorem middleVector_apply (a : M) :
     middleVector k a = (U).mkQ (middleToFixed k a).val := rfl
 
-set_option maxHeartbeats 550000 in
 private theorem middleVector_eq_zero {a : M} (ha : specialize a = 0) :
     middleVector k a = 0 := by
   have h : fixedAugmentation k (middleToFixed k a) = 0 :=
@@ -188,7 +187,6 @@ private theorem middleVector_eq_zero {a : M} (ha : specialize a = 0) :
   change (Submodule.Quotient.mk (middleToFixed k a).val : StandardDotSumQuotient k) = 0
   exact (Submodule.Quotient.mk_eq_zero _).mpr ⟨v.val, congrArg Subtype.val hv⟩
 
-set_option maxHeartbeats 650000 in
 private theorem middleVector_surjective_of_fixed (u : V) :
     ∃ a : M, middleVector k a = u.val := by
   obtain ⟨v,hv⟩ := (U).mkQ_surjective u.val
@@ -199,7 +197,6 @@ private theorem middleVector_surjective_of_fixed (u : V) :
   exact (congrArg (fun w : W => q w.val) ha).trans <|
     (q.map_smul E v).trans ((congrArg (E • ·) hv).trans u.property)
 
-set_option maxHeartbeats 550000 in
 /-- The middle loading in the actual quotient is spanned by the unit and
 the first-dot generator. -/
 theorem middle_cut_basis_span (u : V) :

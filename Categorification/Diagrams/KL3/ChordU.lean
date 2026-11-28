@@ -656,7 +656,6 @@ theorem allSh_dotsL (t : List (Letter I)) (is : List ℕ) : AllSh Shape.isDot (d
 
 variable [DecidableEq I]
 
-set_option maxHeartbeats 1600000 in
 /-- **A dot passes a move** (exactly for a cup or a crossing of other strands, modulo diagrams
 with fewer crossings if the dot is on a strand of the crossing). -/
 theorem dot_move {t : List (Letter I)} {m : Move (Letter I)} (hm : m.Ok t.length) {i : ℕ}

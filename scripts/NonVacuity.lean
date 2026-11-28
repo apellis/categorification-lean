@@ -3885,6 +3885,10 @@ example := parabolicStandardLayerAction_comp q w (0 : Multiset Unit) β factors 
   (by decide)
 example := parabolicStandardAction_other_concat_eq_zero q w (0 : Multiset Unit) β factors qsymm β
   (0 : Multiset Unit) (by simp) (by decide) 1
+/-- Standardization of the regular module of the two-factor algebra is fully faithful. -/
+example := parabolicStandardMapT_bijective q w (0 : Multiset Unit) β qsymm (N := factors)
+  (N' := factors)
+example := parabolicStandardEndEquiv q w (0 : Multiset Unit) β qsymm factors
 
 end ParabolicInputs
 

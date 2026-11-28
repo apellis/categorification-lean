@@ -116,7 +116,7 @@ theorem isEquivalence_braidingFunctor_finRange (Λ : Fin (ℓ + 1) → I →₀ 
     subst hℓ
     exact Equiv.ext fun x => Subsingleton.elim (α := Fin 1) _ _
   have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective QL Λ' hQ.klrSymm :=
-    fun _ _ => allFiniteDeltaInjective_std hQ hQ.klrSymm
+    fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
   have hL : ∀ τ : Perm (Fin (ℓ + 1)), ∀ x y, [x, y] <+ (fin).map ⇑(τ * (τ⁻¹ * w₀)) →
       [y, x] <+ (fin).map τ → [y, x] <+ fin := fun τ x y h _ => by
     rw [mul_inv_cancel_left] at h

@@ -9,8 +9,7 @@ import Categorification.WeightedKLR.RedStrands.BlockPairedColumnStandard
 # The marked-column injection at standard parameters
 
 Webster, arXiv:1309.3796v2, §6.1, Lemma 6.8, (6.21). A single black strand
-between the exchanged reds gives the two-exit presentation. At standard
-Khovanov–Lauda parameters its right joint leg is injective on the supported
+between the exchanged reds gives the two-exit presentation. For Rouquier parameters its right joint leg is injective on the supported
 partially standardized corner.
 -/
 
@@ -20,7 +19,7 @@ open KLR KLRAlgebra TypeA QuantumGroup KL3.Diagram
 variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ} {ν : Multiset I}
     (C : CartanDatum I) (Λ : Fin ℓ → I →₀ ℕ)
 
-local notation "Q" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+variable {Q : I → I → MvPolynomial (Fin 2) k}
 local notation "μ" => stendhalWeight ℓ ν
 local notation "n" => Multiset.card μ
 

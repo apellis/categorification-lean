@@ -260,10 +260,10 @@ open KLR KL3.Diagram
 open scoped Classical
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 include hR hQs in
 /-- `T^λ` acts faithfully on `e⁰ T^λ` from the right (Webster, arXiv:1309.3796v3, Lemma 5.25,

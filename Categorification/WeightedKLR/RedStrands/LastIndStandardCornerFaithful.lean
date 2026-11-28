@@ -16,8 +16,7 @@ Background for B. Webster, *Knot invariants and higher representation theory*,
 arXiv:1309.3796v3, proof of Theorem 5.30, (2) ⇒ (3), and Corollary 5.32 (v2: Theorem 5.27 and
 Corollary 5.29). For a red-ordered red-first loading `t` of `T^{λ'}` and a colour `i`, the
 standardization `S(₂Fᵢ T^{λ'} e(t))` has no nonzero submodule killed by the red-first idempotent
-`e⁰` (`eq_zero_of_redFirstIdem_smul_lastIndStandardT`), at the standard Khovanov–Lauda
-parameters.
+`e⁰` (`eq_zero_of_redFirstIdem_smul_lastIndStandardT`), for Rouquier parameters.
 
 The proof is by induction on the number of black strands of `t`. Without black strands, `e⁰`
 acts as the identity (`isCornerFaithfulModule_lastIndBase`). Otherwise `t = (t', j)`, and
@@ -26,7 +25,7 @@ acts as the identity (`isCornerFaithfulModule_lastIndBase`). Otherwise `t = (t',
 * `₂Fᵢ ₁Fⱼ ≅ ₁Fⱼ ₂Fᵢ`, since the two inductions act on different tensor factors
   (`lastIndRightFirstIndLeftEquiv`);
 * `δ₁ : S(₁Fⱼ Z) → Fⱼ S(Z)` is injective (proof of Proposition 5.5,
-  `firstIndDeltaInjective_std`);
+  `firstIndDeltaInjective_of_rouquier`);
 * `Fⱼ` preserves the property (`isCornerFaithfulModule_firstIndF`).
 -/
 
@@ -199,11 +198,11 @@ end Transfer
 section Main
 
 variable {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
   (Λ : Fin (ℓ + 1) → I →₀ ℕ)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 theorem isRedFirst_seqCast {ν ν' : Multiset I} (h : ν = ν') (s : Seq (stendhalWeight ℓ ν))
     (hs : IsRedFirst s) : IsRedFirst (Seq.cast (congrArg (stendhalWeight ℓ) h) s) := by
@@ -237,7 +236,7 @@ theorem isCornerFaithfulModule_lastIndRight_append (i j : I) {θ : Multiset I}
       (redFactorModuleAppendEquiv QL Λ j hu' hu hrel).symm).trans
       (lastIndRightFirstIndLeftEquiv QL Λ θ (redFactorModule QL Λ θ u' hu').carrier i j)
   exact isCornerFaithfulModule_of_firstIndLeft QL Λ hQs j θ ((Si i) + 0) _ _ G.toLinearMap
-    G.injective (firstIndDeltaInjective_std (Λ := Λ) hR hQs j θ ((Si i) + 0) _)
+    G.injective (firstIndDeltaInjective_of_rouquier (Λ := Λ) hR hQs j θ ((Si i) + 0) _)
     (isCornerFaithfulModule_firstIndF hR hQs Λ j θ ((Si i) + 0) _ h)
 include hR in
 /-- The induction on the number of black strands. -/
@@ -288,7 +287,7 @@ theorem isCornerFaithfulModule_lastIndRight_redFactorModule (i : I) :
 include hR in
 /-- **No nonzero submodule of `S(₂Fᵢ T^{λ'} e(t))` is killed by `e⁰`** (Webster,
 arXiv:1309.3796v3, proof of Theorem 5.30, (2) ⇒ (3), and Corollary 5.32; v2: Theorem 5.27 and
-Corollary 5.29), at the standard Khovanov–Lauda parameters, for a red-ordered red-first loading
+Corollary 5.29), for Rouquier parameters, for a red-ordered red-first loading
 `t` of `T^{λ'}`. -/
 theorem eq_zero_of_redFirstIdem_smul_lastIndStandardT (i : I) (θ : Multiset I)
     (u : Seq (stendhalWeight ℓ (θ + 0))) (hu : IsRedOrdered u) (hrf : IsRedFirst u)

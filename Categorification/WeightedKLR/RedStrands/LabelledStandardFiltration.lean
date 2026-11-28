@@ -24,8 +24,8 @@ Counting dimensions along this filtration gives the identity
 `dim T^λ e(s) = Σ_φ dim S_{φ • s}` of Lemma 5.19 (`finrank_lIdeal_eq_sum_phiBottom`).
 
 The red step uses the route hypothesis `AllFiniteDeltaInjective` through
-`blackIndStandardFiltration`; it is proved at the standard Khovanov–Lauda parameters
-(`allFiniteDeltaInjective_std`).
+`blackIndStandardFiltration`; it is proved for Rouquier parameters
+(`allFiniteDeltaInjective_of_rouquier`).
 
 ## Main results
 
@@ -359,7 +359,7 @@ reduced words and every block assignment `φ` of a red-ordered loading `s`,
 `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`, where `P = T^λ e(s)`, `P_{>φ}` is the sum of the `T^λ x_{φ'}` with
 `φ • s < φ' • s` and `P_{≥φ} = T^λ x_φ + P_{>φ}`; the isomorphism sends `[e(φ • s)]` to
 `[x_φ]`. Route hypothesis: `AllFiniteDeltaInjective` (the `F`-part of Proposition 5.5 for
-finite-dimensional inputs), proved at the standard Khovanov–Lauda parameters. -/
+finite-dimensional inputs), proved for Rouquier parameters. -/
 def phiLayerEquiv {C : QuantumGroup.CartanDatum I} (hQ : KLRSymm Q) (hR : IsRouquierQ C Q)
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ)
     {ℓ : ℕ} {ν : Multiset I} (Λ : Fin ℓ → I →₀ ℕ)

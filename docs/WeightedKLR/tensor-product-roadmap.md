@@ -736,8 +736,8 @@ from which the full one is obtained by iterating):
   finite-dimensional `N`: Webster's count `dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)`
   (`finrank_firstIndF_eq_add`), proved by strong induction on `|θ| + |β|` from the last-strand
   splitting into a red part and colour pieces (`RedStrands/Prop55Dimension*.lean`), gives
-  `firstIndDeltaInjective_std` and `allFiniteDeltaInjective_std`, hence the black-word
-  filtrations (`hasFiltration_loadingProj_std`; the finite-dimensional form
+  `firstIndDeltaInjective_of_rouquier` and `allFiniteDeltaInjective_of_rouquier`, hence the black-word
+  filtrations (`hasFiltration_loadingProj_of_rouquier`; the finite-dimensional form
   `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). The
   intermediate lemmas take a base presentation with `CoverRelsNegligible` and well-founded
   domain; the presentation with no relations (`noRelations`) satisfies both vacuously, so the
@@ -779,7 +779,7 @@ from which the full one is obtained by iterating):
 
 * Prop 5.20 and Cor 5.21 at the standard Khovanov–Lauda scalars
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
-  dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
+  dimension count (`allFiniteDeltaInjective_of_rouquier`), with no further hypothesis.
 
 * Prop 5.20, printed `Φ`-indexed form (v3: Prop 5.21; `RedStrands/PhiDiagrams.lean`,
   `PhiStandardLayers.lean`, `LabelledStandardFiltration.lean`, `PhiLayerStd.lean`): for a
@@ -792,7 +792,7 @@ from which the full one is obtained by iterating):
   (`finrank_lIdeal_eq_sum_phiBottom`, from a standard filtration labelled by the bottoms
   `φ • s`, `hasLabelledStandardFiltrations`) forces bijectivity
   (`Submodule.layerRank_eq_of_sum_eq`). Same route hypothesis as the filtration form; none
-  at the standard scalars (`phiLayerEquiv_std`).
+  at the standard scalars (`phiLayerEquiv_of_rouquier`).
 
 * Lemma 5.26 and Cor 5.22 (v3: Lemma 5.29, Cor 5.24; `RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
@@ -890,7 +890,7 @@ total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEqui
 `splitRedEquiv`) down to one red strand (Prop 4.20). The printed `Φ`-indexed form of
 Prop 5.20 (v3: Prop 5.21; the specific filtration `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`) is proved
 (`RedStrands/LabelledStandardFiltration.lean`, `phiLayerEquiv`), under the route hypothesis
-`AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_std`).
+`AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_of_rouquier`).
 
 Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved with no extra hypothesis:
 `Stendhal.existsUnique_eq_mul_left_redFirst` (`RedStrands/RedFirstDominantDimension.lean`), from
@@ -924,8 +924,8 @@ Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crysta
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.23,
 Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorification); Thm 5.25 (finite
 projective resolutions); self-dual projectives and double centralizer
-(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30); Thm 5.31 (for `sl_n`, blocks of cyclotomic
-`q`-Schur algebras). Open except as listed above.
+(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
+Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
 
 ### Phase D: §6, braiding functors
 
@@ -995,8 +995,24 @@ Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
 modules over the corners of the violated quotient, built on dg-lean's derived categories of dg
 modules over rings in degree `0`, computed on K-projective resolutions (`derivedTensor`,
 `derivedRightTensor`, `Algebra/DerivedTensor.lean`; the bimodule `e A e'` is
-`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
-graded version and the restriction to `D⁻` are open roadmap items.
+`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`. The
+maintainer chose the graded form of Def 6.6 (2026-11-27). The graded braiding functor is
+the derived right tensor over the weight categories of the corners with their auxiliary
+grading (`diagramCornerWeightDerivedRightTensor`, `Algebra/DiagramWeightCorner.lean`, used so
+far for the fundamental braid in §7). For all red orders it is
+`auxiliaryGradedBraidingFunctor κ' κ` (`RedStrands/BraidingAuxiliaryDerived.lean`); Webster's
+degree on `B(κ', κ)` is the auxiliary degree plus the constant offset `redWordOffset`.
+Forgetting the weights is a functor of derived categories (`weightForgetDerived`,
+`Algebra/WeightForgetDerived.lean`) that carries the graded functor to the ungraded one
+(`auxiliaryGradedBraidingFunctorForgetIso`, `RedStrands/BraidingForgetDerived.lean`, through
+`diagramWeightForgetDerivedIso`). Theorem 6.15 holds for the graded functor
+(`isEquivalence_auxiliaryGradedBraidingFunctor`, `RedStrands/BraidingGradedEquivalence.lean`):
+a graded derived tensor is an equivalence when the ungraded one is
+(`isEquivalence_diagramWeightDerivedTensor`, `Algebra/DiagramWeightEquivalence.lean`), through
+the derived adjunction between forgetting the weights and the constant module and compact
+generation by the internal shifts of the representables. Lemma 6.13 for the graded functor
+follows (`isCompact_auxiliaryGradedBraidingFunctor_obj`). Open: carry Lemma 6.12 over to the
+graded functor.
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of
@@ -1476,21 +1492,27 @@ minuscule tangles (Prop 8.3); the unknot for `sl₂` (Prop 8.4); independence of
 projection (Thm 8.6, Lemma 8.7); ribbon elements (Prop 8.8); minuscule duality
 (Thm 8.11). All open.
 
-### Phase G: §9, comparisons
+### Phase G (optional): §9 comparisons and their inputs
 
-Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
-Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
-and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
-homologies (Props 9.18, 9.20, 9.21). All open.
+Optional item (maintainer, 2026-11-27): skipped for now, to be taken up only on request. It
+covers the comparisons with other categories and everything only they need:
+
+* Thm 5.31 (v3: Thm 5.34): for `sl_n`, the algebras `T^λ` and blocks of cyclotomic
+  `q`-Schur algebras.
+* Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
+  Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
+  and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
+  homologies (Props 9.18, 9.20, 9.21).
+
+All open. The external inputs below are recorded for when the item is taken up.
 
 ### Inputs from other works (maintainer decisions)
 
 * Prop 9.6 and Thm 9.16 are the Brundan–Kleshchev isomorphism (arXiv:0808.2032),
   which is not in the library. Options: formalize it, or take it as a stated
-  hypothesis of the §9 results.
-* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`. On
-  2026-11-15 the maintainer excluded the Cherednik and `q`-Schur comparisons for
-  the weighted KLR work. This needs confirming for 1309.3796.
+  hypothesis of the §9 results (Phase G, optional).
+* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`;
+  they are in the optional Phase G (maintainer, 2026-11-27).
 * Prop 9.14 (Koszulity) and Props 9.18–9.21 rest on results of other papers (for
   example Enright–Shelton equivalences). These are flagged in the same way when
   they are reached.

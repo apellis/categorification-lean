@@ -22,12 +22,12 @@ right action of `e⁰ T^λ e⁰` is left multiplication by a unique element of `
 The base crossing `c = e(s, i, λ_ℓ) G` of Lemma 5.25 (v2: Lemma 5.23) at a red-first loading `s`
 has cokernel `S(₂Fᵢ N)`, which has no nonzero element killed by `e⁰ T^λ`; since `T^λ` is
 finite-dimensional and `τ` pairs `e⁰ T^λ` and `T^λ e⁰` perfectly, this cokernel embeds into a
-sum of copies of `P⁰` (`exactCrossPair_base_std`). Chains of these crossings assemble into the
+sum of copies of `P⁰` (`exactCrossPair_base_of_rouquier`). Chains of these crossings assemble into the
 copresentation (`hasCornerCopresentation_redFirstIdem_of_exactBaseCrossing`).
 
 ## Main results
 
-* `exactBaseCrossing_std`: the base crossings at red-first loadings are exact.
+* `exactBaseCrossing_of_rouquier`: the base crossings at red-first loadings are exact.
 * `hasCornerCopresentation_redFirstIdem`: dominant dimension at least two.
 * `existsUnique_eq_mul_left_redFirst`: **Corollary 5.32** (v2: Corollary 5.29).
 -/
@@ -43,16 +43,16 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 open scoped Classical
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 include hR hQs in
 /-- **The base crossing at a red-first loading is exact** (Webster, arXiv:1309.3796v3, proof of
 Corollary 5.32): the crossing `(s, i, λ_ℓ) ⟶ (s, λ_ℓ, i)` of Lemma 5.25 has a cokernel embedding
 into a sum of copies of `P⁰`. -/
-theorem exactCrossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i : I) (θ : Multiset I)
+theorem exactCrossPair_base_of_rouquier {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i : I) (θ : Multiset I)
     (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) (hsf : IsRedFirst s) :
     ExactCrossPair QL Λ ({i} + (θ + 0)) (appendRedLoading (appendBlackLoading i (θ + 0) s))
       (appendBlackLoading i (θ + 0) (appendRedLoading s)) := by
@@ -64,7 +64,7 @@ theorem exactCrossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ
     (Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ))
       (stendhalWeight 1 (0 : Multiset I))) (Sum.inl i : I ⊕ Fin (ℓ + 1)) with hG
   have := finiteDimensional_redFactorModule _ hR Λ θ s hs
-  have hδ := firstIndDeltaInjective_std (Λ := Λ) hR hQs i θ 0 (redFactorModule QL Λ θ s hs).carrier
+  have hδ := firstIndDeltaInjective_of_rouquier (Λ := Λ) hR hQs i θ 0 (redFactorModule QL Λ θ s hs).carrier
   have : FiniteDimensional k (TensorProductAlgebra k QL Λ ({i} + (θ + 0))) :=
     tensorProductAlgebra_finite Λ _ hR
   obtain ⟨τ, hτ⟩ := redFirstIdem_pairing_nondegenerate hR hQs Λ ({i} + (θ + 0))
@@ -87,14 +87,13 @@ theorem exactCrossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ
   · rw [← mul_assoc, (isIdempotentElem_redLoadingIdem QL Λ _ _ hsrc).eq]
 
 include hR hQs in
-/-- The base crossings at red-first loadings are exact, at the standard Khovanov–Lauda
-parameters. -/
-theorem exactBaseCrossing_std : ExactBaseCrossing QL := by
+/-- The base crossings at red-first loadings are exact, for Rouquier parameters. -/
+theorem exactBaseCrossing_of_rouquier : ExactBaseCrossing QL := by
   intro ℓ Λ i β u hu huf
   have key : ∀ (u : Seq (stendhalWeight ℓ (β + 0))), IsRedOrdered u → IsRedFirst u →
       ExactCrossPair QL Λ ({i} + (β + 0)) (appendRedLoading (appendBlackLoading i (β + 0) u))
         (appendBlackLoading i (β + 0) (appendRedLoading u)) :=
-    fun u hu huf => exactCrossPair_base_std hR hQs Λ i β u hu huf
+    fun u hu huf => exactCrossPair_base_of_rouquier hR hQs Λ i β u hu huf
   rw [add_zero] at key
   exact key u hu huf
 
@@ -104,7 +103,7 @@ Corollary 5.29): `T^λ` embeds into a sum of copies of `P⁰ = T^λ e⁰` with a
 nonzero submodule killed by `e⁰`. -/
 theorem hasCornerCopresentation_redFirstIdem {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ)
     (ν : Multiset I) : HasCornerCopresentation (redFirstIdem QL Λ ν) :=
-  hasCornerCopresentation_redFirstIdem_of_exactBaseCrossing hR hQs (exactBaseCrossing_std hR hQs)
+  hasCornerCopresentation_redFirstIdem_of_exactBaseCrossing hR hQs (exactBaseCrossing_of_rouquier hR hQs)
     Λ ν
 
 include hR hQs in

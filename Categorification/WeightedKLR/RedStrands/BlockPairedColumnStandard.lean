@@ -11,7 +11,7 @@ import Categorification.WeightedKLR.RedStrands.TwoRedCrossingInjectivity
 # Right crossing on the source column at standard parameters
 
 Webster, arXiv:1309.3796v2, §6.1, proof of Lemma 6.8, (6.21).
-At standard Khovanov–Lauda parameters, the ordered two-red right crossing
+For Rouquier parameters, the ordered two-red right crossing
 supplies the internal support test for the adjacent source-order column.
 -/
 
@@ -23,7 +23,7 @@ variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ}
     (C : CartanDatum I) (Λ : Fin ℓ → I →₀ ℕ)
     (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
 
-local notation "Q" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+variable {Q : I → I → MvPolynomial (Fin 2) k}
 local notation "row" => adjacentRow L M f β
 local notation "μ" => stendhalWeight ℓ ν
 local notation "κ" => L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst

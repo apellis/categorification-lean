@@ -2897,7 +2897,7 @@ local instance (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit) :
   Stendhal.tensorProductAlgebra_finite Ω ν params
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
 the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The
 finite-dimensionality of the algebras `T^λ` is discharged (`tensorProductAlgebra_finite`); the
@@ -2935,7 +2935,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
     params.klrSymm params hall (show (0 : Fin 2) < 1 by decide) rfl s hs
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Lemma 6.11, for two red `sl₂` strands of weight `ω` and the
 crossing: the graded braid functor sends each sequence projective to a module with a standard
 filtration. The route hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are
@@ -2970,7 +2970,7 @@ private theorem levelThree_eq (r : Fin 3) (i : Unit) :
   rfl
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Lemma 6.12, second clause, for three red `sl₂` strands of weight
 `ω`, `τ = (0 1)` and `s = (1 2)`: `𝔅(1, τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅(1, τ s)`. The route hypotheses
 (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
@@ -2990,7 +2990,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
     (Equiv.swap 0 1) (Equiv.swap 1 2) (by decide) (by decide)
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Lemma 6.13 (ungraded reading), for three red `sl₂` strands of
 weight `ω` and `w = (0 1)`: `𝔅(1, w)` sends the regular module to a compact object. The route
 hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not
@@ -3011,7 +3011,7 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
     (Equiv.swap 0 1) DG.DerivedCategory.isCompact_Q_self
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, proof of Theorem 6.14 (injectivity of `ι`), for three red `sl₂`
 strands of weight `ω` and the reversed bottom red order `(2, 1, 0)`: `e(t) V e_κ` is isomorphic to
 `y · e(t⁰) V e_κ`, with no injectivity input. The route hypotheses (`BaseCrossing`,
@@ -3056,7 +3056,7 @@ local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
   Stendhal.tensorProductAlgebra_finite Ω ν klParams
 
 attribute [local instance 1200] Ring.toIntAlgebra in
-open DG.DegreeZero in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Theorem 6.14, first clause, for three red `sl₂` strands of
 weight `ω` at the Khovanov–Lauda scalars and the reversed bottom red order `(2, 1, 0)`: the cut
 `e(t) V e_κ` and its flip dual both have standard filtrations. The route hypothesis
@@ -3173,6 +3173,10 @@ example := KLR.CycKLR.span_dividedProjective_of_rouquier C₂ (fun _ => 2) β ad
 example := KLR.CycKLR.of_expanded_eq_factorial admissible.gradingDatum
   (fun i j => congrArg Neg.neg (C₂.symm i j)) C₂ (fun _ => 2) β (fun _ => rfl) blocks rfl
 example := KLR.CycKLR.span_total_dividedProjective C₂ (fun _ => 2) admissible
+/-- Webster, arXiv:1309.3796v2, Proposition 5.20 (filtration form) with no route hypothesis at
+the Rouquier parameters `params`, which are not the standard Khovanov–Lauda ones. -/
+example := Categorification.Stendhal.hasStandardFiltrations_of_rouquier admissible
+  admissible.klrSymm (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1)
 
 end CyclotomicDividedWords
 
@@ -6309,7 +6313,7 @@ attribute [local instance 2000] Classical.propDecidable
 /-- Webster, arXiv:1309.3796v2, proof of Prop. 5.30, for `sl₂`, two red strands of weight `ω`,
 and every black weight: left multiplication by `θ̇_s` is injective on `e(s) T^λ`. -/
 example (ν : Multiset Unit) (s : TensorProductAlgebra.OrderedLoading (ℓ := 2) ν) :=
-  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_std rbRouquier rbSymm)
+  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_of_rouquier rbRouquier rbSymm)
     (fun _ : Fin 2 => Finsupp.single () 1) s.1 s.2
 
 /-- Webster, arXiv:1309.3796v3, Cor. 5.32 (v2: Cor. 5.29), for `sl₂`, two red strands of
@@ -6347,7 +6351,7 @@ strands of weight `ω`, every black weight, red-ordered loading and block assign
 standard Khovanov–Lauda scalars. -/
 noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s)
     (g : PhiIndex s) :=
-  phiLayerEquiv_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+  phiLayerEquiv_of_rouquier rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     hs g
 
@@ -6355,7 +6359,7 @@ noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs :
 weight `ω`, every black weight and red-ordered loading, at the standard Khovanov–Lauda scalars:
 the cokernel of `θ_s` is filtered by standard modules. -/
 example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) :=
-  exists_hasFiltration_shuffleCokernel_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+  exists_hasFiltration_shuffleCokernel_of_rouquier rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     s hs
 
 end NonVacuity.RedBlackCrossing
@@ -6537,6 +6541,50 @@ example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) �
     CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
     CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered
     (by rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]) 1 (by decide)
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Corollary 7.10 (vanishing part) for `M_λ` at the level-two
+coevaluation word, in degree zero. The route hypothesis `hall` of Proposition 7.6 is assumed
+here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) CyclotomicHighestWeight.params.klrSymm) :=
+  letI : DG.HasDerivedCategory (TensorProductAlgebra ℚ
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)])) :=
+    DG.HasDerivedCategory.standard _
+  letI : DG.HasDerivedCategory ℚ := DG.HasDerivedCategory.standard _
+  Categorification.Stendhal.isZero_derivedTensorHomology_cycDivProj_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
+    CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered
+    (by rw [zero_add, ← coe_reverse_eq_wordWt, Multiset.coe_reverse]) 0 (by decide)
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Corollary 7.10 (top degree) at the level-two coevaluation word:
+`Tor_{|ν|}(L_λ, M_λ)` is one-dimensional. The route hypothesis `hall` of Proposition 7.6 is
+assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))) CyclotomicHighestWeight.params.klrSymm) :=
+  letI : ∀ d : List (Unit × ℕ), DG.HasDerivedCategory (TensorProductAlgebra ℚ
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv d)) (KLR.KLRAlgebra.expandDiv d)) :=
+    fun _ => DG.HasDerivedCategory.standard _
+  letI : DG.HasDerivedCategory ℚ := DG.HasDerivedCategory.standard _
+  Categorification.Stendhal.finrank_derivedTensorHomology_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+    CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) [()] reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
+    firstRed firstRed_ordered coevaluationWeight_split
 
 /-- Webster, arXiv:1309.3796v3, Lemma 7.17 (spanning step) at the head `L_μ` of the
 level-two coevaluation projective, inserted into the empty sequence of red strands. -/
@@ -12258,11 +12306,11 @@ private theorem vacuumKLRouquier :
     fun a b h => (h (Subsingleton.elim a b)).elim⟩
 
 example :=
-  leftStandardOrderedWeightResolution_std_isKProjective vacuumWeights 0
+  leftStandardOrderedWeightResolution_of_rouquier_isKProjective vacuumWeights 0
     (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
 
 example :=
-  leftStandardOrderedWeightAugmentation_std_quasiIso vacuumWeights 0
+  leftStandardOrderedWeightAugmentation_of_rouquier_quasiIso vacuumWeights 0
     (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
 
 end StandardParameters
@@ -12566,7 +12614,7 @@ private def srEmpty : Seq (stendhalWeight 0 (0 : Multiset Unit)) :=
 
 /-- Webster, arXiv:1309.3796v3, Prop. 7.6, for `sl₂`, one red strand of weight `ω` and two
 black strands right of it. -/
-example := exists_projectiveResolution_websterWords_std (Λ := fun _ : Fin 1 => Finsupp.single () 1)
+example := exists_projectiveResolution_websterWords_of_rouquier (Λ := fun _ : Fin 1 => Finsupp.single () 1)
   srRouquier srSymm srEmpty (by unfold IsRedOrdered; decide) [(), ()] rfl
 
 /-- The terms of degree `1` of that resolution: the two subsets `{0}` and `{1}`. -/

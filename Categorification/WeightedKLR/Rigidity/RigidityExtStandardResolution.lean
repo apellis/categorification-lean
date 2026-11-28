@@ -24,7 +24,7 @@ the right has projective corner, so it maps a resolution of `S(N)` to a resoluti
 the cone of a lift of the left map resolves the right term.
 
 The injectivity of the left map of (7.25) is the route hypothesis `AllFiniteDeltaInjective`,
-which holds at the standard Khovanov–Lauda parameters (`allFiniteDeltaInjective_std`).
+which holds for Rouquier parameters (`allFiniteDeltaInjective_of_rouquier`).
 
 ## Main definitions and results
 

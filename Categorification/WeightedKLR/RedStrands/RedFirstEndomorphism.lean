@@ -140,10 +140,10 @@ open scoped Classical
 open KL3.Diagram
 
 variable {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 /-- The right module `⊕_s y_s B` over the red-first corner `B = e⁰ T^λ e⁰`, where `s` runs over
 the red-ordered loadings and `y_s = θ̇_s θ_s` (Webster, arXiv:1309.3796v2, Proposition 5.30). -/
@@ -164,14 +164,14 @@ sends `a` to the endomorphism `(θ̇_s e(s) x)_s ↦ (θ̇_s e(s) a x)_s` of `T^
 noncomputable def redFirstEndEquiv (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I) :
     TensorProductAlgebra k QL Λ ν ≃+*
       Module.End (isIdempotentElem_redFirstIdem QL Λ ν).Cornerᵐᵒᵖ
-        (redShuffleModule (k := k) (C := C) Λ ν) :=
+        (redShuffleModule (k := k) (Q := Q) Λ ν) :=
   CornerEndomorphism.ringEquiv (isIdempotentElem_redFirstIdem QL Λ ν)
     (TensorProductAlgebra.completeOrthogonalIdempotents_boundaryIdem (k := k) QL Λ ν) _ _
     (fun s => redShuffle_mul_redFirstIdem QL Λ s.1 s.2)
     (fun s => redFirstIdem_mul_redShuffleDual QL Λ s.1 s.2)
     (fun s => redLoadingIdem_mul_redShuffle QL Λ s.1 s.2)
     (fun s x h₁ h₂ => exists_eq_redShuffle_mul QL Λ s.1 s.2 x h₁ h₂)
-    (fun s x h₁ h₀ => redShuffleDual_mul_injective hR hQs (baseCrossing_std hR hQs) Λ s.1 s.2
+    (fun s x h₁ h₀ => redShuffleDual_mul_injective hR hQs (baseCrossing_of_rouquier hR hQs) Λ s.1 s.2
       x h₁ h₀)
     (eq_zero_of_mul_redFirstProjective hR hQs Λ ν)
     (fun f hfN hfe hfb => by
@@ -198,7 +198,7 @@ include hR hQs in
 theorem redFirstEndEquiv_apply (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I)
     (a x : TensorProductAlgebra k QL Λ ν)
     (hx : x * redFirstIdem QL Λ ν = x) (s : TensorProductAlgebra.OrderedLoading (ℓ := ℓ + 1) ν) :
-    ∃ m : redShuffleModule (k := k) (C := C) Λ ν, (∀ t, (m t).1.1 = redShuffleDual QL Λ t.1 t.2 *
+    ∃ m : redShuffleModule (k := k) (Q := Q) Λ ν, (∀ t, (m t).1.1 = redShuffleDual QL Λ t.1 t.2 *
         TensorProductAlgebra.boundaryIdem QL Λ ν t * x) ∧
       (redFirstEndEquiv hR hQs Λ ν a m s).1.1 =
         redShuffleDual QL Λ s.1 s.2 * TensorProductAlgebra.boundaryIdem QL Λ ν s * (a * x) := by

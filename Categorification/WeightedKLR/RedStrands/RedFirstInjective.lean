@@ -21,8 +21,8 @@ implication (3) ⇒ (1): the projective `P⁰ = T^λ e⁰` is self-dual, through
 The library works with the left `T^λ`-module `T^λ e⁰`; the right module `e⁰ T^λ` is its image
 under the horizontal reflection `tensorFlip`, which fixes `e⁰`.
 
-We work at the standard Khovanov–Lauda parameters `CL.qCL CL.CLScalars.kl`, where the base
-crossing of Lemma 5.23 is proved (`baseCrossing_std`).
+We work for Rouquier parameters `Q`, where the base
+crossing of Lemma 5.23 is proved (`baseCrossing_of_rouquier`).
 
 ## Main results
 
@@ -45,10 +45,10 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 open scoped Classical
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 section Flip
 
@@ -99,7 +99,7 @@ theorem redFirstIdem_pairing_nondegenerate {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I
   have hidem := (TensorProductAlgebra.completeOrthogonalIdempotents_boundaryIdem
     (k := k) QL Λ ν).idem s
   set es := TensorProductAlgebra.boundaryIdem QL Λ ν s with hes
-  obtain ⟨c, hc, hac⟩ := exists_mul_redFirstIdem_ne_zero hR hQs (baseCrossing_std hR hQs) Λ ν
+  obtain ⟨c, hc, hac⟩ := exists_mul_redFirstIdem_ne_zero hR hQs (baseCrossing_of_rouquier hR hQs) Λ ν
     s.1 s.2 (a * es) (by rw [mul_assoc]; exact congrArg _ hidem.eq) hs
   obtain ⟨y, hy1, hy2, hzy⟩ := hτ (a * es * c)
     (by rw [← mul_assoc, ← mul_assoc, ha]) (by rw [mul_assoc, hc]) hac

@@ -3142,7 +3142,8 @@ example
 
 private theorem isReduced_zeroOneZero :
     TypeA.IsReduced 3 (([0, 1, 0] : List (Fin 2)).map Fin.val) :=
-  (TypeA.isReduced_iff_length_le fun k hk => by simp at hk; omega).2 (by rw [TypeA.length_eq_invCount]; decide)
+  (TypeA.isReduced_iff_length_le fun k hk => by simp at hk; omega).2
+    (by rw [TypeA.length_eq_invCount]; decide)
 
 /-- Webster, arXiv:1309.3796v3, Definition 6.16 and Corollary 6.17, for three red `sl₂` strands
 of weight `ω` at the Khovanov–Lauda scalars: the factorizations `τ` and `1 · ξ` of the positive

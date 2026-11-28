@@ -6671,6 +6671,58 @@ example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) �
       simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
     firstRed firstRed_ordered coevaluationWeight_split
 
+/-- Webster, arXiv:1309.3796v3, Proposition 7.8 (repaired reading) at the level-two coevaluation
+word: the resolution of `L_λ` by standardizations, with last term `M_λ`. The route hypothesis
+`hall` of Proposition 7.6 is assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))) CyclotomicHighestWeight.params.klrSymm) :=
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()])))
+      (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))))
+  Categorification.Stendhal.exists_stdResolution_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+    CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) [()] reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
+    firstRed firstRed_ordered coevaluationWeight_split
+
+/-- Webster, arXiv:1309.3796v3, Corollary 7.9 at the level-two coevaluation word:
+`Extⁱ(L_λ, M_λ)` is one-dimensional for `i = |ν|` and zero otherwise. The route hypothesis
+`hall` of Proposition 7.6 is assumed here, not discharged. -/
+example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))) CyclotomicHighestWeight.params.klrSymm) :=
+  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
+    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+      (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+        (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()])))
+      (KLR.KLRAlgebra.expandDiv (coevaluationDividedWord (P.cartanDatum generalized) weight
+          [()]))))
+  Categorification.Stendhal.ext_coevaluationHead
+    CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+    CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+    (fun i => by
+      cases i
+      change P.root () (P.coroot ()) = (2 : ℝ)
+      rw [P.root_coroot]
+      rfl) [()] reduced (fun i => by
+      cases i
+      simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
+    firstRed firstRed_ordered coevaluationWeight_split
+
 /-- The module category of the level-two coevaluation algebra has Ext groups. -/
 example : CategoryTheory.HasExt.{0} (ModuleCat.{0} (TensorProductAlgebra ℚ
     (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))

@@ -183,4 +183,59 @@ theorem subsingleton_of_finrank_K0_eq_zero [Module.Finite k A]
     exact v.injective.subsingleton
   | cons a l => exact hempty.elim a.1
 
+omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
+/-- A product of two semisimple modules is semisimple. -/
+theorem isSemisimpleModule_prod {M N : Type*} [AddCommGroup M] [Module A M] [AddCommGroup N]
+    [Module A N] [IsSemisimpleModule A M] [IsSemisimpleModule A N] :
+    IsSemisimpleModule A (M × N) := by
+  have h := IsSemisimpleModule.sup (IsSemisimpleModule.range (LinearMap.inl A M N))
+    (IsSemisimpleModule.range (LinearMap.inr A M N))
+  rw [LinearMap.sup_range_inl_inr] at h
+  exact IsSemisimpleModule.congr (Submodule.topEquiv (R := A) (M := M × N)).symm
+
+omit [HasGdim 𝒜] in
+private theorem isSemisimpleModule_sumList [IsSimpleModule A P.carrier]
+    (allIso : ∀ b : IndecClass 𝒜, Nonempty (P.carrier ≃ₗ[A] b.rep.carrier)) :
+    ∀ l : List (IndecClass 𝒜 × ℤ), IsSemisimpleModule A (sumList l).carrier
+  | [] => IsSemisimpleModule.congr (M := Empty → P.carrier)
+      (LinearEquiv.ofSubsingleton _ _)
+  | a :: l => by
+    have := isSemisimpleModule_sumList allIso l
+    obtain ⟨e⟩ := allIso a.1
+    have : IsSemisimpleModule A a.1.rep.carrier := IsSemisimpleModule.congr e.symm
+    exact isSemisimpleModule_prod (M := a.1.rep.carrier) (N := (sumList l).carrier)
+
+/-- **A rank-one block with a simple projective of norm one is semisimple**, and every finitely
+generated module is a finite sum of copies of that projective (Webster, arXiv:1309.3796v3, §7.1,
+proof of Proposition 7.8: the last term of the resolution of `L_λ` is a sum of copies of `M_λ`). -/
+theorem exists_linearEquiv_pi_of_rank_one
+    (rank_one : finrank (LaurentPolynomial ℤ) (K0 𝒜) = 1)
+    (hn : homGdim P P = 1) [IsSimpleModule A P.carrier]
+    (M : Type*) [AddCommGroup M] [Module A M] [Module.Finite A M] :
+    ∃ n : ℕ, Nonempty (M ≃ₗ[A] (Fin n → P.carrier)) := by
+  classical
+  have allIso := allIso_of_rank_one P rank_one hn
+  obtain ⟨l, ⟨u⟩⟩ := (regular 𝒜).exists_iso_sumList
+  let v : A ≃ₗ[A] (sumList l).carrier := u.toLinearEquiv
+  have := isSemisimpleModule_sumList P allIso l
+  have : IsSemisimpleRing A := IsSemisimpleModule.congr v
+  obtain ⟨n, S, e, hS⟩ := IsSemisimpleModule.exists_linearEquiv_fin_dfinsupp A M
+  have hiso : ∀ i, Nonempty (S i ≃ₗ[A] P.carrier) := by
+    intro i
+    have := hS i
+    have := IsSimpleModule.nontrivial A (S i)
+    obtain ⟨s, hs⟩ := exists_ne (0 : S i)
+    let g : A →ₗ[A] S i := LinearMap.toSpanSingleton A (S i) s
+    by_contra hne
+    have hg : ∀ f : P.carrier →ₗ[A] A, g.comp f = 0 := by
+      intro f
+      by_contra hf
+      exact hne ⟨(LinearEquiv.ofBijective _ (LinearMap.bijective_of_ne_zero hf)).symm⟩
+    have h0 := comp_eq_zero_of_sumList' P allIso g hg l v.symm.toLinearMap
+    apply hs
+    have := LinearMap.congr_fun h0 (v 1)
+    simpa [g] using this
+  exact ⟨n, ⟨e.trans ((DFinsupp.mapRange.linearEquiv fun i => (hiso i).some).trans
+    (DFinsupp.linearEquivFunOnFintype (R := A) (M := fun _ : Fin n => P.carrier)))⟩⟩
+
 end Categorification.Graded.GProj

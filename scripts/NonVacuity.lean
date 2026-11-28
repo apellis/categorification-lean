@@ -12974,3 +12974,28 @@ noncomputable example :=
     (ι := fun _ => Empty) (fun _ => Module.Basis.empty _)
 
 end NonVacuity.WebsterMidCapBasis
+
+namespace NonVacuity.WebsterRootStandardEnd
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.StendhalAlgebra
+
+private noncomputable abbrev q := KLR.klQ (k := ℚ) (⊥ : SimpleGraph Unit)
+private theorem qsymm : KLRSymm q := fun _ _ hab => (hab (Subsingleton.elim _ _)).elim
+private noncomputable def w := fun _ : Fin 1 => Finsupp.single () 1
+/-- One black strand to the left of the red strand, so `α(0) ≠ 0`. -/
+private def blocks : Fin 2 → Multiset Unit := ![{()}, 0]
+private noncomputable def grading :=
+  Stendhal.stendhalGradingDatum w (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+private theorem dots (a : Unit ⊕ Fin 1) : 0 < grading.degX a := by
+  cases a <;> exact (by decide : (0 : ℤ) < 2)
+
+/-- `End(S_α)` is the block algebra, with a black strand left of the red strand. -/
+example := bijective_blockAction qsymm grading dots (b := blocks) rfl
+noncomputable example := blockActionEquiv qsymm grading dots (b := blocks) rfl
+/-- Full faithfulness of standardization between the regular module and its square. -/
+example := standardizationMap_bijective qsymm grading dots (b := blocks)
+  (BlockAlgebra ℚ q w blocks) (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
+
+end NonVacuity.WebsterRootStandardEnd

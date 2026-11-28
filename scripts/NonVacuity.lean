@@ -13479,6 +13479,8 @@ example : dgDerivedTensor.{0} ℚ ℚ ℚ ≅ 𝟭 _ :=
       (congrArg (fun g => (dgDerivedTensorRegularObjIso ℚ).hom ≫ Q.map g)
         (DGModuleCat.hom_ext_apply fun x => op_smul_eq_mul t x))
 
+end
+
 end NonVacuityRegularSection
 
 /-! Uniqueness of derived tensors fixing the vacuum, one red strand (Webster Prop 7.22). -/
@@ -13534,5 +13536,7 @@ example : 𝟭 (DerivedCategory (ModuleCat.{0}
     (fun _ => Iso.refl _) (fun c _ a b => ⟨(DerivedCategory.singleFunctor _ 0).map
       (ModuleCat.ofHom (idemRightMul _ _ c (Stendhal.SingleRed.redFirstIdem_isIdempotentElem
         _ _ _ b))), by simp⟩)
+
+end
 
 end NonVacuityVacuumUniquenessSection

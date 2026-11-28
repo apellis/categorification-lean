@@ -13540,3 +13540,143 @@ example : 𝟭 (DerivedCategory (ModuleCat.{0}
 end
 
 end NonVacuityVacuumUniquenessSection
+
+/-! Quantum coevaluation and trace of `V_μ` on `sl₂` (Webster §7.1). -/
+section NonVacuityQuantumCoevSection
+/-! Non-vacuity examples for the quantum coevaluation and trace (sl₂, `μ = 2ϖ`, `w₀ = s`). -/
+
+namespace NonVacuity.QuantumCoevaluation
+
+open Categorification.Stendhal Categorification.Stendhal.QuantumDual
+
+noncomputable section
+
+private abbrev A : Matrix Unit Unit ℤ := LieLean.QuantumGroup.sl2Datum.cartanMatrix
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+private theorem longest : ∀ i, (P.coxeterSystem generalized).IsLeftDescent
+    ((P.coxeterSystem generalized).wordProd ([()] : List Unit).reverse) i := by
+  intro i
+  cases i
+  simp [CoxeterSystem.IsLeftDescent, CoxeterSystem.length_simple]
+
+private instance : Finite (P.weylGroup generalized) := by
+  refine Finite.of_surjective
+    (fun b : Bool => if b then (P.coxeterSystem generalized).simple () else 1) ?_
+  intro x
+  obtain ⟨l, rfl⟩ := (P.coxeterSystem generalized).wordProd_surjective x
+  induction l with
+  | nil => exact ⟨false, by simp⟩
+  | cons a l ih =>
+    obtain ⟨b, hb⟩ := ih
+    refine ⟨!b, ?_⟩
+    cases a
+    cases b
+    · simp_all [CoxeterSystem.wordProd_cons]
+    · simp only [Bool.not_true, Bool.false_eq_true, ↓reduceIte, CoxeterSystem.wordProd_cons] at hb ⊢
+      rw [← hb, CoxeterSystem.simple_mul_simple_self]
+
+private instance finiteWeylSl2 : Finite (P.weylGroup
+    (LieLean.QuantumGroup.sl2Datum).isGeneralizedCartan_cartanMatrix) :=
+  inferInstanceAs (Finite (P.weylGroup generalized))
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private abbrev μ : LieLean.QuantumGroup.GrandLoop.Dom LieLean.QuantumGroup.sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun i => by cases i; change (0 : ℤ) ≤ 2 * 1; norm_num⟩
+
+private theorem hmatch : ∀ j, (weight : Module.Dual ℝ _) (P.coroot j) =
+    ((μ.1 (LieLean.QuantumGroup.sl2RootDatum.coroot j) : ℤ) : ℝ) := fun i => by
+  cases i
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+example := finiteDimensional_irreducible (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := eq_smul_quantumTrace_of_invariant (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+example := quantumTrace_lowest_hwv (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := evaluationPairing_lowest_hwv (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := coevaluationElement_smul (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced longest
+
+example := contraction_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+example := contractionRight_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+example := eq_smul_coevaluationElement_of_invariant (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()]
+  reduced longest
+
+example := tensorForm_coevaluationElement (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch [()] reduced
+  longest
+
+/-- `id ⊗ qtr_μ ⊗ id` from `V_μ ⊗ V_{μ*} ⊗ V_μ` to `V_μ` (`k = 0`, `m = 1`). -/
+example := intertwines_tensorQuantumTrace (k := 0) (m := 1) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch
+  [()] reduced longest Fin.elim0 ![μ, dualWeight P μ weight dominant hmatch [()] reduced longest, μ]
+  ![μ] (fun i => i.elim0) rfl rfl (fun i => by fin_cases i; rfl)
+
+/-- `id ⊗ coev_μ ⊗ id` from `V_μ` to `V_μ ⊗ V_μ ⊗ V_{μ*}` (`k = 1`, `m = 0`). -/
+example := intertwines_tensorCoevaluation (k := 1) (m := 0) (R := LieLean.QuantumGroup.sl2RootDatum) P xRegular μ weight dominant hmatch
+  [()] reduced longest Fin.elim0 ![μ, μ, dualWeight P μ weight dominant hmatch [()] reduced longest]
+  ![μ] (fun i => by fin_cases i; rfl) rfl rfl (fun i => i.elim0)
+
+end
+
+end NonVacuity.QuantumCoevaluation
+
+end NonVacuityQuantumCoevSection
+
+/-! Symmetry of the trace of `Res ⊣ Ind` against cyclic 2-morphisms (Webster Prop 7.21). -/
+section NonVacuityTraceCyclicSection
+open CategoryTheory Categorification Categorification.Stendhal.CupCap
+
+/-- `unit_map_counit_comm_of_cyclic` with every hypothesis proved: the identity adjunction on
+`Type`, which is its own inverse adjunction, and `θ = 𝟙`. -/
+example (X : Type) (w : X ⟶ X) :=
+  unit_map_counit_comm_of_cyclic (Adjunction.id : 𝟭 Type ⊣ 𝟭 Type) Adjunction.id (𝟙 _)
+    (by simp) X w
+
+/-- `transport_commute` with every hypothesis proved: `φ = id`, `a = c = id`, `c₀ = 1`. -/
+example : (RingEquiv.refl ℤ) 1 * (NonUnitalRingHom.id ℤ) 1 =
+    (NonUnitalRingHom.id ℤ) 1 * (RingEquiv.refl ℤ) 1 :=
+  transport_commute (φ := NonUnitalRingHom.id ℤ) (φ' := NonUnitalRingHom.id ℤ)
+    (RingEquiv.refl ℤ) (RingEquiv.refl ℤ) (fun _ => rfl) (c₀ := 1) (fun t => by simp) 1
+
+/-- `conjugateEquiv_revAdjunction` with every hypothesis proved, in the bicategory of
+categories, for the identity adjunction. -/
+example (C : Cat.{0, 0}) (α : 𝟙 C ⟶ 𝟙 C) :
+    Bicategory.conjugateEquiv (RevBicat.adjunction (Bicategory.Adjunction.id C))
+        (RevBicat.adjunction (Bicategory.Adjunction.id C)) α =
+      (Bicategory.conjugateEquiv (Bicategory.Adjunction.id C)
+        (Bicategory.Adjunction.id C)).symm α :=
+  conjugateEquiv_revAdjunction _ _ α
+
+end NonVacuityTraceCyclicSection

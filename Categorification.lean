@@ -281,6 +281,7 @@ import Categorification.Diagrams.BicatInterpMirror
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush
+import Categorification.Diagrams.CLQ.CyclicDown
 import Categorification.Diagrams.CLQ.Decompositions
 import Categorification.Diagrams.CLQ.RouquierInversion
 import Categorification.Diagrams.CLQ.RouquierInversionUp
@@ -891,7 +892,10 @@ import Categorification.WeightedKLR.RedStrands.BlackRouqSigmaQ
 import Categorification.WeightedKLR.RedStrands.BlackRouqSlides
 import Categorification.WeightedKLR.RedStrands.BlackRouqThreeStrand
 import Categorification.WeightedKLR.RedStrands.BlackRouqVacuum
+import Categorification.WeightedKLR.RedStrands.BlackRouqVacuumImage
 import Categorification.WeightedKLR.RedStrands.BlackRouqWeight
+import Categorification.WeightedKLR.RedStrands.BlackRouqWordBlocks
+import Categorification.WeightedKLR.RedStrands.BlackVacuumBlockFunctor
 import Categorification.WeightedKLR.RedStrands.BlocksMidBotCorner
 import Categorification.WeightedKLR.RedStrands.BlocksStandardBasis
 import Categorification.WeightedKLR.RedStrands.BlocksStandardRows
@@ -997,6 +1001,9 @@ import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
 import Categorification.WeightedKLR.RedStrands.RedOrderedConcat
 import Categorification.WeightedKLR.RedStrands.SingStdStandardBasis
 import Categorification.WeightedKLR.RedStrands.SingStdTensorRepresented
+import Categorification.WeightedKLR.RedStrands.SingleRedBlackInductionIdeal
+import Categorification.WeightedKLR.RedStrands.SingleRedBlackVacuumIsoId
+import Categorification.WeightedKLR.RedStrands.SingleRedBlackVacuumWords
 import Categorification.WeightedKLR.RedStrands.SingleRedDerivedTensorIsoId
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
@@ -1550,6 +1557,8 @@ import Categorification.WeightedKLR.Rigidity.CupCapProp721DotDirectTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721DotMateDirect
 import Categorification.WeightedKLR.Rigidity.CupCapProp721DotMatePlus
 import Categorification.WeightedKLR.Rigidity.CupCapProp721FCrossDegreewise
+import Categorification.WeightedKLR.Rigidity.CupCapProp721FDotCyclic
+import Categorification.WeightedKLR.Rigidity.CupCapProp721FDotTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721FMixedCrossDegreewise
 import Categorification.WeightedKLR.Rigidity.CupCapProp721Induced
 import Categorification.WeightedKLR.Rigidity.CupCapProp721MateTransport
@@ -1564,6 +1573,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapProp721QuantumTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721ResIndCounit
 import Categorification.WeightedKLR.Rigidity.CupCapProp721ResIndTrace
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceCyclic
+import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceCyclicAction
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceCyclicMat
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceShiftCross
 import Categorification.WeightedKLR.Rigidity.CupCapProp721TraceShiftCrossDirect
@@ -1613,6 +1623,8 @@ import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowStdCorner
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowSumEquiv
 import Categorification.WeightedKLR.Rigidity.CupCapTraceCutWindowTop
 import Categorification.WeightedKLR.Rigidity.CutLoadingLayerMap
+import Categorification.WeightedKLR.Rigidity.QuantumCoevaluation
+import Categorification.WeightedKLR.Rigidity.QuantumCupCapTensor
 import Categorification.WeightedKLR.Rigidity.QuantumDualTwist
 import Categorification.WeightedKLR.Rigidity.QuantumIrreducibleFinite
 import Categorification.WeightedKLR.Rigidity.QuantumLowestVector

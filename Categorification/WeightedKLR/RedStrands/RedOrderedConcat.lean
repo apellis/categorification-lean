@@ -31,7 +31,7 @@ open scoped TensorProduct
 variable {I : Type*} [DecidableEq I] {ℓ : ℕ}
 
 omit [DecidableEq I] in
-theorem isRedOrdered_seqCast {μ₁ μ₂ : Multiset (I ⊕ Fin ℓ)} (h : μ₁ = μ₂) (s : Seq μ₁) :
+theorem isRedOrdered_seqCast_iff {μ₁ μ₂ : Multiset (I ⊕ Fin ℓ)} (h : μ₁ = μ₂) (s : Seq μ₁) :
     IsRedOrdered (seqCast h s) ↔ IsRedOrdered s := by
   subst h; rfl
 
@@ -91,7 +91,7 @@ theorem concatLoadIdem_redOrdered {ν ν' ν'' ν''' : Multiset (I ⊕ Fin ℓ)}
   refine Finset.sum_congr rfl fun i _ => ?_
   have hc : ∀ j : Seq ν', IsRedOrdered (seqCast h.symm (i.append j)) ↔
       IsRedOrdered i ∧ IsRedOrdered j := fun j => by
-    rw [isRedOrdered_seqCast, isRedOrdered_append_iff hsep]
+    rw [isRedOrdered_seqCast_iff, isRedOrdered_append_iff hsep]
   by_cases hi : IsRedOrdered i
   · rw [ite_eq_left hi, TensorProduct.tmul_sum, Finset.sum_filter]
     refine Finset.sum_congr rfl fun j _ => ?_

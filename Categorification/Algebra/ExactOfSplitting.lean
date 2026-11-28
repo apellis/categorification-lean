@@ -101,4 +101,28 @@ theorem ker_le_range_of_subcomplex
 
 end Subcomplex
 
+section FourLemma
+
+variable {A₁ B₁ C₁' A₂ B₂ C₂'' : Type*} [AddCommGroup A₁] [AddCommGroup B₁] [AddCommGroup C₁']
+  [AddCommGroup A₂] [AddCommGroup B₂] [AddCommGroup C₂''] [Module R A₁] [Module R B₁]
+  [Module R C₁'] [Module R A₂] [Module R B₂] [Module R C₂'']
+
+/-- **Four lemma for injectivity.** In a commutative diagram with rows `A₁ → B₁ → C₁` exact at
+`B₁` and `0 → A₂ → B₂ → C₂`, if the outer vertical maps are injective, so is the middle one.
+For Lemma 6.9 the rows are a column of the bimodule and its sub- and quotient columns, after
+tensoring with the kernel `K` and with the projective `e(t)T`; the induction runs over the gap. -/
+theorem injective_of_exact_of_injective {f₁ : A₁ →ₗ[R] B₁} {g₁ : B₁ →ₗ[R] C₁'}
+    {f₂ : A₂ →ₗ[R] B₂} {g₂ : B₂ →ₗ[R] C₂''} {α : A₁ →ₗ[R] A₂} {β : B₁ →ₗ[R] B₂}
+    {γ : C₁' →ₗ[R] C₂''} (hf : β.comp f₁ = f₂.comp α) (hg : γ.comp g₁ = g₂.comp β)
+    (hex : Function.Exact f₁ g₁) (hf₂ : Function.Injective f₂) (hα : Function.Injective α)
+    (hγ : Function.Injective γ) : Function.Injective β := by
+  rw [← ker_eq_bot, ker_eq_bot']
+  intro z hz
+  have h₁ : g₁ z = 0 := hγ (by rw [map_zero, ← comp_apply, hg, comp_apply, hz, map_zero])
+  obtain ⟨z', rfl⟩ := (hex z).1 h₁
+  have h₂ : α z' = 0 := hf₂ (by rw [map_zero, ← comp_apply, ← hf, comp_apply, hz])
+  rw [hα (h₂.trans (map_zero α).symm), map_zero]
+
+end FourLemma
+
 end LinearMap

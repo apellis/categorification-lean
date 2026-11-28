@@ -1456,6 +1456,12 @@ head `Stendhal.coevaluationHead`, with kernel the trace of the projectives with
 `κ(2) < 2ρ∨(λ)` (`CycKLR.coevaluationTrace_eq_iff_isSimpleModule`). The proof does
 not use crystals: it erases the red strands onto the cyclotomic quotient, using the
 second red strand's cyclotomic relation at the lowest weight from Kang–Kashiwara.
+Proposition 7.8 is proved (ungraded) in a repaired reading (ERRATA, Webster entry 12):
+the terms of the resolution of `L_λ` are sums of standardizations of finite-dimensional
+factor modules, and the last term is `M_λ`
+(`Stendhal.exists_stdResolution_coevaluationHead`). Corollary 7.9 follows
+(`Stendhal.ext_coevaluationHead`). Both carry the route hypothesis of Prop 7.6 for general
+`Q` and none at the standard Khovanov–Lauda parameters (`_std`).
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,

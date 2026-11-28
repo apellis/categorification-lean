@@ -70,7 +70,8 @@ theorem exists_linearEquiv_pi_lIdeal_of_rank_one (Λ : I → ℕ) (d₁ : List (
       (dividedProjective G (fun i j => congrArg Neg.neg (C.symm i j)) C Λ
           (expandDiv d₁ : Multiset I) d₁ rfl).carrier)
     {d₂ : List (I × ℕ)} (hd : d₁ = d₂) {μ : Multiset I} (h : (expandDiv d₂ : Multiset I) = μ)
-    (M : Type*) [AddCommGroup M] [Module (CycKLR k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ i) μ) M]
+    (M : Type*) [AddCommGroup M]
+    [Module (CycKLR k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ i) μ) M]
     [Module.Finite (CycKLR k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ i) μ) M] :
     ∃ n : ℕ, Nonempty (M ≃ₗ[CycKLR k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ i) μ]
       (Fin n → lIdeal (mk k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ i) μ

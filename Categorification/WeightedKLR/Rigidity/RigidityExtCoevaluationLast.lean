@@ -181,15 +181,18 @@ theorem _root_.Categorification.Stendhal.ext_coevaluationHead
       (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)))
       (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))))] :
     Module.finrank k (Ext.{w} (Stendhal.flipLeft Q
-        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _ (Stendhal.coevaluationHead Q Λ RD highest
-        (Stendhal.coevaluationDividedWord Dc weight w)))
+        (coevaluationLabels Λ RD highest
+          (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _
+        (Stendhal.coevaluationHead Q Λ RD highest (Stendhal.coevaluationDividedWord Dc weight w)))
       (Stendhal.tensorStd Q _ hQ h (Stendhal.oldProj Q _ 0 t ht)
         (Stendhal.cycDivProj Q _ (Stendhal.coevaluationDividedWord Dc weight w)))
       (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length) = 1 ∧
     ∀ i ≠ (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length,
       Subsingleton (Ext.{w} (Stendhal.flipLeft Q
-        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _ (Stendhal.coevaluationHead Q Λ RD highest
-          (Stendhal.coevaluationDividedWord Dc weight w)))
+          (coevaluationLabels Λ RD highest
+            (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _
+          (Stendhal.coevaluationHead Q Λ RD highest
+            (Stendhal.coevaluationDividedWord Dc weight w)))
         (Stendhal.tensorStd Q _ hQ h (Stendhal.oldProj Q _ 0 t ht)
           (Stendhal.cycDivProj Q _ (Stendhal.coevaluationDividedWord Dc weight w))) i) := by
   let d := Stendhal.coevaluationDividedWord Dc weight w
@@ -257,7 +260,8 @@ theorem _root_.Categorification.Stendhal.exists_stdResolution_coevaluationHead_s
       Nonempty ((S (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length).X₂ ≅
         Stendhal.tensorStd QK _ hQs h (Stendhal.oldProj QK _ 0 t ht)
           (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord Dc weight w))) :=
-  Stendhal.exists_stdResolution_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight match_weight w hw hlong hQs
+  Stendhal.exists_stdResolution_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight
+    match_weight w hw hlong hQs
     (by
       convert Stendhal.allFiniteDeltaInjective_std
         (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc
@@ -281,18 +285,22 @@ theorem _root_.Categorification.Stendhal.ext_coevaluationHead_std
       (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)))
       (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))))] :
     Module.finrank k (Ext.{w} (Stendhal.flipLeft QK
-        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _ (Stendhal.coevaluationHead QK Λ RD highest
-        (Stendhal.coevaluationDividedWord Dc weight w)))
+        (coevaluationLabels Λ RD highest
+          (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _
+        (Stendhal.coevaluationHead QK Λ RD highest (Stendhal.coevaluationDividedWord Dc weight w)))
       (Stendhal.tensorStd QK _ hQs h (Stendhal.oldProj QK _ 0 t ht)
         (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord Dc weight w)))
       (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length) = 1 ∧
     ∀ i ≠ (expandDiv (Stendhal.coevaluationDividedWord Dc weight w)).length,
       Subsingleton (Ext.{w} (Stendhal.flipLeft QK
-        (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _ (Stendhal.coevaluationHead QK Λ RD highest
-          (Stendhal.coevaluationDividedWord Dc weight w)))
+          (coevaluationLabels Λ RD highest
+            (expandDiv (Stendhal.coevaluationDividedWord Dc weight w))) _
+          (Stendhal.coevaluationHead QK Λ RD highest
+            (Stendhal.coevaluationDividedWord Dc weight w)))
         (Stendhal.tensorStd QK _ hQs h (Stendhal.oldProj QK _ 0 t ht)
           (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord Dc weight w))) i) :=
-  Stendhal.ext_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight match_weight w hw hlong hQs
+  Stendhal.ext_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight
+    match_weight w hw hlong hQs
     (by
       convert Stendhal.allFiniteDeltaInjective_std
         (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc

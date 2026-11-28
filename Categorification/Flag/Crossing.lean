@@ -87,7 +87,6 @@ theorem swap_comm_of_fix {v₁ v₂ : V} {g : Perm V} (hg1 : g v₁ = v₁) (hg2
   · exact fun h => hx1 (g.injective (h.trans hg1.symm))
   · exact fun h => hx2 (g.injective (h.trans hg2.symm))
 
-set_option synthInstance.maxHeartbeats 200000
 
 variable {S} {v₁ v₂ : V} (h₁ : ∀ w, S w = S v₁ → w = v₁) (h₂ : ∀ w, S w = S v₂ → w = v₂)
   (hne : v₁ ≠ v₂)

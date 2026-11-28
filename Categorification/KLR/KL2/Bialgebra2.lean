@@ -148,14 +148,12 @@ theorem exists_smul_mem_range_gammaG_of_div (x : G.K0R) :
 
 end Torsion
 
-set_option synthInstance.maxHeartbeats 400000 in
 include hPQ hP hG in
 /-- `K₀(R) ⊗ K₀(R)` is torsion-free over `ℤ[q, q⁻¹]` (`K₀(R)` is free, `GradingDatum.K0R_free`). -/
 theorem noZeroSMulDivisors_tensor : NoZeroSMulDivisors LP (G.K0R ⊗[LP] G.K0R) := by
   have := G.K0R_free hPQ hP hG
   exact ⟨fun h => smul_eq_zero.mp h⟩
 
-set_option synthInstance.maxHeartbeats 400000 in
 include hPQ hP hG in
 /-- `(K₀(R) ⊗ K₀(R)) ⊗ K₀(R)` is torsion-free over `ℤ[q, q⁻¹]`. -/
 theorem noZeroSMulDivisors_tensor₃ :
@@ -163,7 +161,6 @@ theorem noZeroSMulDivisors_tensor₃ :
   have := G.K0R_free hPQ hP hG
   exact ⟨fun h => smul_eq_zero.mp h⟩
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.2 on all of `K₀(R)`, for any grading datum** in which every class has
 a nonzero multiple in the image of `γ`: `Δ(xy) = Δ(x) Δ(y)` for the twisted multiplication
 (3.1). -/
@@ -178,7 +175,6 @@ theorem coprod_mul_of_exists
     map_smul, smul_smul] at key
   exact smul_right_injective _ (mul_ne_zero hp hp') key
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.1 (coassociativity of `[Res]`) on all of `K₀(R)`, for any grading
 datum** in which every class has a nonzero multiple in the image of `γ`. -/
 theorem coassoc_of_exists
@@ -251,7 +247,6 @@ theorem coprod_mul2 (x y : (G2).K0R) :
 theorem coprod_one2 : coprodKL2 k C 1 = 1 ⊗ₜ 1 :=
   (G2).coprod_one _ _ _
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.1, for KL II (coassociativity of `[Res]`)**: `(Δ ⊗ 1) ∘ Δ = (1 ⊗ Δ) ∘ Δ`
 on `K₀(R)`, up to the associativity of `⊗`. -/
 theorem coassoc2 (x : (G2).K0R) :
@@ -363,7 +358,6 @@ theorem gammaQ2_word_eq (w : FreeMonoid I) :
     gammaQ2 k C (PreF.word w) = toK0Q2 k C (gammaZ2 k C (PreF.word w)) := by
   rw [gammaQ2_word, gammaZ2_word]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `K₀(R) ⊗ K₀(R) → K₀(R)_{ℚ(v)} ⊗_{ℚ(v)} K₀(R)_{ℚ(v)}`, `x ⊗ y ↦ x ⊗ y` (KL II; additive,
 and semilinear along `q ↦ v⁻¹`, `toK0QTT2_smul`). -/
 def toK0QTT2 : (G2).K0R ⊗[LP] (G2).K0R →+ K0Q2 k C ⊗[RatFunc ℚ] K0Q2 k C :=
@@ -378,12 +372,10 @@ def toK0QTT2 : (G2).K0R ⊗[LP] (G2).K0R →+ K0Q2 k C ⊗[RatFunc ℚ] K0Q2 k C
       simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, toK0Q2_smul]
       exact TensorProduct.smul_tmul _ _ _)
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem toK0QTT2_tmul (x y : (G2).K0R) :
     toK0QTT2 k C (x ⊗ₜ y) = toK0Q2 k C x ⊗ₜ[RatFunc ℚ] toK0Q2 k C y :=
   TensorProduct.liftAddHom_tmul _ _ _ _
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem toK0QTT2_smul (p : LP) (Z : (G2).K0R ⊗[LP] (G2).K0R) :
     toK0QTT2 k C (p • Z) = qToV p • toK0QTT2 k C Z := by
   induction Z using TensorProduct.inductionOn with
@@ -392,14 +384,12 @@ theorem toK0QTT2_smul (p : LP) (Z : (G2).K0R ⊗[LP] (G2).K0R) :
       TensorProduct.smul_tmul']
   | add Z Z' hZ hZ' => rw [smul_add, map_add, map_add, hZ, hZ', smul_add]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `[Res]` over `ℚ(v)` (KL II): the base change of `Δ` along `q ↦ v⁻¹`,
 `K₀(R)_{ℚ(v)} → K₀(R)_{ℚ(v)} ⊗_{ℚ(v)} K₀(R)_{ℚ(v)}`. -/
 def coprodQ2 : K0Q2 k C →ₗ[RatFunc ℚ] K0Q2 k C ⊗[RatFunc ℚ] K0Q2 k C :=
   (TensorProduct.AlgebraTensorModule.distribBaseChange LP (RatFunc ℚ) (G2).K0R
       (G2).K0R).toLinearMap ∘ₗ (coprodKL2 k C).baseChange (RatFunc ℚ)
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem distribBaseChange_one_tmul2 (Z : (G2).K0R ⊗[LP] (G2).K0R) :
     TensorProduct.AlgebraTensorModule.distribBaseChange LP (RatFunc ℚ) (G2).K0R (G2).K0R
       ((1 : RatFunc ℚ) ⊗ₜ Z) = toK0QTT2 k C Z := by
@@ -410,7 +400,6 @@ theorem distribBaseChange_one_tmul2 (Z : (G2).K0R ⊗[LP] (G2).K0R) :
   | add Z Z' hZ hZ' =>
     rw [TensorProduct.tmul_add, LinearEquiv.map_add, hZ, hZ', AddMonoidHom.map_add]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `Δ_{ℚ(v)}` extends `Δ`: `Δ_{ℚ(v)}(x) = Δ(x)` for `x ∈ K₀(R)` (KL II). -/
 theorem coprodQ2_toK0Q2 (y : (G2).K0R) :
     coprodQ2 k C (toK0Q2 k C y) = toK0QTT2 k C (coprodKL2 k C y) := by
@@ -421,7 +410,6 @@ theorem coprodQ2_toK0Q2 (y : (G2).K0R) :
 
 variable (hGK : C.GabberKac vQ C.c)
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `(γ ⊗ γ)(r̄ θ_w) = Δ(γ θ_w)` on words `θ_w = θ_{w_1} ⋯ θ_{w_m}` (KL II). -/
 theorem map_gammaF2_rbar_word (w : FreeMonoid I) :
     TensorProduct.map (gammaF2 k C hGK).toLinearMap (gammaF2 k C hGK).toLinearMap
@@ -436,7 +424,6 @@ theorem map_gammaF2_rbar_word (w : FreeMonoid I) :
   simp only [AlgHom.toLinearMap_apply]
   rw [gammaF2_π, gammaF2_π, gammaQ2_word_eq, gammaQ2_word_eq]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL II, Theorem 8 (coalgebra part) over `ℚ(v)`**: `γ ⊗ γ` intertwines Lusztig's
 comultiplication `r̄ : f → f ⊗ f` (Cartan pairing of `C`) with `[Res]`:
 `(γ ⊗ γ)(r̄ x) = Δ_{ℚ(v)}(γ x)` for all `x ∈ f` (`f` defined under the quantum Gabber–Kac
@@ -456,7 +443,6 @@ theorem map_gammaF2_rbar (x : C.F) :
     change _ = coprodQ2 k C (gammaF2 k C hGK (PreF.π C.dot vQ C.c (word w)))
     rw [gammaF2_π, gammaQ2_word_eq, coprodQ2_toK0Q2, coprod_gammaZ2]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL II, Theorem 8 (coalgebra part) on `_𝒜 f`**: for `x ∈ _𝒜 f`,
 `(γ ⊗ γ)(r̄ x) = Δ(γ x)`, the right-hand side computed integrally in `K₀(R) ⊗ K₀(R)` (with
 `γ : _𝒜 f ≅ K₀(R)`, `KL2Gamma.gammaInt2Equiv`). -/
@@ -467,7 +453,6 @@ theorem map_gammaF2_rbar_Af (x : C.Af) :
   rw [map_gammaF2_rbar, gammaInt2Equiv_apply, gammaInt2', ← coprodQ2_toK0Q2, toK0Q2_gammaInt2]
 
 omit hGK in
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `K₀(R) ⊗ K₀(R) → K₀(R)_{ℚ(v)} ⊗ K₀(R)_{ℚ(v)}` is injective for the KL II rings
 (`K₀(R) ⊗ K₀(R)` is free over `ℤ[q, q⁻¹]`, and `q ↦ v⁻¹` is injective); so `r̄` determines `Δ`
 on `_𝒜 f`. -/
@@ -483,7 +468,6 @@ theorem toK0QTT2_injective : Function.Injective (toK0QTT2 k C) := by
   simp only
   rw [distribBaseChange_one_tmul2, distribBaseChange_one_tmul2, h]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL II, Theorem 8 in full: `γ : _𝒜 f → K₀(R)` is an isomorphism of `ℕ[I]`-graded twisted
 bialgebras**, for an arbitrary Cartan datum `C` and any field `𝕜` (under the quantum Gabber–Kac
 hypothesis `hGK` used to define `f`):

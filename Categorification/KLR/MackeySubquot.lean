@@ -51,7 +51,6 @@ The subquotients `F_c / F_{c-1}` of the Mackey filtration (`KLRAlgebra.MackeySub
 
 noncomputable section
 
-set_option synthInstance.maxHeartbeats 400000
 
 namespace Categorification.KLR
 
@@ -193,10 +192,8 @@ abbrev QuadAlg (q : MackeyQuad ν ν' ν'' ν''') : Type _ :=
 
 variable (q : MackeyQuad ν ν' ν'' ν''')
 
-set_option synthInstance.maxHeartbeats 200000 in
 instance instRingQuadAlg : Ring (QuadAlg Q q) := Algebra.TensorProduct.instRing
 
-set_option synthInstance.maxHeartbeats 200000 in
 instance instAlgebraQuadAlg : Algebra k (QuadAlg Q q) := Algebra.TensorProduct.instAlgebra
 
 /-- The embedding `ι_{α,β} ⊗ ι_{γ,δ} : R' → R(ν) ⊗ R(ν')` (non-unital, multiplicative). -/

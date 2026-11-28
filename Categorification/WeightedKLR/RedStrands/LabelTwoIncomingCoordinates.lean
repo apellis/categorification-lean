@@ -14,7 +14,6 @@ black-crossing translate.
 
 
 noncomputable section
-set_option maxHeartbeats 2400000
 namespace Categorification.Stendhal.LabelTwo
 
 open KLR KLRAlgebra Categorification.Webster.LabelTwo

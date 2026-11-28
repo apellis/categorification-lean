@@ -100,7 +100,6 @@ theorem assocBimod_mem_grade {i i' : ℤ} {r : IndBimod Q (ν + ν') ν''} {r' :
     (G.concat_tmul_mem_grade (i := i') (j := 0) hr' (SetLike.GradedOne.one_mem))
   rwa [add_zero] at this
 
-set_option maxHeartbeats 800000 in
 /-- The associativity isomorphism is degree-preserving. -/
 theorem assocFwd_mem_grading ⦃d : ℤ⦄ ⦃x : AssocL Q ν ν' ν'' N₁ N₂ N₃⦄
     (hx : x ∈ G.indGrading (ν + ν') ν''

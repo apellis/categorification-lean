@@ -192,7 +192,6 @@ private theorem start_secondDot_projected_zero :
     eq_neg_iff_add_eq_zero.mpr (by rw [add_comm, hsum])
   rw [hthree, LinearMap.neg_apply, start_firstDot_projected_zero, neg_zero]
 
-set_option maxHeartbeats 400000 in
 private theorem start_dot_annihilates_projected_gen (a : Fin m) :
     act (x a) v₀ = 0 := by
   fin_cases a

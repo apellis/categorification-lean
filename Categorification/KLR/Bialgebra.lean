@@ -299,7 +299,6 @@ theorem twistOp_zero : G.twistOp 0 = LinearMap.id :=
 theorem twistOp_one (l : Multiset I) : G.twistOp l 1 = 1 := by
   rw [K0R_one, twistOp_of, wdot_zero_right, T_zero, one_smul]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `1 ⊗ 1` is a left unit for the twisted multiplication. -/
 theorem twMul_one_left (X : G.K0R ⊗[LP] G.K0R) : G.twMul (1 ⊗ₜ 1) X = X := by
   induction X using TensorProduct.inductionOn with
@@ -309,7 +308,6 @@ theorem twMul_one_left (X : G.K0R ⊗[LP] G.K0R) : G.twMul (1 ⊗ₜ 1) X = X :=
         1 ⊗ₜ DirectSum.of G.K0fam 0 (K0.of (GProj.regular (G.grade 0))) from rfl, twMul_tmul_of,
       ← K0R_one, twistOp_zero, LinearMap.id_apply, one_mul, one_mul]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `1 ⊗ 1` is a right unit for the twisted multiplication. -/
 theorem twMul_one_right (X : G.K0R ⊗[LP] G.K0R) : G.twMul X (1 ⊗ₜ 1) = X := by
   induction X using G.induction_homog with
@@ -317,7 +315,6 @@ theorem twMul_one_right (X : G.K0R ⊗[LP] G.K0R) : G.twMul X (1 ⊗ₜ 1) = X :
   | add X X' hX hX' => rw [LinearMap.map_add, LinearMap.add_apply, hX, hX']
   | of μ μ' a b => rw [twMul_tmul_of, twistOp_one, mul_one, mul_one]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **The twisted multiplication (3.1) is associative.** -/
 theorem twMul_assoc (X Y Z : G.K0R ⊗[LP] G.K0R) :
     G.twMul (G.twMul X Y) Z = G.twMul X (G.twMul Y Z) := by
@@ -433,7 +430,6 @@ theorem gammaTTT_single (a : FreeMonoid I × FreeMonoid I × FreeMonoid I) (c : 
       c • ((G.gammaG (word a.1) ⊗ₜ G.gammaG (word a.2.1)) ⊗ₜ G.gammaG (word a.2.2)) :=
   TwistedMonoidAlgebra.lift_single _ _ _
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem gammaTTT_inclL_mul_in3 (X : TwSq LP I G.degΨ qUnitLP) (e : FreeMonoid I) :
     G.gammaTTT (inclL G.degΨ qUnitLP X * in3 G.degΨ qUnitLP (word e)) =
       G.gammaTT X ⊗ₜ G.gammaG (word e) := by
@@ -453,7 +449,6 @@ theorem gammaTTT_inclL_mul_in3 (X : TwSq LP I G.degΨ qUnitLP) (e : FreeMonoid I
     congr 1
     simp
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem gammaTTT_in1_mul_inclR (c : FreeMonoid I) (Y : TwSq LP I G.degΨ qUnitLP) :
     G.gammaTTT (in1 G.degΨ qUnitLP (word c) * inclR G.degΨ qUnitLP Y) =
       (TensorProduct.assoc LP G.K0R G.K0R G.K0R).symm (G.gammaG (word c) ⊗ₜ G.gammaTT Y) := by
@@ -474,7 +469,6 @@ theorem gammaTTT_in1_mul_inclR (c : FreeMonoid I) (Y : TwSq LP I G.degΨ qUnitLP
     congr 1
     simp
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem rTensor_coprod_gammaTT (Z : TwSq LP I G.degΨ qUnitLP) :
     (G.coprod hPQ hP hG).rTensor G.K0R (G.gammaTT Z) =
       G.gammaTTT (rTensorId G.degΨ qUnitLP Z) := by
@@ -488,7 +482,6 @@ theorem rTensor_coprod_gammaTT (Z : TwSq LP I G.degΨ qUnitLP) :
     rw [gammaTT_single, LinearMap.map_smul, LinearMap.rTensor_tmul, coprod_gammaG,
       rTensorId_single, LinearMap.map_smul, gammaTTT_inclL_mul_in3]
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem lTensor_coprod_gammaTT (Z : TwSq LP I G.degΨ qUnitLP) :
     (TensorProduct.assoc LP G.K0R G.K0R G.K0R).symm
         ((G.coprod hPQ hP hG).lTensor G.K0R (G.gammaTT Z)) =
@@ -505,7 +498,6 @@ theorem lTensor_coprod_gammaTT (Z : TwSq LP I G.degΨ qUnitLP) :
     rw [gammaTT_single, LinearMap.map_smul, LinearEquiv.map_smul, LinearMap.lTensor_tmul,
       coprod_gammaG, idTensorR_single, LinearMap.map_smul, gammaTTT_in1_mul_inclR]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **Coassociativity of `Δ` on the image of `γ`** (from the coassociativity of `r`):
 `(Δ ⊗ 1) Δ (γ x) = (1 ⊗ Δ) Δ (γ x)`. -/
 theorem coassoc_gammaG (x : PreF LP I) :
@@ -586,17 +578,14 @@ theorem exists_smul_mem_range_gammaZ (x : (Gkl).K0R) :
     | add x y hx hy => exact S.add_mem hx hy
   exact (htop ▸ Submodule.mem_top : x ∈ S)
 
-set_option synthInstance.maxHeartbeats 400000 in
 instance : NoZeroSMulDivisors LP ((Gkl).K0R ⊗[LP] (Gkl).K0R) := by
   have := K0R_free k Γ
   exact ⟨fun h => smul_eq_zero.mp h⟩
 
-set_option synthInstance.maxHeartbeats 400000 in
 instance : NoZeroSMulDivisors LP (((Gkl).K0R ⊗[LP] (Gkl).K0R) ⊗[LP] (Gkl).K0R) := by
   have := K0R_free k Γ
   exact ⟨fun h => smul_eq_zero.mp h⟩
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.2**: `[Res]` is an algebra homomorphism for the twisted multiplication
 (3.1) on `K₀(R) ⊗ K₀(R)`: `Δ(xy) = Δ(x) Δ(y)` for all `x, y ∈ K₀(R)`, and `Δ(1) = 1 ⊗ 1`. -/
 theorem coprod_mul (x y : (Gkl).K0R) :
@@ -612,7 +601,6 @@ theorem coprod_mul (x y : (Gkl).K0R) :
 theorem coprod_one : coprodKL k Γ 1 = 1 ⊗ₜ 1 :=
   (Gkl).coprod_one _ _ _
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.1 (coassociativity of `[Res]`)**: `(Δ ⊗ 1) ∘ Δ = (1 ⊗ Δ) ∘ Δ` on
 `K₀(R)`, up to the associativity of `⊗`. -/
 theorem coassoc (x : (Gkl).K0R) :
@@ -658,7 +646,6 @@ section Rational
 
 attribute [local instance] qToVAlgebra
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `K₀(R) ⊗ K₀(R) → K₀(R)_{ℚ(v)} ⊗_{ℚ(v)} K₀(R)_{ℚ(v)}`, `x ⊗ y ↦ x ⊗ y` (additive, and
 semilinear along `q ↦ v⁻¹`, `toK0QTT_smul`). -/
 def toK0QTT : (Gkl).K0R ⊗[LP] (Gkl).K0R →+ K0Q k Γ ⊗[RatFunc ℚ] K0Q k Γ :=
@@ -673,12 +660,10 @@ def toK0QTT : (Gkl).K0R ⊗[LP] (Gkl).K0R →+ K0Q k Γ ⊗[RatFunc ℚ] K0Q k �
       simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk, toK0Q_smul]
       exact TensorProduct.smul_tmul _ _ _)
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem toK0QTT_tmul (x y : (Gkl).K0R) :
     toK0QTT k Γ (x ⊗ₜ y) = toK0Q k Γ x ⊗ₜ[RatFunc ℚ] toK0Q k Γ y :=
   TensorProduct.liftAddHom_tmul _ _ _ _
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem toK0QTT_smul (p : LP) (Z : (Gkl).K0R ⊗[LP] (Gkl).K0R) :
     toK0QTT k Γ (p • Z) = qToV p • toK0QTT k Γ Z := by
   induction Z using TensorProduct.inductionOn with
@@ -687,14 +672,12 @@ theorem toK0QTT_smul (p : LP) (Z : (Gkl).K0R ⊗[LP] (Gkl).K0R) :
       TensorProduct.smul_tmul']
   | add Z Z' hZ hZ' => rw [smul_add, map_add, map_add, hZ, hZ', smul_add]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `[Res]` over `ℚ(v)`: the base change of `Δ` along `q ↦ v⁻¹`,
 `K₀(R)_{ℚ(v)} → K₀(R)_{ℚ(v)} ⊗_{ℚ(v)} K₀(R)_{ℚ(v)}`. -/
 def coprodQ : K0Q k Γ →ₗ[RatFunc ℚ] K0Q k Γ ⊗[RatFunc ℚ] K0Q k Γ :=
   (TensorProduct.AlgebraTensorModule.distribBaseChange LP (RatFunc ℚ) (Gkl).K0R
       (Gkl).K0R).toLinearMap ∘ₗ (coprodKL k Γ).baseChange (RatFunc ℚ)
 
-set_option synthInstance.maxHeartbeats 400000 in
 theorem distribBaseChange_one_tmul (Z : (Gkl).K0R ⊗[LP] (Gkl).K0R) :
     TensorProduct.AlgebraTensorModule.distribBaseChange LP (RatFunc ℚ) (Gkl).K0R (Gkl).K0R
       ((1 : RatFunc ℚ) ⊗ₜ Z) = toK0QTT k Γ Z := by
@@ -705,7 +688,6 @@ theorem distribBaseChange_one_tmul (Z : (Gkl).K0R ⊗[LP] (Gkl).K0R) :
   | add Z Z' hZ hZ' =>
     rw [TensorProduct.tmul_add, LinearEquiv.map_add, hZ, hZ', AddMonoidHom.map_add]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `Δ_{ℚ(v)}` extends `Δ`: `Δ_{ℚ(v)}(x) = Δ(x)` for `x ∈ K₀(R)`. -/
 theorem coprodQ_toK0Q (y : (Gkl).K0R) :
     coprodQ k Γ (toK0Q k Γ y) = toK0QTT k Γ (coprodKL k Γ y) := by
@@ -723,7 +705,6 @@ theorem qToV_qUnitLP_inv_zpow (n : ℤ) :
 
 variable (hGK : PreF.GabberKac (KL.C Γ).dot vQ (KL.C Γ).c)
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `(γ ⊗ γ)(r̄ θ_w) = Δ(γ θ_w)` on words `θ_w = θ_{w_1} ⋯ θ_{w_m}`. -/
 theorem map_gammaF_rbar_word (w : FreeMonoid I) :
     TensorProduct.map (gammaF k Γ hGK).toLinearMap (gammaF k Γ hGK).toLinearMap
@@ -738,7 +719,6 @@ theorem map_gammaF_rbar_word (w : FreeMonoid I) :
   simp only [AlgHom.toLinearMap_apply]
   rw [gammaF_π, gammaF_π, gammaQ_word_eq, gammaQ_word_eq]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Theorem 1.1 (coalgebra part) over `ℚ(v)`**: `γ ⊗ γ` intertwines Lusztig's
 comultiplication `r̄ : f → f ⊗ f` with `[Res]`: `(γ ⊗ γ)(r̄ x) = Δ_{ℚ(v)}(γ x)` for all `x ∈ f`
 (`f` defined under the quantum Gabber–Kac hypothesis `hGK`). -/
@@ -757,7 +737,6 @@ theorem map_gammaF_rbar (x : KL.F Γ) :
     change _ = coprodQ k Γ (gammaF k Γ hGK (KL.π Γ (word w)))
     rw [gammaF_π, gammaQ_word_eq, coprodQ_toK0Q, coprod_gammaZ]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Theorem 1.1 (coalgebra part) on `_𝒜 f`**: for `x ∈ _𝒜 f`,
 `(γ ⊗ γ)(r̄ x) = Δ(γ x)`, the right-hand side computed integrally in `K₀(R) ⊗ K₀(R)` (with
 `γ : _𝒜 f ≅ K₀(R)`, `KLGamma.gammaIntEquiv`). -/
@@ -767,7 +746,6 @@ theorem map_gammaF_rbar_Af (x : KL.Af Γ) :
       toK0QTT k Γ (coprodKL k Γ (gammaIntEquiv k Γ hGK x)) := by
   rw [map_gammaF_rbar, gammaIntEquiv_apply, gammaInt', ← coprodQ_toK0Q, toK0Q_gammaInt]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- `K₀(R) ⊗ K₀(R) → K₀(R)_{ℚ(v)} ⊗ K₀(R)_{ℚ(v)}` is injective (`K₀(R) ⊗ K₀(R)` is free over
 `ℤ[q, q⁻¹]`, and `q ↦ v⁻¹` is injective); so `r̄` determines `Δ` on `_𝒜 f`. -/
 theorem toK0QTT_injective : Function.Injective (toK0QTT k Γ) := by
@@ -782,7 +760,6 @@ theorem toK0QTT_injective : Function.Injective (toK0QTT k Γ) := by
   simp only
   rw [distribBaseChange_one_tmul, distribBaseChange_one_tmul, h]
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Theorem 1.1 in full: `γ : _𝒜 f → K₀(R)` is an isomorphism of `ℕ[I]`-graded twisted
 bialgebras** (under the quantum Gabber–Kac hypothesis `hGK` used to define `f`):
 

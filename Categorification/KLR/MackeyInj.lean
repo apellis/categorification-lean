@@ -39,7 +39,6 @@ balanced tensor product is spanned by the elements `(ψ_{u₁} ⊗ ψ_{u₂}) �
 
 noncomputable section
 
-set_option synthInstance.maxHeartbeats 400000
 
 namespace Categorification.KLR
 
@@ -751,7 +750,6 @@ def genSet {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) : Set (MackeyX Q q) :=
     QuadCond q s₃ s₄ x.2.2.1 x.2.2.2 ∧ IsShuffle (adm_hA hc) x.1⁻¹ ∧
       IsShuffle (adm_hG h hc) x.2.1⁻¹ ∧ gen Q q s₃ s₄ x v₃ v₄ = y}
 
-set_option maxHeartbeats 1000000 in
 /-- **The balanced tensor product is spanned by the generators `gen`.** -/
 theorem span_genSet {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq : Multiset.card q.β = c) :
     Submodule.span k (genSet Q h q hc) = ⊤ := by

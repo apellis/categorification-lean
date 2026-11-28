@@ -651,7 +651,6 @@ end Characters
 
 section Coalgebra
 
-set_option synthInstance.maxHeartbeats 200000
 
 theorem chW3_rTensor (Z : G.G0R hPQ hP hG ⊗[LP] G.G0R hPQ hP hG) (a b c : AllSeq I) :
     G.chW3 hPQ hP hG ((G.coprodG0 hPQ hP hG).rTensor (G.G0R hPQ hP hG) Z) ((a, b), c) =

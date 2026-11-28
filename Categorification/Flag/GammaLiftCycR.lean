@@ -30,7 +30,6 @@ variable {K : Type u} [Field K] {m : ℕ} {N : ℕ}
 
 local notation "RD" => slRootDatum m
 
-set_option maxHeartbeats 2000000 in
 /-- **`Γ_N` respects `cycCrossR j i μ`** (Cautis–Lauda `eq_almost_cyclic`, `sl_n` scalars):
 `t_{ij}^{-1} · Γ(rotCrossR j i) = Γ(downCross j i)`, where `Γ(downCross j i) = t_{ji}^{-1} · (6.9)`. -/
 theorem evalB_cycCrossR (j i : Fin m) (μ s : Wt m) (hs : s = (ob RD μ [dn j, dn i]).start)

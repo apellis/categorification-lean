@@ -93,7 +93,6 @@ private theorem detectFactors_injective :
     (f := standardEnd_detectFactors k) (hV.trans (separatedFactors_finrank k).symm)).mpr
       (standardEnd_detectFactors_surjective k)
 
-set_option maxHeartbeats 1200000 in
 private theorem pairTest_injective :
     Function.Injective (fun x : W × W => testModuleMap k (pairMap k x).val) := by
   intro x y hmap

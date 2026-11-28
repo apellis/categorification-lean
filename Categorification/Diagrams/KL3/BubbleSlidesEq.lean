@@ -425,7 +425,6 @@ end DecompTerms
 
 /-! ## The bubble slide for `i = j` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, counterclockwise, `i = j`** (KL III Proposition 3.3, first display, case
 `i = j`; Lauda, Proposition 5.6, (5.26)), for a real bubble with `m ≥ 0` dots: with
 `λ' = λ + i_X` the region to the left of the strand and `N = ⟨i, λ'⟩`,
@@ -690,7 +689,6 @@ theorem ctxL_decompTermFE (m p q : ℕ) (β : End ((pres RD k).obj (ob RD lam []
 
 end ClosureR
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, clockwise, `i = j`** (KL III Proposition 3.3, second display, case `i = j`;
 Lauda, Proposition 5.6, (5.27)), for a real bubble with `m ≥ 0` dots: with `n = ⟨i, λ⟩` (`λ`
 the region to the right of the strand, `λ + i_X` the region of the bubble on the left),

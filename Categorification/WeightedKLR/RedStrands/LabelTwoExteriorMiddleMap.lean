@@ -210,7 +210,6 @@ private theorem rightExteriorImage_row_annihilates
     (labelTwo_otherExterior_projectorRow S (ψw (otherReturnChoice w)) f)
     (otherExterior_word_annihilates param w hw _)
 
-set_option maxHeartbeats 500000 in
 private theorem rightExteriorImage_middle_annihilation (z : T) :
     (seqIdem param wt B orderedB * z) • rightExteriorImage param = 0 := by
   exact loading_mul_smul_eq_zero_of_projected_PBW («M» := middleQuotient) param wt

@@ -96,8 +96,6 @@ theorem top_of_socle
     omega
   exact ⟨hεN, nonempty_hwSpace_equiv_of_embedding hν'' hν' hPQ hP f hnil hε hnilN hεN hf⟩
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν'' hν' hPQ hP hnilN in
 /-- **KL I, Lemma 3.13 (2), top form**: for `N` irreducible with `ε_i(N) = ε = card ν''`, the head
 `L = hd Ind (N ⊠ L(i^n))` (`CrystalF`; `f̃_i N` for `n = 1`) has `ε_i(L) = ε + n`
@@ -144,8 +142,6 @@ variable {μ ν' : Multiset I} {i : I} (hν' : ∀ a ∈ ν', a = i) (hν'1 : Mu
   [IsSimpleModule (KLRAlgebra K Q (μ + ν')) N]
   (hnilN : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q (μ + ν')) N)
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hν'1 hPQ hP hnilN in
 /-- For `ε_i(N) > 0`, `ẽ_i N ⊠ L(i) ↪ Δ_i N`: the socle of `Δ_i N` is `ẽ_i N ⊠ L(i)`. -/
 theorem exists_injective_crystalE_extTensor (hpos : 0 < epsI Q (μ + ν') i N) :
@@ -199,8 +195,6 @@ variable {μ' ν'' ν' : Multiset I} {i : I} (hν'' : ∀ a ∈ ν'', a = i) (h�
   [IsSimpleModule (KLRAlgebra K Q ((μ' + ν'') + ν')) M]
   (hnil : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q ((μ' + ν'') + ν')) M)
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν'' hν' hν'1 hPQ hP hnil in
 /-- **`ẽ_i` preserves tops**: for `M` irreducible with `ε_i(M) = ε + 1` (`ε = card ν''`),
 `ε_i(ẽ_i M) = ε` and `top(ẽ_i M) ≅ top(M)`: `HW(Δ_{i^ε} ẽ_i M) ≅ HW(Δ_{i^{ε+1}} M)`. Iterating,

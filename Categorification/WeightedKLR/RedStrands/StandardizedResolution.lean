@@ -42,12 +42,12 @@ local notation "T" => TensorProductAlgebra k Q Λ (θ + β)
 local notation "𝓓" => tensorGrading (tensorProductGrade (restrictRedGrading Q Λ G) θ)
   (CycKLR.grade (restrictBlackGrading Q Λ G) (Λ (Fin.last ℓ)) β)
 
-/-- The graded standardization of `N`, as the standardization `S(N)` of `stdOf`. -/
+/-- The graded standardization of `N`, as the standardization `S(N)` of `parabolicStdOf`. -/
 def standardizationStdOfEquiv (N : GFin 𝓓) :
     (standardizationGFin Λ G θ β hsym N).carrier ≃ₗ[T]
-      stdOf Q Λ hsym θ β (ModuleCat.of D N.carrier) :=
+      parabolicStdOf Q Λ hsym θ β (ModuleCat.of D N.carrier) :=
   let f : (standardizationGFin Λ G θ β hsym N).carrier →ₗ[T]
-      stdOf Q Λ hsym θ β (ModuleCat.of D N.carrier) :=
+      parabolicStdOf Q Λ hsym θ β (ModuleCat.of D N.carrier) :=
     { toFun := parabolicStandardMap Q Λ θ β
         (show N.carrier →ₗ[D] KMod (k := k) (ModuleCat.of D N.carrier) from LinearMap.id)
       map_add' := map_add _
@@ -83,7 +83,7 @@ theorem exists_upResolution_standardizationGFin (hG : ∀ a, 0 ≤ G.degX a) :
       (nD + 1 - b - (nD + 1) * min L₀ 0 + c - n)) := fun n => by
     have := R.projective n
     have : Module.Finite D (R.term n).carrier := Module.Finite.of_restrictScalars_finite k D _
-    have hpd : HasProjectiveDimensionLT (stdOf Q Λ hsym θ β (ModuleCat.of D (R.term n).carrier))
+    have hpd : HasProjectiveDimensionLT (parabolicStdOf Q Λ hsym θ β (ModuleCat.of D (R.term n).carrier))
         (nD + 1) := by
       have := hnD (ModuleCat.of D (R.term n).carrier)
       exact hasProjectiveDimensionLT_of_ge _ nD _ (Nat.le_succ nD)

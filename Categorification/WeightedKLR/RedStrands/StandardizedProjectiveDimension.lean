@@ -24,7 +24,7 @@ functor.
 
 ## Main definitions and results
 
-* `factorOf`, `stdOf`, `stdOfMap`: standardization of modules over `D`.
+* `parabolicFactorModuleOf`, `parabolicStdOf`, `parabolicStdOfMap`: standardization of modules over `D`.
 * `hasFiltration_stdOf`: standardization preserves filtrations.
 * `exists_hasProjectiveDimensionLT_stdOf_projective`.
 -/
@@ -146,31 +146,31 @@ local notation "D" => parabolicFactorAlgebra Q Λ θ β
 local notation "T" => TensorProductAlgebra k Q Λ (θ + β)
 
 /-- A module over the factor algebra `D`, as a factor module of standardization. -/
-def factorOf (X : ModuleCat.{0} D) : FactorModule Q Λ θ β := ⟨KMod (k := k) X⟩
+def parabolicFactorModuleOf (X : ModuleCat.{0} D) : FactorModule Q Λ θ β := ⟨KMod (k := k) X⟩
 
 /-- The standardization `S(X)` of a module over `D`, over `T^λ_{θ+β}`. -/
-abbrev stdOf (X : ModuleCat.{0} D) : ModuleCat.{0} T :=
-  stdLayerModule Q Λ hQ ⟨θ, β, rfl, factorOf Q Λ θ β X⟩
+abbrev parabolicStdOf (X : ModuleCat.{0} D) : ModuleCat.{0} T :=
+  stdLayerModule Q Λ hQ ⟨θ, β, rfl, parabolicFactorModuleOf Q Λ θ β X⟩
 
 /-- The map of standardizations induced by a map of modules over `D`. -/
-def stdOfMap {X Y : ModuleCat.{0} D} (f : X →ₗ[D] Y) : stdOf Q Λ hQ θ β X →ₗ[T] stdOf Q Λ hQ θ β Y :=
-  stdLayerMap Q Λ hQ rfl (M := factorOf Q Λ θ β X) (M' := factorOf Q Λ θ β Y) (KMod.map f)
+def parabolicStdOfMap {X Y : ModuleCat.{0} D} (f : X →ₗ[D] Y) : parabolicStdOf Q Λ hQ θ β X →ₗ[T] parabolicStdOf Q Λ hQ θ β Y :=
+  stdLayerMap Q Λ hQ rfl (M := parabolicFactorModuleOf Q Λ θ β X) (M' := parabolicFactorModuleOf Q Λ θ β Y) (KMod.map f)
 
 theorem stdOfMap_comp {X Y Z : ModuleCat.{0} D} (f : X →ₗ[D] Y) (g : Y →ₗ[D] Z) :
-    stdOfMap Q Λ hQ θ β (g ∘ₗ f) = stdOfMap Q Λ hQ θ β g ∘ₗ stdOfMap Q Λ hQ θ β f :=
+    parabolicStdOfMap Q Λ hQ θ β (g ∘ₗ f) = parabolicStdOfMap Q Λ hQ θ β g ∘ₗ parabolicStdOfMap Q Λ hQ θ β f :=
   LinearMap.ext fun z => LinearMap.congr_fun
     (parabolicStandardMap_comp Q Λ θ β (KMod.map (k := k) f) (KMod.map (k := k) g)) z
 
 theorem stdOfMap_id (X : ModuleCat.{0} D) :
-    stdOfMap Q Λ hQ θ β (LinearMap.id : X →ₗ[D] X) = LinearMap.id :=
+    parabolicStdOfMap Q Λ hQ θ β (LinearMap.id : X →ₗ[D] X) = LinearMap.id :=
   LinearMap.ext fun z => LinearMap.congr_fun
     (parabolicStandardMap_id Q Λ θ β (N := KMod (k := k) X)) z
 
 /-- **Standardization preserves filtrations** (Webster, arXiv:1309.3796v3, Proposition 5.7). -/
 theorem hasFiltration_stdOf {ι : Type*} {L : ι → ModuleCat.{0} D} {m : List ι}
     {Y : ModuleCat.{0} D} (h : HasFiltration L m Y) :
-    HasFiltration (fun c => stdOf Q Λ hQ θ β (L c)) m (stdOf Q Λ hQ θ β Y) :=
-  h.map _ (stdOfMap Q Λ hQ θ β)
+    HasFiltration (fun c => parabolicStdOf Q Λ hQ θ β (L c)) m (parabolicStdOf Q Λ hQ θ β Y) :=
+  h.map _ (parabolicStdOfMap Q Λ hQ θ β)
     (fun f hf => parabolicStandardMap_injective Q Λ θ β hQ (KMod.map (k := k) f) hf)
     (fun f hf => parabolicStandardMap_surjective Q Λ θ β hQ (KMod.map (k := k) f) hf)
     (fun f g _ hfg _ => parabolicStandardMap_exact Q Λ θ β hQ (KMod.map (k := k) f)
@@ -206,7 +206,7 @@ theorem sum_pieceIdem :
 
 /-- The factor module `D (e(t) ⊗ e(u))` is `T^{λ'} e(t) ⊠ R^{λ_ℓ} e(u)`. -/
 def pieceEquiv (c : {t : Seq (stendhalWeight ℓ θ) // IsRedOrdered t} × Seq β) :
-    (factorOf Q Λ θ β (ModuleCat.of D (lIdeal (pieceIdem Q Λ θ β c)))).carrier ≃ₗ[D]
+    (parabolicFactorModuleOf Q Λ θ β (ModuleCat.of D (lIdeal (pieceIdem Q Λ θ β c)))).carrier ≃ₗ[D]
       (tensorFactor Q Λ (oldProj Q Λ θ c.1.1 c.1.2) (cycProj Q Λ β c.2)).carrier :=
   (ExtTensor.lIdealEquiv k (seqIdem_mul_self Q (old) c.1.1 c.1.2)
       (show IsIdempotentElem (CycKLR.mk k Q (aΛ) β (e c.2)) by
@@ -222,7 +222,7 @@ include hR
 theorem exists_hasProjectiveDimensionLT_stdOf_piece
     (c : {t : Seq (stendhalWeight ℓ θ) // IsRedOrdered t} × Seq β) :
     ∃ n, HasProjectiveDimensionLT
-      (stdOf Q Λ hQ θ β (ModuleCat.of D (lIdeal (pieceIdem Q Λ θ β c)))) n := by
+      (parabolicStdOf Q Λ hQ θ β (ModuleCat.of D (lIdeal (pieceIdem Q Λ θ β c)))) n := by
   obtain ⟨m', hm'⟩ := hasStandardFiltrations_of_rouquier hR hQ (old) θ c.1.1 c.1.2
   have h₂ : HasFiltration (fun d => stdModule Q Λ _ (twoPieceLabel (ℓ := ℓ) (rfl : θ + β = θ + β)
       c.2 d)) m' (stdLayerModule Q Λ hQ (tensorLayer Q Λ rfl (oldProj Q Λ θ c.1.1 c.1.2)
@@ -240,7 +240,7 @@ theorem exists_hasProjectiveDimensionLT_stdOf_piece
 
 /-- The standardization of the regular module `D` has finite projective dimension. -/
 theorem exists_hasProjectiveDimensionLT_stdOf_regular :
-    ∃ n, HasProjectiveDimensionLT (stdOf Q Λ hQ θ β (ModuleCat.of D D)) n := by
+    ∃ n, HasProjectiveDimensionLT (parabolicStdOf Q Λ hQ θ β (ModuleCat.of D D)) n := by
   classical
   obtain ⟨l, hl⟩ := exists_hasFiltration_regular (pieceIdem Q Λ θ β) (pieceIdem_idem Q Λ θ β)
     (pieceIdem_orth Q Λ θ β) (sum_pieceIdem Q Λ θ β)
@@ -253,24 +253,24 @@ arXiv:1309.3796v3, proof of Theorem 5.28): there is `n` such that `S(P)` has pro
 `< n` for every finitely generated projective module `P` over `D`. -/
 theorem exists_hasProjectiveDimensionLT_stdOf_projective :
     ∃ n, ∀ (P : ModuleCat.{0} D) [Module.Projective D P] [Module.Finite D P],
-      HasProjectiveDimensionLT (stdOf Q Λ hQ θ β P) n := by
+      HasProjectiveDimensionLT (parabolicStdOf Q Λ hQ θ β P) n := by
   obtain ⟨n, hn⟩ := exists_hasProjectiveDimensionLT_stdOf_regular Q Λ hQ θ β hR
   refine ⟨n, fun P _ _ => ?_⟩
   obtain ⟨m, ⟨i, r, hri⟩⟩ := exists_retract_pi P
   obtain ⟨l, hl⟩ := exists_hasFiltration_pi (A := D) m
-  have : HasProjectiveDimensionLT (stdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D))) n :=
+  have : HasProjectiveDimensionLT (parabolicStdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D))) n :=
     (hasFiltration_stdOf Q Λ hQ θ β hl).hasProjectiveDimensionLT n fun _ _ => hn
   let i' : P →ₗ[D] ModuleCat.of D (Fin m → D) := i
   let r' : ModuleCat.of D (Fin m → D) →ₗ[D] P := r
   have hri' : r' ∘ₗ i' = LinearMap.id := hri
-  let R : Retract (stdOf Q Λ hQ θ β P) (stdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D))) :=
-    { i := ModuleCat.ofHom (X := stdOf Q Λ hQ θ β P)
-          (Y := stdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D))) (stdOfMap Q Λ hQ θ β i')
-      r := ModuleCat.ofHom (X := stdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D)))
-          (Y := stdOf Q Λ hQ θ β P) (stdOfMap Q Λ hQ θ β r')
+  let R : Retract (parabolicStdOf Q Λ hQ θ β P) (parabolicStdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D))) :=
+    { i := ModuleCat.ofHom (X := parabolicStdOf Q Λ hQ θ β P)
+          (Y := parabolicStdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D))) (parabolicStdOfMap Q Λ hQ θ β i')
+      r := ModuleCat.ofHom (X := parabolicStdOf Q Λ hQ θ β (ModuleCat.of D (Fin m → D)))
+          (Y := parabolicStdOf Q Λ hQ θ β P) (parabolicStdOfMap Q Λ hQ θ β r')
       retract := by
         ext z
-        change stdOfMap Q Λ hQ θ β r' (stdOfMap Q Λ hQ θ β i' z) = z
+        change parabolicStdOfMap Q Λ hQ θ β r' (parabolicStdOfMap Q Λ hQ θ β i' z) = z
         rw [← LinearMap.comp_apply, ← stdOfMap_comp, hri', stdOfMap_id]
         rfl }
   exact R.hasProjectiveDimensionLT n

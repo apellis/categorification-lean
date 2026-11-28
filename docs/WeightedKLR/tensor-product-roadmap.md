@@ -939,6 +939,14 @@ projective resolutions); self-dual projectives and double centralizer
 (Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
 Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
 
+Thm 5.28 (v3; projective resolutions of simples in `C↑`) is in progress. The generic steps are
+done: up-resolutions with their shift, horseshoe (Lemma 5.29 for `C↑`) and cone steps
+(`Algebra/Graded/UpResolution.lean`), and the positivity step: for a degree-zero idempotent `e`
+with `A e A = A` and `e A e` nonnegatively graded with `(e A e)_0 = k e`, every finite-dimensional
+graded module has a resolution in `C↑` (`GFin.exists_upResolution_of_corner`,
+`Algebra/Graded/CornerResolution.lean`). Open: the cyclotomic nilHecke corner as such an `e`,
+one red strand, and general `λ` by standardization.
+
 Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is
 proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) = 0` when `t` is
 not below `s`, and `Ext^{n+1}(S_t, S_s) = 0` when `s ≤ t`. Full faithfulness is proved for the

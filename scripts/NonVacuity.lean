@@ -3908,6 +3908,9 @@ module of the block algebra is bijective on endomorphisms, and the block action 
 block algebra with `End(S^L_α)`. -/
 example := standardizationEndEquiv q qsymm w blocks rfl hα (BlockAlgebra ℚ q w blocks)
 example := bijective_leftBlockActionOf q w blocks hα qsymm rfl
+/-- Full faithfulness between two different modules: the regular module and its square. -/
+example := standardizationHomEquiv q qsymm w blocks rfl hα (BlockAlgebra ℚ q w blocks)
+  (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
 
 end StandardizationEndExamples
 

@@ -932,12 +932,12 @@ proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) 
 not below `s`, and `Ext^{n+1}(S_t, S_s) = 0` when `s ≤ t`. Full faithfulness is proved for the
 two-piece standardization of the induced model (`ParabolicStandardFullyFaithful.lean`):
 `Hom_D(N, N') ≅ Hom_{T^λ}(S(N), S(N'))` for all modules (`parabolicStandardMapT_bijective`).
-For the Def 5.4 standardization with `b_0 = 0`, `End_B(M) ≅ End_{T^λ}(M ⊗_B S^L_α)` for every
-module (`StandardizationFullyFaithful.lean`, `standardizationEndEquiv`), by induction on `ℓ`
-through `splitStandardEquiv` (natural in `M`) and the two-piece result; hence the block action
-of Prop 5.3 identifies `B = T^{μ_1} ⊗ ⋯ ⊗ T^{μ_ℓ}` with `End(S^L_α)`
-(`bijective_leftBlockActionOf`). Open: `Hom` between different modules for the Def 5.4
-standardization (the same induction, with `InitRestrict` on maps) and `α(0) ≠ 0`.
+For the Def 5.4 standardization with `b_0 = 0`, `Hom_B(M, M') ≅ Hom_{T^λ}(S(M), S(M'))` for all
+modules (`StandardizationHomFullyFaithful.lean`, `standardizationHomEquiv`), by induction on `ℓ`
+through `splitStandardEquiv` (natural in `M`, `splitStandardEquiv_mapRight_hom`) and the
+two-piece result; for `M' = M` this is `End_B(M) ≅ End_{T^λ}(S(M))` as algebras
+(`standardizationEndEquiv`), and the block action of Prop 5.3 identifies
+`B = T^{μ_1} ⊗ ⋯ ⊗ T^{μ_ℓ}` with `End(S^L_α)` (`bijective_leftBlockActionOf`). Open: `α(0) ≠ 0`.
 Generation (`StandardGeneration.lean`): in the ungraded `D(T^λ)`, every standard module is
 perfect (`isCompact_stdModule`) and the standards generate the perfect complexes as a thick
 subcategory (`thickClosure_stdModule_eq_isCompact`). Webster's statement is in the graded

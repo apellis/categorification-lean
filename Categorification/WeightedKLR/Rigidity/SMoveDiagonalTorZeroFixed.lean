@@ -24,7 +24,8 @@ fixes loading idempotents, so
 
 * `ordinaryBalancedTensorLinearEquiv`: the comparison `M ⊗_B N ≅ M ⊗_{k, B} N` is `k`-linear.
 * `SMove.fixSubReflectOneLeftStdEquiv`: `W^r e(s) ≅ e(s) W`.
-* `SMove.finrank_tensorProductOver_reflectOne_leftStd_leftStandard`.
+* `SMove.finrank_tensorProductOver_reflectOne_leftStd_leftStandard`, and the generic form
+  `SMove.finrank_tensorProductOver_reflectOne_leftStandard` (any coefficient killed above `s`).
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -133,6 +134,68 @@ theorem finrank_tensorProductOver_reflectOne_leftStd_leftStandard
   ((ordinaryBalancedTensorLinearEquiv (op_algebraMap_smul_eq Q Λ _)).trans
     ((leftStdReflectTensorEquivFixed Q hQ Λ hρ N s hs hlast).trans
       (fixSubReflectOneLeftStdEquiv Q hQ Λ hρ N s hs))).finrank_eq
+
+section Generic
+
+variable {ℓ : ℕ} (Λ' : Fin (ℓ + 1) → I →₀ ℕ)
+  {ρ' : Perm (Fin (Multiset.card (stendhalWeight (ℓ + 1) ν))) → List ℕ}
+  (hρ' : TypeA.IsReducedChoice ρ')
+
+local notation "T'" => TensorProductAlgebra k Q Λ' ν
+
+/-- The scalars of `k` commute with the right action on a reflection. -/
+theorem smulCommClass_reflectOne (W : ModuleCat.{0} T') :
+    SMulCommClass k T'ᵐᵒᵖ ((reflectOne Q Λ' hQ hρ').obj W) :=
+  IsScalarTower.to_smulCommClass
+
+attribute [local instance] smulCommClass_reflectOne
+
+/-- On the reflection at the trivial braid, the right action of a loading idempotent is its
+left action on the module. -/
+theorem op_seqIdem_smul_reflectOne (W : ModuleCat.{0} T') (s : Seq (stendhalWeight (ℓ + 1) ν))
+    (hs : IsRedOrdered s) (w : (reflectOne Q Λ' hQ hρ').obj W) :
+    op (seqIdem Q Λ' s hs) • w = (seqIdem Q Λ' s hs • (show W from w) : W) := by
+  change (cornerFlipTensorEquiv (Λ := Λ') hρ' hQ 1 (op (seqIdem Q Λ' s hs))) •
+    (show W from w) = _
+  rw [cornerFlipTensorEquiv_one_apply, unop_op, seqIdem]
+  erw [tensorFlip_mk_e]
+  rfl
+
+/-- `W^r e(s) ≅ e(s) W` for the reflection at the trivial braid. -/
+def fixSubReflectOneEquiv (W : ModuleCat.{0} T') (s : Seq (stendhalWeight (ℓ + 1) ν))
+    (hs : IsRedOrdered s) :
+    fixSub k ((reflectOne Q Λ' hQ hρ').obj W) (op (seqIdem Q Λ' s hs)) ≃ₗ[k]
+      fixSub k W (seqIdem Q Λ' s hs) where
+  toFun x := ⟨x.1, (op_seqIdem_smul_reflectOne Q hQ Λ' hρ' W s hs x.1).symm.trans x.2⟩
+  invFun x := ⟨x.1, (op_seqIdem_smul_reflectOne Q hQ Λ' hρ' W s hs x.1).trans x.2⟩
+  map_add' _ _ := rfl
+  map_smul' c x := Subtype.ext (by
+    change (algebraMap k T'ᵐᵒᵖ c) • (x.1 : (reflectOne Q Λ' hQ hρ').obj W) =
+      (algebraMap k T' c • (show W from x.1) : W)
+    change (cornerFlipTensorEquiv (Λ := Λ') hρ' hQ 1 (op (algebraMap k T' c))) •
+      (show W from x.1) = _
+    rw [cornerFlipTensorEquiv_one_apply, unop_op]
+    erw [tensorFlip_algebraMap']
+    rfl)
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+/-- **`Tor₀` of a reflected coefficient against a standard is a corner** (Webster,
+arXiv:1309.3796v3, §7.3, proof of Proposition 7.22): if `e(t) W = 0` for every loading `t`
+strictly above `s`, then `dim_k (W^r ⊗_T S_s) = dim_k e(s) W`. No route hypotheses. -/
+theorem finrank_tensorProductOver_reflectOne_leftStandard (W : ModuleCat.{0} T')
+    (s : Seq (stendhalWeight (ℓ + 1) ν)) (hs : IsRedOrdered s)
+    (hkill : ∀ (t : Seq (stendhalWeight (ℓ + 1) ν)) (ht : IsRedOrdered t), StendhalLT s t →
+      ∀ w : W, seqIdem Q Λ' t ht • w = 0) :
+    Module.finrank k (TensorProductOver T' ((reflectOne Q Λ' hQ hρ').obj W)
+        (ModuleCat.of T' (leftStandard Q Λ' s hs))) =
+      Module.finrank k (fixSub k W (seqIdem Q Λ' s hs)) :=
+  ((ordinaryBalancedTensorLinearEquiv (op_algebraMap_smul_eq Q Λ' _)).trans
+    ((leftStandardTensorEquivFixed Q Λ' s hs _ fun t ht hst w =>
+      (op_seqIdem_smul_reflectOne Q hQ Λ' hρ' W t ht w).trans (hkill t ht hst w)).trans
+      (fixSubReflectOneEquiv Q hQ Λ' hρ' W s hs))).finrank_eq
+
+end Generic
 
 end Stendhal.SMove
 

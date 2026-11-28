@@ -910,8 +910,11 @@ an indecomposable finitely generated projective module is injective exactly when
 of `P⁰`. The direction (1) ⇒ (3) does not pass through (2): projective modules have no nonzero
 element killed by `e⁰ T^λ`, so they embed into sums of copies of the self-dual `P⁰`, and the
 Krull–Schmidt exchange step (`Algebra/CornerFaithfulEmbedding.lean`, from Fitting's lemma) gives
-a single copy. Open: (2), the identification with injective hulls of standard modules, which
-needs every standard module to have no nonzero element killed by `e⁰ T^λ`.
+a single copy. (1) ⇔ (2) is `Stendhal.injective_iff_isSummandOfInjectiveHull_standard`: an
+indecomposable standard module is read as an indecomposable summand of some `S_c`; injective
+hulls are built in `Algebra/InjectiveHull.lean` (maximal essential extensions), and a nonzero
+submodule of `P` embeds into a standard module through the standard filtration of `T^λ e(s)`
+(`Algebra/ModuleFiltrationEmbedding.lean`).
 
 Prop 5.30 (v3: Prop 5.33) is proved with no extra hypothesis: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
 `T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,

@@ -20,8 +20,8 @@ is self-dual, `A e ≅ (e A)^*`, so a map `M → A e` is the same as a functiona
 * `exists_injective_pi_lIdeal`: a finite-dimensional module `M` with no nonzero element `m`
   such that `e a m = 0` for every `a` embeds into a finite sum of copies of `A e`.
 * `IsIndecomposableModule.exists_retraction_of_retraction_pi`: an indecomposable module of
-  finite length which is a summand of a finite sum `X^ι` is a summand of `X` (the exchange step
-  of Krull–Schmidt, from Fitting's lemma).
+  finite length which is a summand of a finite sum `Π j, X j` is a summand of some `X j` (the
+  exchange step of Krull–Schmidt, from Fitting's lemma).
 * `exists_retraction_lIdeal_of_injective`: hence an indecomposable injective module of that
   kind is a summand of `A e`.
 -/
@@ -85,12 +85,12 @@ theorem not_bijective_sum (hM : IsIndecomposableModule R M) {ι : Type*} (s : Fi
       (ih fun j' hj' => hg j' (Finset.mem_insert_of_mem hj'))
 
 /-- **Exchange**: an indecomposable module of finite length which is a summand of a finite
-product `ι → X` is a summand of `X`. -/
+product `Π j, X j` is a summand of one of the factors `X j`. -/
 theorem exists_retraction_of_retraction_pi (hM : IsIndecomposableModule R M) {ι : Type*}
-    [Fintype ι] [DecidableEq ι] {X : Type*} [AddCommGroup X] [Module R X]
-    (i : M →ₗ[R] ι → X) (r : (ι → X) →ₗ[R] M) (h : r ∘ₗ i = LinearMap.id) :
-    ∃ (i' : M →ₗ[R] X) (r' : X →ₗ[R] M), r' ∘ₗ i' = LinearMap.id := by
-  let g : ι → Module.End R M := fun j => (r ∘ₗ LinearMap.single R (fun _ => X) j) ∘ₗ
+    [Fintype ι] [DecidableEq ι] {X : ι → Type*} [∀ j, AddCommGroup (X j)] [∀ j, Module R (X j)]
+    (i : M →ₗ[R] (∀ j, X j)) (r : (∀ j, X j) →ₗ[R] M) (h : r ∘ₗ i = LinearMap.id) :
+    ∃ (j : ι) (i' : M →ₗ[R] X j) (r' : X j →ₗ[R] M), r' ∘ₗ i' = LinearMap.id := by
+  let g : ι → Module.End R M := fun j => (r ∘ₗ LinearMap.single R X j) ∘ₗ
     (LinearMap.proj j ∘ₗ i)
   have hsum : ∑ j, g j = LinearMap.id := by
     rw [← h]
@@ -106,7 +106,7 @@ theorem exists_retraction_of_retraction_pi (hM : IsIndecomposableModule R M) {ι
   intro j _ hj
   apply hne
   let φ := LinearEquiv.ofBijective (g j) hj
-  refine ⟨LinearMap.proj j ∘ₗ i, φ.symm.toLinearMap ∘ₗ (r ∘ₗ LinearMap.single R (fun _ => X) j),
+  refine ⟨j, LinearMap.proj j ∘ₗ i, φ.symm.toLinearMap ∘ₗ (r ∘ₗ LinearMap.single R X j),
     LinearMap.ext fun x => ?_⟩
   exact φ.symm_apply_apply x
 
@@ -237,7 +237,7 @@ theorem exists_retraction_lIdeal_of_injective (he : IsIdempotentElem e)
   have : IsArtinian A M := isArtinian_of_tower k inferInstance
   obtain ⟨f, hf⟩ := exists_injective_pi_lIdeal he hnd hdim hM
   obtain ⟨r, hr⟩ := exists_retraction_of_baer hB f hf
-  obtain ⟨i', r', h⟩ := hP.exists_retraction_of_retraction_pi f r hr
+  obtain ⟨-, i', r', h⟩ := hP.exists_retraction_of_retraction_pi f r hr
   exact ⟨i', r', fun x => LinearMap.congr_fun h x⟩
 
 end Embedding

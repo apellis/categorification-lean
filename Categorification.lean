@@ -87,6 +87,7 @@ import Categorification.Algebra.InductionAlongResOfEq
 import Categorification.Algebra.InductionAlongSigma
 import Categorification.Algebra.InductionAlongSigmaTransport
 import Categorification.Algebra.InductionAlongSumInvTransport
+import Categorification.Algebra.InjectiveHull
 import Categorification.Algebra.MapDerivedAdjunctionUnit
 import Categorification.Algebra.MapDerivedNatTrans
 import Categorification.Algebra.MapDerivedNatTransLinear
@@ -191,6 +192,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.ModuleFiltrationEmbedding
 import Categorification.Algebra.ModuleFiltrationIdempotents
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.GradedOrderedProjectiveResolution

@@ -320,7 +320,8 @@ theorem exists_upResolution_of_head (ε : A) (L : GFin 𝒜) (hL : IsGradedSimpl
       have RK := UpResolution.ofKernel S (RM.mono (le_max_left cM cQ))
         (RQ.mono (le_max_right cM cQ))
       rcases isUngradedSubquotient_ker_or_iso hL hLs hsub p.mkQ with hK | he
-      · exact ih _ hKlt K rfl hK (by omega) ⟨_, ⟨RK⟩⟩ fun L' h₁ h₂ h₃ => hzero L' h₁ (hsubK L' h₂) h₃
+      · exact ih _ hKlt K rfl hK (by omega) ⟨_, ⟨RK⟩⟩ fun L' h₁ h₂ h₃ =>
+          hzero L' h₁ (hsubK L' h₂) h₃
       · exfalso
         obtain ⟨e⟩ := he
         have := epsDim_le_of_surjective (k := k) (X := Lfin) (Y := L) ε e.toLinearMap e.surjective

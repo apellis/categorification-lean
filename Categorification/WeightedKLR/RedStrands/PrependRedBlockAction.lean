@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.PrependRedStandard
 import Categorification.Algebra.PiTensorProductCons
 import Categorification.Algebra.CommutingFamilySingle
 import Categorification.WeightedKLR.RedStrands.Standardization
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebra
 
 /-!
 # The block action after adding a red strand on the left
@@ -67,28 +68,6 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 
 namespace StendhalAlgebra
 
-section General
-
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
-  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
-  {b : Fin (ℓ + 1) → Multiset I}
-
-theorem blockAction_tmul_one (hb : blockPrefix b (ℓ + 1) = ν) (a : KLRAlgebra k Q (leftBlock b)) :
-    blockAction Q Λ hb (a ⊗ₜ 1) = rootBlockAction Q Λ hb 0 (Nat.succ_pos ℓ) a := by
-  rw [blockAction]
-  erw [Algebra.TensorProduct.lift_tmul]
-  rw [map_one, mul_one]
-
-theorem blockAction_one_tmul_single (hb : blockPrefix b (ℓ + 1) = ν) (r : Fin ℓ)
-    (u : KLRAlgebra k Q (rightBlock b r)) :
-    blockAction Q Λ hb (1 ⊗ₜ PiTensorProduct.singleAlgHom r (CycKLR.mk k Q (redCyc Λ r) _ u)) =
-      rootBlockAction Q Λ hb (r.val + 1) (Nat.succ_lt_succ r.2) u := by
-  rw [blockAction]
-  erw [Algebra.TensorProduct.lift_tmul]
-  rw [map_one, one_mul, cycBlocksAction, PiTensorProduct.liftCommuting_singleAlgHom,
-    cycBlockAction_mk]
-
-end General
 
 variable {I : Type} [DecidableEq I] {k : Type} [Field k] {ℓ : ℕ}
   {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin (ℓ + 1) → I →₀ ℕ} {ν : Multiset I}

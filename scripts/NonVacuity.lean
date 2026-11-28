@@ -2572,6 +2572,11 @@ example := Stendhal.FirstWeight.ordinary_hom_eq_corner shuffleLevels (CartanDatu
 example := Stendhal.FirstWeight.tensorWordProjective_factorial (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params dividedRedWord
 example := Stendhal.FirstWeight.tensorWordVector_factorial dividedRedWord twoTensorFactors
+/-- Webster's Lemma 5.19 (arXiv:1309.3796v3) for a level-two `sl₂` tensor word. -/
+example := Stendhal.FirstWeight.tensorWordUndivided_eq_sum_standardVector params
+  (fun _ : Fin 2 => Finsupp.single () 2) dividedRedWord twoTensorFactors
+  (fun _ i => by cases i; rw [Finsupp.single_eq_same]; exact dominantTwo ())
+  (ρ := TypeA.canWord _) (fun _ => ⟨TypeA.isReduced_canWord _ _, TypeA.wordProd_canWord _ _⟩)
 example := Stendhal.FirstWeight.span_tensorWordProjective (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params (Multiset.replicate 3 ())
 

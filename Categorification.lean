@@ -1306,6 +1306,7 @@ import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.WeightedKLR.RedStrands.BraidingForgetDerived
 import Categorification.WeightedKLR.RedStrands.CornerGradedEquivalence
 import Categorification.WeightedKLR.RedStrands.BraidingGradedEquivalence
+import Categorification.WeightedKLR.RedStrands.BraidingGradedComp
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading
 import Categorification.WeightedKLR.RedStrands.AdjacentRedSwapNormalization
 import Categorification.WeightedKLR.RedStrands.BraidingWeightDecomposition
@@ -2179,6 +2180,7 @@ import Categorification.Algebra.WeightCoendReindex
 import Categorification.Algebra.WeightCoendRelabel
 import Categorification.Algebra.WeightForget
 import Categorification.Algebra.WeightForgetDerived
+import Categorification.Algebra.WeightForgetQuasiIso
 import Categorification.Algebra.DiagramWeightForgetTensor
 import Categorification.Algebra.DiagramWeightForgetDerived
 import Categorification.Algebra.WeightProjection
@@ -2201,6 +2203,8 @@ import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightTensorComp
 import Categorification.Algebra.DiagramWeightDerivedComp
+import Categorification.Algebra.DiagramWeightCompForget
+import Categorification.Algebra.DiagramWeightCornerComp
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightComplex
 import Categorification.Algebra.DiagramWeightComplexKProjective

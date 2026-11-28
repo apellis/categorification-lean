@@ -1011,8 +1011,13 @@ a graded derived tensor is an equivalence when the ungraded one is
 (`isEquivalence_diagramWeightDerivedTensor`, `Algebra/DiagramWeightEquivalence.lean`), through
 the derived adjunction between forgetting the weights and the constant module and compact
 generation by the internal shifts of the representables. Lemma 6.13 for the graded functor
-follows (`isCompact_auxiliaryGradedBraidingFunctor_obj`). Open: carry Lemma 6.12 over to the
-graded functor.
+follows (`isCompact_auxiliaryGradedBraidingFunctor_obj`). Lemma 6.12 (second clause) holds for
+the graded functors with the route hypotheses of the ungraded theorem
+(`auxiliaryGradedBraidingFunctorCompIsoOfLengthAdd`, `RedStrands/BraidingGradedComp.lean`),
+through the composite of graded derived tensors (`diagramWeightDerivedTensorCompIso`,
+`Algebra/DiagramWeightDerivedComp.lean`); the graded Tor condition follows from the ungraded one
+because forgetting the weights reflects quasi-isomorphisms
+(`isIso_diagramWeightTensor_map_counit_of_torVanishing`, `Algebra/DiagramWeightCompForget.lean`).
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of

@@ -227,4 +227,55 @@ theorem topsResolvable_of_factors (hG : ∀ a, 0 ≤ G.degX a)
   obtain ⟨c', ⟨R'⟩⟩ := ih _ hlt v _ s' rfl hv' hs'
   exact ⟨_, ⟨(R'.shift a).congr e'.symm⟩⟩
 
+section Induction
+
+omit hR in
+/-- With no black strands, `T^λ_0 ≅ k`, so every module is projective and every simple top has
+a resolution in `C↑`. -/
+theorem topsResolvable_vacuum {n : ℕ} {Λ' : Fin n → I →₀ ℕ} (G' : GradingDatum (stendhalQ Q Λ')) :
+    TopsResolvable (tensorProductGrade G' 0) := by
+  intro s hs
+  have : IsSemisimpleRing (TensorProductAlgebra k Q Λ' 0) :=
+    (tensorProductAlgebraZeroEquiv Q Λ').symm.toRingEquiv.isSemisimpleRing
+  have := Module.projective_of_isSemisimpleRing (TensorProductAlgebra k Q Λ' 0) s.top
+  obtain ⟨L, U, hLU⟩ := exists_bounds (ℳ := s.top.grading)
+  exact ⟨_, ⟨GFin.UpResolution.ofProjective _ (m := L) fun j hj => hLU j (Or.inl hj)⟩⟩
+
+omit hR in
+/-- With no red strands and a nonzero black weight the algebra is zero, so there are no simple
+tops. -/
+theorem topsResolvable_noRed (G' : GradingDatum (stendhalQ Q (Fin.elim0 : Fin 0 → I →₀ ℕ)))
+    {ν : Multiset I} (hν : ν ≠ 0) : TopsResolvable (tensorProductGrade G' ν) := by
+  intro s _
+  have := subsingleton_emptyTensorAlgebra Q hν
+  have : Subsingleton s.top := Module.subsingleton (TensorProductAlgebra k Q Fin.elim0 ν) _
+  exact absurd (IndecClass.isGradedSimple_top s).nontrivial (not_nontrivial _)
+
+/-- **Webster, arXiv:1309.3796v3, Theorem 5.28, reduced to one red strand.** For Rouquier
+parameters and nonnegative dot degrees, if the graded simple modules over every cyclotomic KLR
+algebra `R^μ_β` (one red strand) have resolutions in `C↑`, then so do the graded simple modules
+over every tensor product algebra `T^λ_ν`. The hypothesis is the one-red-strand case of
+Theorem 5.28, whose printed proof has a gap (see the roadmap); it is tracked for removal. -/
+theorem topsResolvable_of_cyclotomic
+    (hcyc : ∀ (G' : GradingDatum Q), (∀ i, 0 ≤ G'.degX i) → ∀ (μ : I → ℕ) (β : Multiset I),
+      TopsResolvable (CycKLR.grade G' μ β)) :
+    ∀ (n : ℕ) (Λ' : Fin n → I →₀ ℕ) (G' : GradingDatum (stendhalQ Q Λ')),
+      (∀ a, 0 ≤ G'.degX a) → ∀ ν : Multiset I, TopsResolvable (tensorProductGrade G' ν) := by
+  intro n
+  induction n with
+  | zero =>
+    intro Λ' G' _ ν
+    obtain rfl : Λ' = Fin.elim0 := funext fun i => i.elim0
+    by_cases hν : ν = 0
+    · subst hν
+      exact topsResolvable_vacuum G'
+    · exact topsResolvable_noRed G' hν
+  | succ n ih =>
+    intro Λ' G' hG' ν
+    exact topsResolvable_of_factors Λ' G' hR hG'
+      (fun θ => ih _ _ (fun _ => hG' _) θ)
+      (fun β => hcyc _ (fun _ => hG' _) _ β) ν
+
+end Induction
+
 end Categorification.Stendhal

@@ -13239,3 +13239,149 @@ example := standardizationMap_bijective_of_isRouquierQ (Λ := w) params (b := bl
   (BlockAlgebra ℚ q w blocks) (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
 
 end NonVacuity.WebsterRootStandardEndRouquier
+
+/-! Upward KLR relations of the black Rouquier family and the CL action on `D(T^λ)`
+(Webster Thm 4.31). -/
+section NonVacuityBlackUpKLREleventhSection
+open Categorification CategoryTheory QuantumGroup UDot KLR KLR.Unfurling Stendhal
+
+namespace NonVacuityBlackUpKLREleventh
+
+/- The library statements are stated over an arbitrary colour type, with classical
+decidability; instantiate them in the same way. -/
+attribute [local instance 2000] Classical.propDecidable
+
+/-- One arrow `false → true`. -/
+noncomputable def arr : Bool → Bool → ℕ := fun a b => if a = false ∧ b = true then 1 else 0
+
+private theorem oneArrowParameters :
+    KLR.IsRouquierQ (coverCartan arr) (unfQ (k := ZMod 2) arr) where
+  symm i j hij := (unfQ_klrSymm arr i j hij).symm
+  homogeneous i j hij := by
+    rw [coverCartan_dot_self, coverCartan_dot_self, coverCartan_dot_of_ne arr hij]
+    have hh := (unfGrading (k := ZMod 2) arr).isWeightedHomogeneous i j hij
+    change (unfQ (k := ZMod 2) arr i j).IsWeightedHomogeneous ![(2 : ℤ), 2]
+      ((if i = j then -2 else 2 * (arr j i : ℤ)) + (if j = i then -2 else 2 * (arr i j : ℤ)))
+      at hh
+    rw [ite_eq_right hij, ite_eq_right hij.symm] at hh
+    convert hh using 1
+    push_cast
+    ring
+  unit_coeff i j hij := KLR.isUnit_extremalCoeff _ (unfQ_klrSymm arr)
+    (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
+
+/-- One red strand, labelled by the fundamental weight of `true`. -/
+noncomputable def lam : Fin 1 → Bool →₀ ℕ := fun _ => Finsupp.single true 1
+
+/-- Derived categories of module categories, by the standard construction. -/
+@[instance_reducible] noncomputable def standardDerived (R : Type) [Ring R] :
+    HasDerivedCategory (ModuleCat.{0} R) :=
+  HasDerivedCategory.standard _
+
+attribute [local instance] standardDerived
+
+/-- The upward KLR relations for distinct colours on Webster's derived action, with the empty
+set of adjoined relations (Theorem 4.30 holds vacuously for it) and `Λ₀ = λ` in the coordinate
+datum. -/
+example := blackRouqFamily_upKLR (Λ := lam) (C := coverCartan arr)
+  (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+
+/-- Brundan's upward relations with the Kang–Kashiwara scalars. -/
+example := blackRouqFamily_brundanUpKLR (Λ := lam) (C := coverCartan arr)
+  (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+
+/-- The Cautis–Lauda presentation acts on the derived categories. -/
+noncomputable example := blackPresCL.{0, 0, 1, 0} (Λ := lam) (C := coverCartan arr)
+  (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+
+/-- The braid relation with equal outer colours `true, true` and middle colour `false`. -/
+example {w₀ w₁ w₂ w₃ w₄ w₅ : Bool ⊕ Fin 1 → ℤ}
+    (h₁ : w₀ + (coordinateDatum lam (coverCartan arr)).iX true = w₁)
+    (h₂ : w₁ + (coordinateDatum lam (coverCartan arr)).iX false = w₂)
+    (h₃ : w₂ + (coordinateDatum lam (coverCartan arr)).iX true = w₅)
+    (h₄ : w₁ + (coordinateDatum lam (coverCartan arr)).iX true = w₃)
+    (h₅ : w₃ + (coordinateDatum lam (coverCartan arr)).iX false = w₅)
+    (h₆ : w₀ + (coordinateDatum lam (coverCartan arr)).iX false = w₄)
+    (h₇ : w₄ + (coordinateDatum lam (coverCartan arr)).iX true = w₂) :=
+  blackRouqCross_braidQ lam oneArrowParameters (coordinateDatum lam (coverCartan arr))
+    (coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr) true false (by simp)
+    h₁ h₂ h₃ h₄ h₅ h₆ h₇
+
+end NonVacuityBlackUpKLREleventh
+
+end NonVacuityBlackUpKLREleventhSection
+
+/-! Strongly equivariant vacuum functor into `D(T^λ)` (Webster Cor 3.27). -/
+section NonVacuityBlackVacuumTwelfthSection
+open Categorification CategoryTheory QuantumGroup UDot KLR KLR.Unfurling Stendhal
+
+namespace NonVacuityBlackVacuumTwelfth
+
+/- The library statements are stated over an arbitrary colour type, with classical
+decidability; instantiate them in the same way. -/
+attribute [local instance 2000] Classical.propDecidable
+
+/-- One arrow `false → true`. -/
+noncomputable def arr : Bool → Bool → ℕ := fun a b => if a = false ∧ b = true then 1 else 0
+
+private theorem oneArrowParameters :
+    KLR.IsRouquierQ (coverCartan arr) (unfQ (k := ZMod 2) arr) where
+  symm i j hij := (unfQ_klrSymm arr i j hij).symm
+  homogeneous i j hij := by
+    rw [coverCartan_dot_self, coverCartan_dot_self, coverCartan_dot_of_ne arr hij]
+    have hh := (unfGrading (k := ZMod 2) arr).isWeightedHomogeneous i j hij
+    change (unfQ (k := ZMod 2) arr i j).IsWeightedHomogeneous ![(2 : ℤ), 2]
+      ((if i = j then -2 else 2 * (arr j i : ℤ)) + (if j = i then -2 else 2 * (arr i j : ℤ)))
+      at hh
+    rw [ite_eq_right hij, ite_eq_right hij.symm] at hh
+    convert hh using 1
+    push_cast
+    ring
+  unit_coeff i j hij := KLR.isUnit_extremalCoeff _ (unfQ_klrSymm arr)
+    (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
+
+/-- One red strand, labelled by the fundamental weight of `true`. -/
+noncomputable def lam : Fin 1 → Bool →₀ ℕ := fun _ => Finsupp.single true 1
+
+/-- Derived categories of module categories with small morphisms. -/
+@[instance_reducible] noncomputable def smallDerived (R : Type) [Ring R] :
+    HasDerivedCategory.{0} (ModuleCat.{0} R) :=
+  DerivedCategory.smallModuleCat R
+
+attribute [local instance] smallDerived
+
+/-- Webster's Corollary 3.27 for the derived action: the strongly equivariant functor from
+`Ř^λ-pmod` to the derived categories of `T^λ`-modules sending `P_∅` to `T^λ_∅`, with the empty
+set of adjoined relations and `Λ₀ = λ` in the coordinate datum. -/
+noncomputable example := blackVacuumFunctor.{0, 0, 0} (Λ := lam) (C := coverCartan arr)
+  (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr)
+  (blackRegularVacuum _ lam _ _) (isZero_blackRegularVacuum (Q := unfQ (k := ZMod 2) arr))
+
+/-- The weight spaces are idempotent complete. -/
+example (c) := blackPresCL_isIdempotentComplete.{0, 0, 0} (Λ := lam) (C := coverCartan arr)
+  (hQ := oneArrowParameters) (RD := coordinateDatum lam (coverCartan arr))
+  (Λ₀ := coordinateHighest lam (coverCartan arr))
+  coverRelsNegligible_noRelations (wfDom_noRelations _ _)
+  (pair_coordinateHighest lam (coverCartan arr)) (unfQ_klrSymm arr) c
+
+/-- Idempotents split in the derived category of a ring. -/
+example : IsIdempotentComplete (DerivedCategory (ModuleCat.{0} (ZMod 2))) :=
+  DerivedCategory.moduleCat_isIdempotentComplete _
+
+end NonVacuityBlackVacuumTwelfth
+
+end NonVacuityBlackVacuumTwelfthSection

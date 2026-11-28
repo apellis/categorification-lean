@@ -15,8 +15,8 @@ other composition factors are lower in the standard order):
 
 * `GFin.UpResolution.ofKernel` : for `0 → K → M → L → 0`, up-resolutions of `M` and `L` give one
   of `K`.
-* `GFin.exists_upResolution_of_head` : let `ε ∈ A` and let `L` be a graded simple subquotient of
-  a module `M` with an up-resolution, with `ε L ≠ 0` and `dim ε M ≤ dim ε L`. If every graded
+* `GFin.exists_upResolution_of_head` : let `ε ∈ A` and let `L` be a graded simple module that is
+  an ungraded subquotient of a module `M` with an up-resolution, with `ε L ≠ 0` and `dim ε M ≤ dim ε L`. If every graded
   simple subquotient of `M` killed by `ε` has an up-resolution, so does `L`.
 -/
 
@@ -79,44 +79,80 @@ variable (k) in
 /-- `dim_k ε N`. -/
 def epsDim (ε : A) (N : GFin 𝒜) : ℕ := finrank k (LinearMap.range (smulLin (k := k) ε N.carrier))
 
-omit [GradedAlgebra 𝒜] [Module.Finite k A] in
-theorem epsDim_le_of_injective (ε : A) {X Y : GFin 𝒜} (f : X.carrier →ₗ[A] Y.carrier)
-    (hf : Injective f) : epsDim k ε X ≤ epsDim k ε Y := by
-  let φ : LinearMap.range (smulLin (k := k) ε X.carrier) →ₗ[k]
-      LinearMap.range (smulLin (k := k) ε Y.carrier) :=
-    LinearMap.codRestrict _ ((f.restrictScalars k) ∘ₗ Submodule.subtype _) fun x => by
-      obtain ⟨x, y, hy⟩ := x
-      refine ⟨f y, ?_⟩
-      change ε • f y = f x
-      rw [← map_smul, ← hy]
-      rfl
-  exact LinearMap.finrank_le_finrank_of_injective (f := φ) fun x y h =>
+section Types
+
+variable {X Y : Type*} [AddCommGroup X] [Module A X] [Module k X] [IsScalarTower k A X]
+  [AddCommGroup Y] [Module A Y] [Module k Y] [IsScalarTower k A Y]
+
+/-- The restriction of an `A`-linear map to the images of `ε`. -/
+def smulLinRange (ε : A) (f : X →ₗ[A] Y) :
+    LinearMap.range (smulLin (k := k) ε X) →ₗ[k] LinearMap.range (smulLin (k := k) ε Y) :=
+  LinearMap.codRestrict _ ((f.restrictScalars k) ∘ₗ Submodule.subtype _) fun x => by
+    obtain ⟨x, y, hy⟩ := x
+    refine ⟨f y, ?_⟩
+    change ε • f y = f x
+    rw [← map_smul, ← hy]
+    rfl
+
+omit [Module.Finite k A] in
+theorem finrank_range_smulLin_le_of_injective [FiniteDimensional k Y] (ε : A) (f : X →ₗ[A] Y)
+    (hf : Injective f) :
+    finrank k (LinearMap.range (smulLin (k := k) ε X)) ≤
+      finrank k (LinearMap.range (smulLin (k := k) ε Y)) :=
+  LinearMap.finrank_le_finrank_of_injective (f := smulLinRange ε f) fun _ _ h =>
     Subtype.ext (hf (congrArg Subtype.val h))
 
-omit [GradedAlgebra 𝒜] [Module.Finite k A] in
-theorem epsDim_le_of_surjective (ε : A) {X Y : GFin 𝒜} (g : X.carrier →ₗ[A] Y.carrier)
-    (hg : Surjective g) : epsDim k ε Y ≤ epsDim k ε X := by
-  let φ : LinearMap.range (smulLin (k := k) ε X.carrier) →ₗ[k]
-      LinearMap.range (smulLin (k := k) ε Y.carrier) :=
-    LinearMap.codRestrict _ ((g.restrictScalars k) ∘ₗ Submodule.subtype _) fun x => by
-      obtain ⟨x, y, hy⟩ := x
-      refine ⟨g y, ?_⟩
-      change ε • g y = g x
-      rw [← map_smul, ← hy]
-      rfl
-  refine LinearMap.finrank_le_finrank_of_surjective (f := φ) fun z => ?_
+omit [Module.Finite k A] in
+theorem finrank_range_smulLin_le_of_surjective [FiniteDimensional k X] (ε : A) (g : X →ₗ[A] Y)
+    (hg : Surjective g) :
+    finrank k (LinearMap.range (smulLin (k := k) ε Y)) ≤
+      finrank k (LinearMap.range (smulLin (k := k) ε X)) := by
+  refine LinearMap.finrank_le_finrank_of_surjective (f := smulLinRange ε g) fun z => ?_
   obtain ⟨z, y, rfl⟩ := z
   obtain ⟨x, rfl⟩ := hg y
   refine ⟨⟨ε • x, x, rfl⟩, Subtype.ext ?_⟩
   change g (ε • x) = ε • g x
   rw [map_smul]
 
+end Types
+
+omit [GradedAlgebra 𝒜] [Module.Finite k A] in
+theorem epsDim_le_of_injective (ε : A) {X Y : GFin 𝒜} (f : X.carrier →ₗ[A] Y.carrier)
+    (hf : Injective f) : epsDim k ε X ≤ epsDim k ε Y :=
+  finrank_range_smulLin_le_of_injective ε f hf
+
+omit [GradedAlgebra 𝒜] [Module.Finite k A] in
+theorem epsDim_le_of_surjective (ε : A) {X Y : GFin 𝒜} (g : X.carrier →ₗ[A] Y.carrier)
+    (hg : Surjective g) : epsDim k ε Y ≤ epsDim k ε X :=
+  finrank_range_smulLin_le_of_surjective ε g hg
+
+variable (A) in
+/-- `L` is a subquotient of `M` as an ungraded module. -/
+def IsUngradedSubquotient (L M : Type*) [AddCommGroup L] [Module A L] [AddCommGroup M]
+    [Module A M] : Prop :=
+  ∃ (X : Submodule A M) (g : X →ₗ[A] L), Surjective g
+
+omit [GradedAlgebra 𝒜] [Module.Finite k A] in
+theorem IsSubquotient.isUngradedSubquotient {L M : GFin 𝒜} (h : IsSubquotient L M) :
+    IsUngradedSubquotient A L.carrier M.carrier := by
+  obtain ⟨X, f, g, -, hf, -, hg⟩ := h
+  let e := LinearEquiv.ofInjective f hf
+  exact ⟨LinearMap.range f, g ∘ₗ e.symm.toLinearMap, hg.comp e.symm.surjective⟩
+
+omit [GradedAlgebra 𝒜] [Module.Finite k A] in
+theorem epsDim_le_of_isUngradedSubquotient (ε : A) {L M : GFin 𝒜}
+    (h : IsUngradedSubquotient A L.carrier M.carrier) : epsDim k ε L ≤ epsDim k ε M := by
+  obtain ⟨X, g, hg⟩ := h
+  have : FiniteDimensional k X :=
+    Module.Finite.of_injective ((X.subtype).restrictScalars k) Subtype.val_injective
+  exact (finrank_range_smulLin_le_of_surjective ε g hg).trans
+    (finrank_range_smulLin_le_of_injective ε X.subtype Subtype.val_injective)
+
 omit [GradedAlgebra 𝒜] [Module.Finite k A] in
 theorem epsDim_le_of_isSubquotient (ε : A) {L M : GFin 𝒜} (h : IsSubquotient L M) :
     epsDim k ε L ≤ epsDim k ε M := by
   obtain ⟨X, f, g, -, hf, -, hg⟩ := h
   exact (epsDim_le_of_surjective ε g hg).trans (epsDim_le_of_injective ε f hf)
-
 omit [GradedAlgebra 𝒜] [Module.Finite k A] in
 theorem epsDim_add_le (ε : A) {K M L : GFin 𝒜} (S : ShortExact K M L) :
     epsDim k ε K + epsDim k ε L ≤ epsDim k ε M := by
@@ -166,68 +202,60 @@ omit [GradedAlgebra 𝒜] [Module.Finite k A] in
 theorem epsDim_pos {ε : A} {N : GFin 𝒜} {x : N.carrier} (hx : ε • x ≠ 0) : 0 < epsDim k ε N :=
   Nat.pos_of_ne_zero fun h => hx (smul_eq_zero_of_epsDim_eq_zero h x)
 
-omit [GradedAlgebra 𝒜] [Module.Finite k A] in
-/-- **Subquotients across a simple quotient.** Let `L` be a graded simple subquotient of `M` and
-`p ⊆ M` a homogeneous submodule with `M/p` graded simple. Then `L` is a subquotient of `p`, or
-`L ≅ M/p`. -/
-theorem isSubquotient_ker_or_iso {L M Q : GFin 𝒜} (hL : IsGradedSimple 𝒜 L.grading)
-    (hQ : IsGradedSimple 𝒜 Q.grading) (h : IsSubquotient L M) (π : M.carrier →ₗ[A] Q.carrier)
-    (hπ : PreservesGrading M.grading Q.grading π) :
-    IsSubquotient L (ker π hπ) ∨ Nonempty (Q.Iso L) := by
-  obtain ⟨X, f, g, hf, hfi, hg, hgs⟩ := h
-  have hφ : PreservesGrading X.grading Q.grading (π ∘ₗ f) := fun _ _ hx => hπ (hf hx)
-  let Xp := ker (π ∘ₗ f) hφ
-  have : Decomposition Xp.grading := Xp.decomposition
-  have hgp : PreservesGrading Xp.grading L.grading (g ∘ₗ (LinearMap.ker (π ∘ₗ f)).subtype) :=
-    fun _ _ hx => hg hx
-  rcases hL.eq_bot_or_eq_top _ (isHomogeneous_range hgp) with hb | ht
+omit [Module.Finite k A] in
+/-- **Subquotients across a simple quotient.** Let `L` be a graded simple module that is an
+ungraded subquotient of `M`, and `π : M → Q` a map onto a graded simple module. Then `L` is an
+ungraded subquotient of `ker π`, or `L ≅ Q` as ungraded modules. -/
+theorem isUngradedSubquotient_ker_or_iso {L M Q : GFin 𝒜} (hL : IsGradedSimple 𝒜 L.grading)
+    (hQ : IsGradedSimple 𝒜 Q.grading) (h : IsUngradedSubquotient A L.carrier M.carrier)
+    (π : M.carrier →ₗ[A] Q.carrier) :
+    IsUngradedSubquotient A L.carrier (LinearMap.ker π) ∨
+      Nonempty (Q.carrier ≃ₗ[A] L.carrier) := by
+  have := hL.isSimpleModule
+  have := hQ.isSimpleModule
+  have := IsSimpleModule.nontrivial A L.carrier
+  obtain ⟨X, g, hg⟩ := h
+  let φ : X →ₗ[A] Q.carrier := π ∘ₗ X.subtype
+  rcases IsSimpleOrder.eq_bot_or_eq_top (LinearMap.range (g ∘ₗ (LinearMap.ker φ).subtype))
+    with hb | ht
   · right
-    let := hL.nontrivial
-    have hle : LinearMap.ker (π ∘ₗ f) ≤ LinearMap.ker g := fun x hx => by
-      have : g x ∈ LinearMap.range (g ∘ₗ (LinearMap.ker (π ∘ₗ f)).subtype) := ⟨⟨x, hx⟩, rfl⟩
+    have hle : LinearMap.ker φ ≤ LinearMap.ker g := fun x hx => by
+      have : g x ∈ LinearMap.range (g ∘ₗ (LinearMap.ker φ).subtype) := ⟨⟨x, hx⟩, rfl⟩
       rw [hb] at this
       exact this
-    have hφs : Surjective (π ∘ₗ f) := by
-      rcases hQ.eq_bot_or_eq_top _ (isHomogeneous_range hφ) with h0 | h0
+    have hφs : Surjective φ := by
+      rcases IsSimpleOrder.eq_bot_or_eq_top (LinearMap.range φ) with h0 | h0
       · exfalso
         obtain ⟨y, hy⟩ := exists_ne (0 : L.carrier)
-        obtain ⟨x, rfl⟩ := hgs y
+        obtain ⟨x, rfl⟩ := hg y
         exact hy (hle (LinearMap.range_eq_bot.1 h0 ▸ rfl))
       · exact LinearMap.range_eq_top.1 h0
-    let e := (π ∘ₗ f).quotKerEquivOfSurjective hφs
-    let hmap : Q.carrier →ₗ[A] L.carrier := (LinearMap.ker (π ∘ₗ f)).liftQ g hle ∘ₗ
-      e.symm.toLinearMap
-    have hcomp : ∀ x, hmap (π (f x)) = g x := fun x => by
-      change (LinearMap.ker (π ∘ₗ f)).liftQ g hle (e.symm ((π ∘ₗ f) x)) = g x
-      rw [show e.symm ((π ∘ₗ f) x) = Submodule.Quotient.mk x from
-        e.symm_apply_eq.2 rfl]
+    let e := φ.quotKerEquivOfSurjective hφs
+    let hmap : Q.carrier →ₗ[A] L.carrier := (LinearMap.ker φ).liftQ g hle ∘ₗ e.symm.toLinearMap
+    have hcomp : ∀ x, hmap (φ x) = g x := fun x => by
+      change (LinearMap.ker φ).liftQ g hle (e.symm (φ x)) = g x
+      rw [show e.symm (φ x) = Submodule.Quotient.mk x from e.symm_apply_eq.2 rfl]
       rfl
-    have hmg : PreservesGrading Q.grading L.grading hmap := fun d z hz => by
-      obtain ⟨w, rfl⟩ := hφs z
-      have hw : (π ∘ₗ f) (decompose X.grading w d : X.carrier) = (π ∘ₗ f) w := by
-        rw [← decompose_map hφ, decompose_of_mem_same _ hz]
-      rw [← hw]
-      change hmap (π (f _)) ∈ _
-      rw [hcomp]
-      exact hg (decompose X.grading w d).2
     have hm0 : hmap ≠ 0 := fun h0 => by
       obtain ⟨y, hy⟩ := exists_ne (0 : L.carrier)
-      obtain ⟨x, rfl⟩ := hgs y
+      obtain ⟨x, rfl⟩ := hg y
       exact hy (by rw [← hcomp, h0, LinearMap.zero_apply])
-    exact ⟨GradedEquiv.ofBijective hmg (hQ.bijective_of_preservesGrading hL hmg hm0)⟩
+    exact ⟨LinearEquiv.ofBijective hmap (LinearMap.bijective_of_ne_zero hm0)⟩
   · left
-    refine ⟨Xp, LinearMap.codRestrict _ (f ∘ₗ (LinearMap.ker (π ∘ₗ f)).subtype) fun x => x.2,
-      g ∘ₗ (LinearMap.ker (π ∘ₗ f)).subtype, fun _ _ hx => hf hx, fun x y hxy => ?_, hgp,
-      LinearMap.range_eq_top.1 ht⟩
-    exact Subtype.ext (hfi (congrArg Subtype.val hxy))
+    let X' : Submodule A (LinearMap.ker π) := X.comap (LinearMap.ker π).subtype
+    let ι : X' →ₗ[A] X :=
+      LinearMap.codRestrict X ((LinearMap.ker π).subtype ∘ₗ X'.subtype) fun y => y.2
+    refine ⟨X', g ∘ₗ ι, fun l => ?_⟩
+    obtain ⟨x, rfl⟩ : l ∈ LinearMap.range (g ∘ₗ (LinearMap.ker φ).subtype) := ht ▸ trivial
+    exact ⟨⟨⟨x.1.1, x.2⟩, x.1.2⟩, rfl⟩
 
 omit [Module.Finite k A] in
-/-- **Heads in `C↑`.** Let `ε ∈ A` and let `L` be a graded simple subquotient of a module `M`
-with an up-resolution, with `ε L ≠ 0` and `dim ε M ≤ dim ε L`. If every graded simple
-subquotient of `M` killed by `ε` has an up-resolution, so does `L`. -/
+/-- **Heads in `C↑`.** Let `ε ∈ A` and let `L` be a graded simple module that is an ungraded
+subquotient of a module `M` with an up-resolution, with `ε L ≠ 0` and `dim ε M ≤ dim ε L`. If
+every graded simple subquotient of `M` killed by `ε` has an up-resolution, so does `L`. -/
 theorem exists_upResolution_of_head (ε : A) (L : GFin 𝒜) (hL : IsGradedSimple 𝒜 L.grading)
     (hεL : ∃ x : L.carrier, ε • x ≠ 0) :
-    ∀ M : GFin 𝒜, IsSubquotient L M → epsDim k ε M ≤ epsDim k ε L →
+    ∀ M : GFin 𝒜, IsUngradedSubquotient A L.carrier M.carrier → epsDim k ε M ≤ epsDim k ε L →
       (∃ c, Nonempty (UpResolution M c)) →
       (∀ L' : GFin 𝒜, IsGradedSimple 𝒜 L'.grading → IsSubquotient L' M →
         (∀ x : L'.carrier, ε • x = 0) → ∃ c, Nonempty (UpResolution L' c)) →
@@ -241,10 +269,10 @@ theorem exists_upResolution_of_head (ε : A) (L : GFin 𝒜) (hL : IsGradedSimpl
     have hnt : Nontrivial M.carrier := by
       by_contra hn
       rw [not_nontrivial_iff_subsingleton] at hn
-      obtain ⟨X, f, g, -, hf, -, hg⟩ := hsub
+      obtain ⟨X, g, hg⟩ := hsub
       obtain ⟨x, rfl⟩ := hg x₀
-      have : Subsingleton X.carrier := hf.subsingleton
-      exact hx₀ (by rw [Subsingleton.elim x 0, map_zero, smul_zero])
+      have hx : x = 0 := Subtype.ext (Subsingleton.elim _ _)
+      exact hx₀ (by rw [hx, map_zero, smul_zero])
     have : Module.Finite A M.carrier := Module.Finite.of_restrictScalars_finite k A _
     obtain ⟨p, hp, hptop, hmax⟩ := exists_isHomogeneous_maximal (A := A) M.grading
     let := quotDecompositionA M.grading p hp
@@ -275,33 +303,41 @@ theorem exists_upResolution_of_head (ε : A) (L : GFin 𝒜) (hL : IsGradedSimpl
         Subtype.val_injective
     have hadd : epsDim k ε K + epsDim k ε Lfin ≤ epsDim k ε M := epsDim_add_le ε S
     obtain ⟨cM, ⟨RM⟩⟩ := hM
+    -- In the second case `L ≅ M/p` up to a shift, resolved from a resolution of `M/p`.
+    have hiso : ∀ (e : Lfin.carrier ≃ₗ[A] L.carrier) (cQ : ℤ), UpResolution Lfin cQ →
+        ∃ c, Nonempty (UpResolution L c) := fun e cQ RQ => by
+      have he : (e.symm.toLinearMap : L.carrier →ₗ[A] Lfin.carrier) ≠ 0 := fun h0 => by
+        have := hL.nontrivial
+        obtain ⟨y, hy⟩ := exists_ne (0 : L.carrier)
+        exact hy (e.symm.injective (by rw [map_zero]; exact LinearMap.congr_fun h0 y))
+      obtain ⟨a, ⟨ea⟩⟩ := hL.exists_gradedEquiv_shift_of_ne_zero hLs he
+      exact ⟨_, ⟨(RQ.shift a).congr ea.symm⟩⟩
     by_cases hQ0 : epsDim k ε Lfin = 0
     · -- `ε` kills the simple quotient: pass to the kernel.
       obtain ⟨cQ, ⟨RQ⟩⟩ := hzero Lfin hLs (IsSubquotient.of_surjective hmk p.mkQ_surjective)
         (smul_eq_zero_of_epsDim_eq_zero hQ0)
       have RK := UpResolution.ofKernel S (RM.mono (le_max_left cM cQ))
         (RQ.mono (le_max_right cM cQ))
-      rcases isSubquotient_ker_or_iso hL hLs hsub p.mkQ hmk with hK | he
+      rcases isUngradedSubquotient_ker_or_iso hL hLs hsub p.mkQ with hK | he
       · exact ih _ hKlt K rfl hK (by omega) ⟨_, ⟨RK⟩⟩ fun L' h₁ h₂ h₃ => hzero L' h₁ (hsubK L' h₂) h₃
       · exfalso
         obtain ⟨e⟩ := he
-        have := epsDim_le_of_surjective (k := k) ε e.toLinearEquiv.toLinearMap
-          e.toLinearEquiv.surjective
+        have := epsDim_le_of_surjective (k := k) (X := Lfin) (Y := L) ε e.toLinearMap e.surjective
         omega
-    · rcases isSubquotient_ker_or_iso hL hLs hsub p.mkQ hmk with hK | he
+    · rcases isUngradedSubquotient_ker_or_iso hL hLs hsub p.mkQ with hK | he
       · exfalso
-        have := epsDim_le_of_isSubquotient (k := k) (M := K) ε hK
+        have := epsDim_le_of_isUngradedSubquotient (k := k) (L := L) (M := K) ε hK
         omega
       · -- `L ≅ M/p`, and `ε` kills the kernel.
         obtain ⟨e⟩ := he
-        have hLQ := epsDim_le_of_surjective (k := k) ε e.toLinearEquiv.toLinearMap
-          e.toLinearEquiv.surjective
+        have hLQ := epsDim_le_of_surjective (k := k) (X := Lfin) (Y := L) ε e.toLinearMap
+          e.surjective
         have hK0 : epsDim k ε K = 0 := by omega
         obtain ⟨cK, ⟨RK⟩⟩ := exists_upResolution_of_isSubquotient K fun L' h₁ h₂ =>
           hzero L' h₁ (hsubK L' h₂) (smul_eq_zero_of_epsDim_eq_zero
             (Nat.eq_zero_of_le_zero ((epsDim_le_of_isSubquotient ε h₂).trans hK0.le)))
-        exact ⟨_, ⟨(UpResolution.ofQuotient S (RK.mono (le_max_left cK cM))
-          (RM.mono (le_max_right cK cM))).congr e⟩⟩
+        exact hiso e _ (UpResolution.ofQuotient S (RK.mono (le_max_left cK cM))
+          (RM.mono (le_max_right cK cM)))
 
 end Head
 

@@ -788,6 +788,7 @@ import Categorification.KLR.MackeyResRightGraded
 import Categorification.KLR.MackeySubquot
 import Categorification.KLR.NilHeckeBlockSplitting
 import Categorification.KLR.NilHeckeFullSplitting
+import Categorification.KLR.NilHeckeCornerPositivity
 import Categorification.KLR.Pairing
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
@@ -2644,6 +2645,7 @@ import Categorification.Algebra.Graded.FiniteResolution
 import Categorification.Algebra.Graded.UpResolution
 import Categorification.Algebra.Graded.CornerResolution
 import Categorification.Algebra.Graded.UpResolutionSimple
+import Categorification.Algebra.Graded.UpResolutionBootstrap
 import Categorification.Algebra.Graded.HomFormEquiv
 import Categorification.Algebra.Graded.HomFormPolynomial
 import Categorification.Algebra.Graded.IdealTensor

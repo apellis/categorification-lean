@@ -59,7 +59,6 @@ theorem crossrW_trS_end (i j : Fin m) (S a b R : Wt m) (e : a = b) (w : List (WC
   subst e
   exact BHom.ext fun _ => rfl
 
-set_option maxHeartbeats 4000000 in
 /-- The chain of `crossr` on canonical layer data, with the regions that differ from the
 canonical ones as variables. -/
 theorem chainBD_crossr_canon (dnScal : Fin m → Fin m → K) (i j : Fin m) (x s a b : Wt m)
@@ -90,7 +89,6 @@ theorem chainBD_crossr_canon (dnScal : Fin m → Fin m → K) (i j : Fin m) (x s
   erw [BHom.whiskerLeft_id, BHom.comp_id'']
   rfl
 
-set_option maxHeartbeats 4000000 in
 /-- **`Γ_N` of the sideways crossing `crossr i j : F_j E_i 1_μ → E_i F_j 1_μ`** (KL III
 `eq_crossr-gen`), whiskered by `v`, from any region `s` making the source valid: `crossrW`
 (`Categorification.Flag.GammaSideways`). -/

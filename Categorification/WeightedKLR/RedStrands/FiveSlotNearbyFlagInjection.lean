@@ -122,7 +122,6 @@ private theorem near_tested
   rw [map_mul,polyRep_ψ,polyRep_e,Module.End.mul_apply,opΨ_apply _ _ (by decide),
     sadj_smul_smul,opE_apply,ite_eq_left rfl,value]
 
-set_option maxHeartbeats 800000 in
 theorem fiveSlotNearby_affineRows_reflect_of_flagAction
     (hQ : KLRSymm Q)
     (hPQ : ∀ a b, a≠b → stendhalQ Q Λ a b=D b a*rename ![1,0] (D a b))

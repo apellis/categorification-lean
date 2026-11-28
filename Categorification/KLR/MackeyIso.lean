@@ -30,7 +30,6 @@ these maps (hence `F_c / F_{c-1} ≅ ⊕_{|λ| = c} (…) ⊗_{R'} (…)`) are p
 
 noncomputable section
 
-set_option synthInstance.maxHeartbeats 400000
 
 namespace Categorification.KLR
 

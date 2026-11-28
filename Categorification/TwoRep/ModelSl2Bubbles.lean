@@ -176,7 +176,6 @@ theorem img_dots {s t : ℤ} (lam : ℤ) (u : List (Letter Unit)) (l : Letter Un
     set_option backward.isDefEq.respectTransparency false in
     rw [dots_succ, Functor.map_comp, conj_comp_conj (objI_pos _ _ h) (objI_pos _ _ h) (objI_pos _ _ h), ih, powComp_succ']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the cup `1_λ → E F`. -/
 theorem img_cupUp (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam []))
     (h₁ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [up (), dn ()])) :
@@ -210,7 +209,6 @@ theorem img_cupUp (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob 
       exact fw_eq (by simp [inv_dual, Letter.dual, sh_true_sh_false, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the cup `1_λ → F E`. -/
 theorem img_cupDn (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam []))
     (h₁ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [dn (), up ()])) :
@@ -244,7 +242,6 @@ theorem img_cupDn (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob 
       exact fw_eq (by simp [inv_dual, Letter.dual, sh_false_sh_true, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the cap `F E → 1_λ` (the counit of the left adjunction). -/
 theorem img_capUp (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [dn (), up ()]))
@@ -279,7 +276,6 @@ theorem img_capUp (lam : ℤ)
       exact fw_eq (by simp [inv_dual, Letter.dual, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the cap `E F → 1_λ` (the counit of `E ⊣ R`). -/
 theorem img_capDn (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [up (), dn ()]))
@@ -314,7 +310,6 @@ theorem img_capDn (lam : ℤ)
       exact fw_eq (by simp [inv_dual, Letter.dual, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of a dot on the downward strand of `E F`. -/
 theorem img_dotDn_UD (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [up (), dn ()])) :
@@ -354,7 +349,6 @@ theorem img_dotDn_UD (lam : ℤ)
     case e' => rfl
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of a dot on the upward strand of `F E`. -/
 theorem img_dotUp_DU (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [dn (), up ()])) :

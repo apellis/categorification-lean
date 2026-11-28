@@ -736,8 +736,8 @@ from which the full one is obtained by iterating):
   finite-dimensional `N`: Webster's count `dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)`
   (`finrank_firstIndF_eq_add`), proved by strong induction on `|θ| + |β|` from the last-strand
   splitting into a red part and colour pieces (`RedStrands/Prop55Dimension*.lean`), gives
-  `firstIndDeltaInjective_std` and `allFiniteDeltaInjective_std`, hence the black-word
-  filtrations (`hasFiltration_loadingProj_std`; the finite-dimensional form
+  `firstIndDeltaInjective_of_rouquier` and `allFiniteDeltaInjective_of_rouquier`, hence the black-word
+  filtrations (`hasFiltration_loadingProj_of_rouquier`; the finite-dimensional form
   `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). The
   intermediate lemmas take a base presentation with `CoverRelsNegligible` and well-founded
   domain; the presentation with no relations (`noRelations`) satisfies both vacuously, so the
@@ -779,7 +779,7 @@ from which the full one is obtained by iterating):
 
 * Prop 5.20 and Cor 5.21 at the standard Khovanov–Lauda scalars
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
-  dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
+  dimension count (`allFiniteDeltaInjective_of_rouquier`), with no further hypothesis.
 
 * Prop 5.20, printed `Φ`-indexed form (v3: Prop 5.21; `RedStrands/PhiDiagrams.lean`,
   `PhiStandardLayers.lean`, `LabelledStandardFiltration.lean`, `PhiLayerStd.lean`): for a
@@ -792,7 +792,7 @@ from which the full one is obtained by iterating):
   (`finrank_lIdeal_eq_sum_phiBottom`, from a standard filtration labelled by the bottoms
   `φ • s`, `hasLabelledStandardFiltrations`) forces bijectivity
   (`Submodule.layerRank_eq_of_sum_eq`). Same route hypothesis as the filtration form; none
-  at the standard scalars (`phiLayerEquiv_std`).
+  at the standard scalars (`phiLayerEquiv_of_rouquier`).
 
 * Lemma 5.26 and Cor 5.22 (v3: Lemma 5.29, Cor 5.24; `RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
@@ -890,7 +890,7 @@ total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEqui
 `splitRedEquiv`) down to one red strand (Prop 4.20). The printed `Φ`-indexed form of
 Prop 5.20 (v3: Prop 5.21; the specific filtration `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`) is proved
 (`RedStrands/LabelledStandardFiltration.lean`, `phiLayerEquiv`), under the route hypothesis
-`AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_std`).
+`AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_of_rouquier`).
 
 Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved with no extra hypothesis:
 `Stendhal.existsUnique_eq_mul_left_redFirst` (`RedStrands/RedFirstDominantDimension.lean`), from
@@ -926,6 +926,22 @@ Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorif
 projective resolutions); self-dual projectives and double centralizer
 (Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
 Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
+
+Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is
+proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) = 0` when `t` is
+not below `s`, and `Ext^{n+1}(S_t, S_s) = 0` when `s ≤ t`. Full faithfulness is proved for the
+two-piece standardization of the induced model (`ParabolicStandardFullyFaithful.lean`):
+`Hom_D(N, N') ≅ Hom_{T^λ}(S(N), S(N'))` for all modules (`parabolicStandardMapT_bijective`).
+For the Def 5.4 standardization with `b_0 = 0`, `Hom_B(M, M') ≅ Hom_{T^λ}(S(M), S(M'))` for all
+modules (`StandardizationHomFullyFaithful.lean`, `standardizationHomEquiv`), by induction on `ℓ`
+through `splitStandardEquiv` (natural in `M`, `splitStandardEquiv_mapRight_hom`) and the
+two-piece result; for `M' = M` this is `End_B(M) ≅ End_{T^λ}(S(M))` as algebras
+(`standardizationEndEquiv`), and the block action of Prop 5.3 identifies
+`B = T^{μ_1} ⊗ ⋯ ⊗ T^{μ_ℓ}` with `End(S^L_α)` (`bijective_leftBlockActionOf`). Open: `α(0) ≠ 0`.
+Generation (`StandardGeneration.lean`): in the ungraded `D(T^λ)`, every standard module is
+perfect (`isCompact_stdModule`) and the standards generate the perfect complexes as a thick
+subcategory (`thickClosure_stdModule_eq_isCompact`). Webster's statement is in the graded
+`Ṽ^λ` of Def 4.8; the ungraded thick-closure reading follows Lemma 6.13. Prop 6.20 uses it.
 
 ### Phase D: §6, braiding functors
 
@@ -1005,8 +1021,19 @@ degree on `B(κ', κ)` is the auxiliary degree plus the constant offset `redWord
 Forgetting the weights is a functor of derived categories (`weightForgetDerived`,
 `Algebra/WeightForgetDerived.lean`) that carries the graded functor to the ungraded one
 (`auxiliaryGradedBraidingFunctorForgetIso`, `RedStrands/BraidingForgetDerived.lean`, through
-`diagramWeightForgetDerivedIso`). Open: carry the §6 results (Lemmas 6.12–6.13, Theorem 6.15)
-over to the graded functor.
+`diagramWeightForgetDerivedIso`). Theorem 6.15 holds for the graded functor
+(`isEquivalence_auxiliaryGradedBraidingFunctor`, `RedStrands/BraidingGradedEquivalence.lean`):
+a graded derived tensor is an equivalence when the ungraded one is
+(`isEquivalence_diagramWeightDerivedTensor`, `Algebra/DiagramWeightEquivalence.lean`), through
+the derived adjunction between forgetting the weights and the constant module and compact
+generation by the internal shifts of the representables. Lemma 6.13 for the graded functor
+follows (`isCompact_auxiliaryGradedBraidingFunctor_obj`). Lemma 6.12 (second clause) holds for
+the graded functors with the route hypotheses of the ungraded theorem
+(`auxiliaryGradedBraidingFunctorCompIsoOfLengthAdd`, `RedStrands/BraidingGradedComp.lean`),
+through the composite of graded derived tensors (`diagramWeightDerivedTensorCompIso`,
+`Algebra/DiagramWeightDerivedComp.lean`); the graded Tor condition follows from the ungraded one
+because forgetting the weights reflects quasi-isomorphisms
+(`isIso_diagramWeightTensor_map_counit_of_torVanishing`, `Algebra/DiagramWeightCompForget.lean`).
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of
@@ -1431,9 +1458,20 @@ are proved under the hypotheses of Lemma 6.11. For Thm 6.15 the generic inputs a
 coproduct-preserving triangulated functor which is bijective on the shifted Homs of a compact
 generating family and sends it to a compact generating family is an equivalence
 (`isEquivalence_of_compactlyGenerates`), and the vanishing form of Ext–Tor duality over a field
-(`hom_dualModule_shift_eq_zero`). Remaining, in Webster's order: self-duality of `𝔅_τ P` through
-the trace on `P⁰`, `ι`, `π` and Cor 6.8 (Thm 6.14), hence vanishing of the higher Ext between the
-`𝔅_τ P`; the dimension count from Cor 6.11 with injectivity from Lemma 5.25; generation.
+(`hom_dualModule_shift_eq_zero`). Thm 6.15 is proved under the injectivity hypothesis of Lemma 6.8
+(`isEquivalence_braidingFunctor`). Def 6.16 and Cor 6.17 are proved under the same hypothesis, up to
+isomorphism of functors: the braid group on `ℓ + 1` strands maps to the group of isomorphism
+classes of autoequivalences of the product of the derived categories of all red orders
+(`braidActionHom`, `BraidGroupAction.lean`), positive lifts along reduced words go to `𝔅_w`, and
+every factorization `τ^p ξ₁ ⋯ ξₙ` of a braid gives the class of `𝔅_{w₀}^p 𝔅_{w₁} ⋯ 𝔅_{wₙ}`
+(`braidActionHom_eq_factorization`). Cor 6.19 is proved under the same hypothesis: the
+endomorphism ring of the tilting generator `B(1, κ)` for the half twist is the corner at
+`(1, …, ℓ)` (`ringelDualEquiv`, `RingelDuality.lean`). Prop 6.20 (mutation of the standard
+stratification) is proved under the hypotheses of Lemma 6.11, in the thick-closure reading used for
+the generation part of Prop 5.26: for every upper set `U` of loadings, the thick closure of the
+`𝔅_w(S_s)`, `s ∈ U`, is that of the block-permuted standards `S'_{w s}`
+(`thickClosure_braidingFunctor_violLoadingStandard`, `BraidMutation.lean`). Open in §6.1: the
+strong action of Cor 6.18 (Zamolodchikov coherence); §6.2: Prop 6.21 (Serre functor).
 
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric
@@ -1460,8 +1498,8 @@ Proposition 7.8 is proved (ungraded) in a repaired reading (ERRATA, Webster entr
 the terms of the resolution of `L_λ` are sums of standardizations of finite-dimensional
 factor modules, and the last term is `M_λ`
 (`Stendhal.exists_stdResolution_coevaluationHead`). Corollary 7.9 follows
-(`Stendhal.ext_coevaluationHead`). Both carry the route hypothesis of Prop 7.6 for general
-`Q` and none at the standard Khovanov–Lauda parameters (`_std`).
+(`Stendhal.ext_coevaluationHead`). For Rouquier `Q` with symmetric parameters neither carries an
+extra hypothesis (`_of_rouquier`).
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,

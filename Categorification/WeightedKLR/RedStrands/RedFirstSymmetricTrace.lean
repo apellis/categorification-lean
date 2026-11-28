@@ -155,7 +155,7 @@ theorem exists_mul_ne_zero_of_redFirstIdem_mul {ℓ : ℕ} (Λ : Fin (ℓ + 1) �
   have hidem := (TensorProductAlgebra.completeOrthogonalIdempotents_boundaryIdem
     (k := k) QL Λ ν).idem s
   set es := TensorProductAlgebra.boundaryIdem QL Λ ν s
-  obtain ⟨c, hc, hac⟩ := exists_mul_redFirstIdem_ne_zero hR hQs (baseCrossing_std hR hQs) Λ ν
+  obtain ⟨c, hc, hac⟩ := exists_mul_redFirstIdem_ne_zero hR hQs (baseCrossing_of_rouquier hR hQs) Λ ν
     s.1 s.2 (a * es) (by rw [mul_assoc]; exact congrArg _ hidem.eq) hs
   exact ⟨es * c, by rw [mul_assoc, hc], by rwa [← mul_assoc]⟩
 

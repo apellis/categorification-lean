@@ -23,9 +23,9 @@ open KLR KLRAlgebra TypeA InductionAlong QuantumGroup KL3.Diagram
 open scoped TensorProduct
 
 variable {I k : Type} [decI : DecidableEq I] [Field k]
-  {C : CartanDatum I}
+  {C : CartanDatum I} {Q : I → I → MvPolynomial (Fin 2) k}
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 local notation "Si" i:max => (Singleton.singleton i : Multiset I)
 
 section Last
@@ -58,7 +58,7 @@ private theorem firstFactorSwap : sadj (a + b + {j}).card (a).card • s' = t' :
 end Last
 
 /-- Right multiplication by the oriented crossing at the last two positions is injective on
-its source loading projective at the standard Khovanov–Lauda parameters. -/
+its source loading projective for Rouquier parameters. -/
 theorem eq_zero_of_mul_secondRedCrossing_at_right
     (hR : IsRouquierQ C QL) (hQs : KLRSymm QL)
     (Λ : Fin 2 → I →₀ ℕ) (i : I) (θ : Multiset I)
@@ -169,7 +169,7 @@ inductive IsSecondRedCrossing : (ν : Multiset I) → ℕ →
         (Seq.cast (congrArg (stendhalWeight 2) h) s) (Seq.cast (congrArg (stendhalWeight 2) h) t)
 
 /-- Right multiplication by the specified oriented crossing is injective on the source loading
-projective at the standard Khovanov–Lauda parameters. -/
+projective for Rouquier parameters. -/
 theorem IsSecondRedCrossing.eq_zero_of_mul
     (hR : IsRouquierQ C QL) (hQs : KLRSymm QL) (Λ : Fin 2 → I →₀ ℕ)
     {ν : Multiset I} {a : ℕ} {s t : Seq (stendhalWeight 2 ν)} (h : IsSecondRedCrossing ν a s t) :

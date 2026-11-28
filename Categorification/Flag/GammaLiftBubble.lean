@@ -226,7 +226,6 @@ theorem trW_cupFE_eq (s : Wt m) (i : Fin m) (v : List (WCol m))
 
 /-! ### The cup `1_λ → E_i F_i`, then dots on `F_i` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **`Γ_N` of `cupDotEF`** (the cup `1_λ → E_i F_i` followed by `n` dots on `F_i`), whiskered
 by `v`, from the region `λ`: `cupEFW`, then multiplication by `ξ^n` on `F_i`. -/
 theorem evalB_cupDotEF (dnScal : Fin m → Fin m → K) (lam : Wt m) (i : Fin m) (n : ℕ)
@@ -321,7 +320,6 @@ theorem capMap_false_self (i : Fin m) (r : Wt m) (right : List (WCol m))
 
 /-! ### Dots on `E_i`, then the cap `E_i F_i → 1_λ` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **`Γ_N` of `dotCapEF`** (`n` dots on `E_i`, then the cap `E_i F_i → 1_λ`), whiskered by `v`,
 from the region `λ`: multiplication by `ξ^n` on `E_i`, then `capEFW`. -/
 theorem evalB_dotCapEF (dnScal : Fin m → Fin m → K) (lam : Wt m) (i : Fin m) (n : ℕ)
@@ -360,7 +358,6 @@ theorem evalB_dotCapEF (dnScal : Fin m → Fin m → K) (lam : Wt m) (i : Fin m)
 
 /-! ### The cup `1_λ → F_i E_i`, then dots on `E_i` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **`Γ_N` of `cupDotFE`** (the cup `1_λ → F_i E_i` followed by `n` dots on `E_i`), whiskered
 by `v`, from the region `λ`: `cupFEW`, then multiplication by `ξ^n` on `E_i`. -/
 theorem evalB_cupDotFE (dnScal : Fin m → Fin m → K) (lam : Wt m) (i : Fin m) (n : ℕ)
@@ -412,7 +409,6 @@ theorem evalB_cupDotFE (dnScal : Fin m → Fin m → K) (lam : Wt m) (i : Fin m)
 
 /-! ### Dots on `F_i`, then the cap `F_i E_i → 1_λ` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **`Γ_N` of `dotCapFE`** (`n` dots on `F_i`, then the cap `F_i E_i → 1_λ`), whiskered by `v`,
 from the region `λ`: multiplication by `ξ^n` on `F_i`, then `capFEW`. -/
 theorem evalB_dotCapFE (dnScal : Fin m → Fin m → K) (lam : Wt m) (i : Fin m) (n : ℕ)

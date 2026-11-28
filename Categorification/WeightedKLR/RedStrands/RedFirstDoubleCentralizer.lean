@@ -39,10 +39,10 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 open scoped Classical
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 include hR hQs in
 /-- `T^λ` acts faithfully on `P⁰ = T^λ e⁰` (Webster, arXiv:1309.3796v2, Lemma 5.23): if
@@ -57,7 +57,7 @@ theorem eq_zero_of_mul_redFirstProjective {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I 
   by_contra hs
   have hidem := (TensorProductAlgebra.completeOrthogonalIdempotents_boundaryIdem
     (k := k) QL Λ ν).idem s
-  obtain ⟨c, hc, hzc⟩ := exists_mul_redFirstIdem_ne_zero hR hQs (baseCrossing_std hR hQs) Λ ν
+  obtain ⟨c, hc, hzc⟩ := exists_mul_redFirstIdem_ne_zero hR hQs (baseCrossing_of_rouquier hR hQs) Λ ν
     s.1 s.2 (z * TensorProductAlgebra.boundaryIdem QL Λ ν s)
     (by rw [mul_assoc]; exact congrArg _ hidem.eq) hs
   exact hzc (by rw [mul_assoc, hz _ (by rw [mul_assoc, hc])])

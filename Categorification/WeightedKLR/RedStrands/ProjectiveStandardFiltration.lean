@@ -32,7 +32,7 @@ standard modules, by Webster's induction on the number of red strands:
 
 The step uses the route hypothesis `AllFiniteDeltaInjective` of Proposition 5.5 (the
 `F`-part of Proposition 5.5 for finite-dimensional modules) at every number of red strands; it
-is proved only at the standard Khovanov–Lauda parameters (`allFiniteDeltaInjective_std`).
+holds for Rouquier parameters (`allFiniteDeltaInjective_of_rouquier`).
 
 ## Main definitions and results
 

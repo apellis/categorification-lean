@@ -226,13 +226,12 @@ theorem _root_.Categorification.Stendhal.ext_coevaluationHead
   rw [Multiset.coe_card] at h1
   exact ⟨h1, fun i hi => h2 i (by rwa [Multiset.coe_card])⟩
 
-local notation "QK" =>
-  KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars C k)
+local notation "QK" => Q
 
 include hΛ hR in
-/-- **Webster, arXiv:1309.3796v3, §7.1, Proposition 7.8**, ungraded, in the repaired reading, at
-the standard Khovanov–Lauda parameters, with no route hypothesis. -/
-theorem _root_.Categorification.Stendhal.exists_stdResolution_coevaluationHead_std
+/-- **Webster, arXiv:1309.3796v3, §7.1, Proposition 7.8**, ungraded, in the repaired reading, for
+Rouquier parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.exists_stdResolution_coevaluationHead_of_rouquier
     (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK)
     [FiniteDimensional K H] (weight : P.integralWeights)
     (hweight : P.IsDominantIntegral (weight : Module.Dual K H))
@@ -263,14 +262,14 @@ theorem _root_.Categorification.Stendhal.exists_stdResolution_coevaluationHead_s
   Stendhal.exists_stdResolution_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight
     match_weight w hw hlong hQs
     (by
-      convert Stendhal.allFiniteDeltaInjective_std
+      convert Stendhal.allFiniteDeltaInjective_of_rouquier
         (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc
           weight w))) hP' hQs) t ht h
 
 include hΛ hR in
-/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.9**, ungraded, at the standard
-Khovanov–Lauda parameters, with no route hypothesis. -/
-theorem _root_.Categorification.Stendhal.ext_coevaluationHead_std
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.9**, ungraded, for Rouquier
+parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.ext_coevaluationHead_of_rouquier
     (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK)
     [FiniteDimensional K H] (weight : P.integralWeights)
     (hweight : P.IsDominantIntegral (weight : Module.Dual K H))
@@ -302,7 +301,7 @@ theorem _root_.Categorification.Stendhal.ext_coevaluationHead_std
   Stendhal.ext_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight
     match_weight w hw hlong hQs
     (by
-      convert Stendhal.allFiniteDeltaInjective_std
+      convert Stendhal.allFiniteDeltaInjective_of_rouquier
         (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord Dc
           weight w))) hP' hQs) t ht h
 

@@ -3012,6 +3012,27 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Proposition 6.20, for three red `sl₂` strands of weight `ω`,
+`w = (0 1)` and the upper set of all loadings: the thick closures of the `𝔅_w(S_s)` and of the
+block-permuted standards `S'_{w s}` agree. The route hypotheses (`AllFiniteDeltaInjective`,
+`RowFigureFiveHypotheses`) are assumed here, not discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ) := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  thickClosure_braidingFunctor_violLoadingStandard D params regular hall H levelThree
+    (factors 3) levelThree_eq ν (Equiv.swap 0 1) Set.univ fun _ _ _ _ _ => trivial
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, proof of Theorem 6.14 (injectivity of `ι`), for three red `sl₂`
 strands of weight `ω` and the reversed bottom red order `(2, 1, 0)`: `e(t) V e_κ` is isomorphic to
 `y · e(t⁰) V e_κ`, with no injectivity input. The route hypotheses (`BaseCrossing`,
@@ -3079,6 +3100,29 @@ example
     (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
 
+attribute [local instance 1200] Ring.toIntAlgebra in
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Corollary 6.19, for three red `sl₂` strands of weight `ω` at the
+Khovanov–Lauda scalars and the reversed red order `(2, 1, 0)`: the corner at `(0, 1, 2)` is the
+endomorphism ring of `B((0, 1, 2), (2, 1, 0))`. The route hypothesis `RowFigureFiveHypotheses` is
+assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ) :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  Stendhal.BraidedStendhalAlgebra.bijective_toModuleEnd_braidingBimodule_halfTwist D klParams
+    levelThree ν (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide)))
+
 end KhovanovLaudaTilting
 
 section KhovanovLaudaHalfTwistExt
@@ -3140,6 +3184,34 @@ example
     (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) ht ht' n hn f
 
+private theorem isReduced_zeroOneZero :
+    TypeA.IsReduced 3 (([0, 1, 0] : List (Fin 2)).map Fin.val) :=
+  (TypeA.isReduced_iff_length_le fun k hk => by simp at hk; omega).2
+    (by rw [TypeA.length_eq_invCount]; decide)
+
+/-- Webster, arXiv:1309.3796v3, Definition 6.16 and Corollary 6.17, for three red `sl₂` strands
+of weight `ω` at the Khovanov–Lauda scalars: the factorizations `τ` and `1 · ξ` of the positive
+lift `σ₀ σ₁ σ₀` of the longest element give isomorphic functors. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit) :=
+  Stendhal.BraidedStendhalAlgebra.braidPermUnit_factorization_eq D klParams regular H levelThree
+    ν (factors 3) levelThree_eq [0, 1, 0] isReduced_zeroOneZero (by decide) 1 0 [] [[0, 1, 0]]
+    (by simp) (by simpa using isReduced_zeroOneZero) (by simp)
+
+/-- Webster, arXiv:1309.3796v3, Corollary 6.17, for three red `sl₂` strands of weight `ω` at the
+Khovanov–Lauda scalars: the braid `σ₀ σ₁ σ₀` acts by the class of `𝔅_{w₀}`. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit) :=
+  Stendhal.BraidedStendhalAlgebra.braidActionHom_eq_factorization D klParams regular H levelThree
+    ν (factors 3) levelThree_eq [0, 1, 0] isReduced_zeroOneZero (by decide) 0 [[0, 1, 0]]
+    (by simpa using isReduced_zeroOneZero) _ rfl
+
 end KhovanovLaudaHalfTwistExt
 
 end TwoFundamentalLowerings
@@ -3173,6 +3245,38 @@ example := KLR.CycKLR.span_dividedProjective_of_rouquier C₂ (fun _ => 2) β ad
 example := KLR.CycKLR.of_expanded_eq_factorial admissible.gradingDatum
   (fun i j => congrArg Neg.neg (C₂.symm i j)) C₂ (fun _ => 2) β (fun _ => rfl) blocks rfl
 example := KLR.CycKLR.span_total_dividedProjective C₂ (fun _ => 2) admissible
+/-- Webster, arXiv:1309.3796v2, Proposition 5.20 (filtration form) with no route hypothesis at
+the Rouquier parameters `params`, which are not the standard Khovanov–Lauda ones. -/
+example := Categorification.Stendhal.hasStandardFiltrations_of_rouquier admissible
+  admissible.klrSymm (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1)
+
+section StandardExt
+
+/- The results are stated with classical decidable equality on the colours. -/
+noncomputable local instance (priority := high) finTwoDecEqClassical : DecidableEq (Fin 2) :=
+  Classical.decEq _
+
+noncomputable local instance (ν : Multiset (Fin 2)) :
+    CategoryTheory.HasExt.{0} (ModuleCat.{0} (Stendhal.TensorProductAlgebra ℚ params
+      (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) ν)) :=
+  CategoryTheory.hasExt_of_enoughProjectives _
+
+/-- Webster, arXiv:1309.3796v3, proof of Proposition 5.26 (semi-orthogonality), at the
+Rouquier parameters `params`, for two red strands of weight `ϖ₀`. -/
+example (ν : Multiset (Fin 2))
+    (s t : {t : KLR.Seq (Stendhal.stendhalWeight 2 ν) // Stendhal.IsRedOrdered t})
+    (h : ¬ Stendhal.StendhalLE t.1 s.1) (m : ℕ) :=
+  Categorification.Stendhal.subsingleton_ext_stdModule_of_not_stendhalLE admissible admissible.klrSymm
+    (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) ν s t h m
+
+/-- Webster, arXiv:1309.3796v3, proof of Proposition 5.26 (higher Ext), same data. -/
+example (ν : Multiset (Fin 2))
+    (s t : {t : KLR.Seq (Stendhal.stendhalWeight 2 ν) // Stendhal.IsRedOrdered t})
+    (h : Stendhal.StendhalLE s.1 t.1) (m : ℕ) :=
+  Categorification.Stendhal.subsingleton_ext_succ_stdModule admissible admissible.klrSymm
+    (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) ν s t h m
+
+end StandardExt
 
 end CyclotomicDividedWords
 
@@ -3802,8 +3906,59 @@ example := parabolicStandardLayerAction_comp q w (0 : Multiset Unit) β factors 
   (by decide)
 example := parabolicStandardAction_other_concat_eq_zero q w (0 : Multiset Unit) β factors qsymm β
   (0 : Multiset Unit) (by simp) (by decide) 1
+/-- Standardization of the regular module of the two-factor algebra is fully faithful. -/
+example := parabolicStandardMapT_bijective q w (0 : Multiset Unit) β qsymm (N := factors)
+  (N' := factors)
+example := parabolicStandardEndEquiv q w (0 : Multiset Unit) β qsymm factors
 
 end ParabolicInputs
+
+namespace StandardizationEndExamples
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.StendhalAlgebra
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+private def q := fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)
+private theorem qsymm : KLRSymm q := fun _ _ hab => (hab (Subsingleton.elim _ _)).elim
+private def w := fun _ : Fin 1 => Finsupp.single () 1
+private def blocks : Fin 2 → Multiset Unit := ![0, {()}]
+private theorem hα : RootNonViolated (ν := blockPrefix blocks 2) (blockRoot blocks) :=
+  rootNonViolated_blockRoot (ℓ := 1) (by decide) rfl
+/-- One red strand with one black strand to its right: standardization of the regular right
+module of the block algebra is bijective on endomorphisms, and the block action identifies the
+block algebra with `End(S^L_α)`. -/
+example := standardizationEndEquiv q qsymm w blocks rfl hα (BlockAlgebra ℚ q w blocks)
+example := bijective_leftBlockActionOf q w blocks hα qsymm rfl
+/-- Full faithfulness between two different modules: the regular module and its square. -/
+example := standardizationHomEquiv q qsymm w blocks rfl hα (BlockAlgebra ℚ q w blocks)
+  (BlockAlgebra ℚ q w blocks × BlockAlgebra ℚ q w blocks)
+
+end StandardizationEndExamples
+
+namespace StandardGenerationExamples
+
+open KLR QuantumGroup Stendhal
+open scoped DG.DegreeZero
+
+private theorem params :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem qsymm : KLRSymm (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)) :=
+  fun _ _ hab => (hab (Subsingleton.elim _ _)).elim
+
+private noncomputable abbrev w : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := @thickClosure_stdModule_eq_isCompact _ _ _ _ _ params qsymm _ w {()}
+  (DG.HasDerivedCategory.small _)
+
+example := @isCompact_stdModule _ _ _ _ _ params qsymm _ w {()}
+  (DG.HasDerivedCategory.small _)
+
+end StandardGenerationExamples
 
 namespace GradedParabolicShuffle
 
@@ -6309,7 +6464,7 @@ attribute [local instance 2000] Classical.propDecidable
 /-- Webster, arXiv:1309.3796v2, proof of Prop. 5.30, for `sl₂`, two red strands of weight `ω`,
 and every black weight: left multiplication by `θ̇_s` is injective on `e(s) T^λ`. -/
 example (ν : Multiset Unit) (s : TensorProductAlgebra.OrderedLoading (ℓ := 2) ν) :=
-  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_std rbRouquier rbSymm)
+  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_of_rouquier rbRouquier rbSymm)
     (fun _ : Fin 2 => Finsupp.single () 1) s.1 s.2
 
 /-- Webster, arXiv:1309.3796v3, Cor. 5.32 (v2: Cor. 5.29), for `sl₂`, two red strands of
@@ -6347,7 +6502,7 @@ strands of weight `ω`, every black weight, red-ordered loading and block assign
 standard Khovanov–Lauda scalars. -/
 noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s)
     (g : PhiIndex s) :=
-  phiLayerEquiv_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+  phiLayerEquiv_of_rouquier rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     hs g
 
@@ -6355,7 +6510,7 @@ noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs :
 weight `ω`, every black weight and red-ordered loading, at the standard Khovanov–Lauda scalars:
 the cokernel of `θ_s` is filtered by standard modules. -/
 example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) :=
-  exists_hasFiltration_shuffleCokernel_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+  exists_hasFiltration_shuffleCokernel_of_rouquier rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     s hs
 
 end NonVacuity.RedBlackCrossing
@@ -12354,11 +12509,11 @@ private theorem vacuumKLRouquier :
     fun a b h => (h (Subsingleton.elim a b)).elim⟩
 
 example :=
-  leftStandardOrderedWeightResolution_std_isKProjective vacuumWeights 0
+  leftStandardOrderedWeightResolution_of_rouquier_isKProjective vacuumWeights 0
     (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
 
 example :=
-  leftStandardOrderedWeightAugmentation_std_quasiIso vacuumWeights 0
+  leftStandardOrderedWeightAugmentation_of_rouquier_quasiIso vacuumWeights 0
     (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
 
 end StandardParameters
@@ -12662,7 +12817,7 @@ private def srEmpty : Seq (stendhalWeight 0 (0 : Multiset Unit)) :=
 
 /-- Webster, arXiv:1309.3796v3, Prop. 7.6, for `sl₂`, one red strand of weight `ω` and two
 black strands right of it. -/
-example := exists_projectiveResolution_websterWords_std (Λ := fun _ : Fin 1 => Finsupp.single () 1)
+example := exists_projectiveResolution_websterWords_of_rouquier (Λ := fun _ : Fin 1 => Finsupp.single () 1)
   srRouquier srSymm srEmpty (by unfold IsRedOrdered; decide) [(), ()] rfl
 
 /-- The terms of degree `1` of that resolution: the two subsets `{0}` and `{1}`. -/

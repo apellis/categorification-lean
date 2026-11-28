@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport
-import Categorification.WeightedKLR.RedStrands.Prop55DimensionCount
+import Categorification.WeightedKLR.RedStrands.Prop55DimensionCountQ
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -24,9 +24,8 @@ red strands on the right (`emptyRedHom`) and identifying equal black weights
 (`IsRedBlackCrossing.eq_zero`). A product of crossings `c₁ ⋯ cₙ` whose consecutive idempotents
 match (`cⱼ e_{j+1} = cⱼ`) is then injective on `T e₁` (`eq_zero_of_mul_crossingChain`).
 
-These hold at the standard Khovanov–Lauda parameters `Q = CL.qCL kl`, for every Rouquier
-datum, with no route hypothesis: injectivity of `δ₁` comes from the dimension count
-(`firstIndDeltaInjective_std`), and induction along both kinds of strand addition preserves
+These hold for Rouquier parameters `Q`, with no route hypothesis: injectivity of `δ₁` comes from the dimension count
+(`firstIndDeltaInjective_of_rouquier`), and induction along both kinds of strand addition preserves
 injections (`appendBlack_ind_map_injective`, `emptyRed_lIdeal_ind_map_injective`).
 
 ## Main results
@@ -109,31 +108,31 @@ theorem finiteDimensional_redFactorModule {C : CartanDatum I} (hQ : IsRouquierQ 
   exact inferInstanceAs (FiniteDimensional k ((lIdeal (oldIdem Q Λ θ s hs)).restrictScalars k))
 
 variable {C : CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
 include hR hQs in
 /-- **One red-black crossing is injective** (Webster, arXiv:1309.3796v2, Lemma 5.23, one
-crossing), at the standard Khovanov–Lauda parameters: `e` is idempotent, and `x e = x`,
+crossing), for Rouquier parameters: `e` is idempotent, and `x e = x`,
 `x c = 0` force `x = 0`. -/
 theorem IsRedBlackCrossing.eq_zero {m : ℕ} {Λ : Fin m → I →₀ ℕ} {ν : Multiset I}
-    {e c : TensorProductAlgebra k (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ ν}
-    (h : IsRedBlackCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ ν e c) :
+    {e c : TensorProductAlgebra k Q Λ ν}
+    (h : IsRedBlackCrossing Q Λ ν e c) :
     IsIdempotentElem e ∧ ∀ x, x * e = x → x * c = 0 → x = 0 := by
   induction h with
   | crossing Λ i θ s hs =>
     refine ⟨isIdempotentElem_redCrossIdem _ Λ i θ s hs, fun x hx h0 => ?_⟩
     have := finiteDimensional_redFactorModule _ hR Λ θ s hs
     exact redCross_eq_zero _ Λ i θ s hs hQs
-      (firstIndDeltaInjective_std hR hQs i θ 0 _) x hx h0
+      (firstIndDeltaInjective_of_rouquier hR hQs i θ 0 _) x hx h0
   | @appendBlack m Λ ν j e c _ ih =>
     exact ⟨ih.1.map _, fun x hx h0 => eq_zero_of_mul_map
-      (appendBlackNU (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) (Λ := Λ) j ν) ih.1 c
+      (appendBlackNU (Q := Q) (Λ := Λ) j ν) ih.1 c
       (appendBlack_ind_map_injective C hR (rmulLIdeal_injective ih.2)) x hx h0⟩
   | @addRed ℓ Λ θ e c _ ih =>
     exact ⟨ih.1.map _, fun x hx h0 => eq_zero_of_mul_map
-      (emptyRedHom (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ θ) ih.1 c
-      (emptyRed_lIdeal_ind_map_injective (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ θ hQs
+      (emptyRedHom Q Λ θ) ih.1 c
+      (emptyRed_lIdeal_ind_map_injective Q Λ θ hQs
         (rmulLIdeal_injective ih.2)) x hx h0⟩
   | @cast m Λ ν ν' hν e c _ ih =>
     exact ⟨ih.1.map _, eq_zero_of_mul_ringEquiv

@@ -75,7 +75,6 @@ private def blockPartialCoverMap (a b : Fin ℓ) (s : Label) :
   exact J.mkQ.comp (opLoadingIdealEquiv (e s)).toLinearMap
 
 set_option backward.isDefEq.respectTransparency false in
-set_option maxHeartbeats 1000000 in
 /-- A retained-kernel filtration by partial standards constructs their ordered covers. -/
 def blockPartialStandardOrderedCovers (a b : Fin ℓ) (higher : Label → Label → Prop)
     (hK : ∀ s : Label, ∃ m : List Label, (∀ t ∈ m, higher s t) ∧

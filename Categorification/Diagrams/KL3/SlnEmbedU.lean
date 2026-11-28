@@ -706,7 +706,6 @@ theorem diag_ιD_zigR (c : Col (Fin m) (Fin m → ℤ)) :
   simp only [ιL, ιG, List.map_cons, List.map_nil, List.cons.injEq, and_true]
   refine ⟨?_, ?_⟩ <;> exact Layer.ext rfl (by simp [dual_ιC]) rfl (by simp [dual_ιC])
 
-set_option maxHeartbeats 1000000 in
 /-- **Every defining relation of `U(sl_{m+1})` is sent to zero in `U(sl_{m+2})`.** -/
 theorem lin_embSig_rel (r : (pres RD K).Rel) : (pres RD' K).lin (Φl ((pres RD K).rel r)) = 0 := by
   rcases r with ((e | c | c) | r)

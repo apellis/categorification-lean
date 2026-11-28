@@ -231,7 +231,6 @@ variable (S : StrongSl2 k B)
 
 attribute [local irreducible] KL3.Diagram.sh
 
-set_option maxHeartbeats 4000000 in
 /-- The image of the right curl `curlR` (KL III; CL `eq_reduction-*`): the curl `curlG` of the
 crossing, closed with the left cup and the right cap. -/
 theorem img_curlR (lam : ℤ)
@@ -460,7 +459,6 @@ theorem bubL_aux {C : Type*} [Bicategory C] {a c : C} (E : a ⟶ c) (g : 𝟙 a 
       (λ_ E).inv ≫ g ▷ E ≫ (λ_ E).hom := by
   simp
 
-set_option maxHeartbeats 2000000 in
 /-- The image of an endomorphism of `1_λ` placed to the right of an upward strand. -/
 theorem img_bubR (lam : ℤ)
     (hc : Cond (S := psig sl2RootDatum) (sh sl2RootDatum (up ()) + lam) lam
@@ -499,7 +497,6 @@ theorem img_bubR (lam : ℤ)
       Category.assoc]
     exact bubL_aux _ _
 
-set_option maxHeartbeats 2000000 in
 /-- The image of a dot on an upward strand. -/
 theorem img_dotUp (lam : ℤ)
     (hc : Cond (S := psig sl2RootDatum) (sh sl2RootDatum (up ()) + lam) lam
@@ -615,7 +612,6 @@ theorem rel_curlR {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
   set_option backward.isDefEq.respectTransparency false in
   simp only [Category.assoc]
 
-set_option maxHeartbeats 4000000 in
 /-- The image of the left curl `curlL` (KL III; CL `eq_reduction-*`): the curl `curlEG` of the
 crossing, closed with the right cup and the left cap. -/
 theorem img_curlL (μ : ℤ) :

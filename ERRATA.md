@@ -283,9 +283,7 @@ projective, so `M_N ≅ M_λ`.
 
 **Declarations.** `Categorification.Stendhal.exists_stdResolution`,
 `Stendhal.exists_stdResolution_last`, `Stendhal.exists_stdResolution_coevaluationHead`,
-`Stendhal.exists_stdResolution_coevaluationHead_std`; Corollary 7.9:
-`Stendhal.ext_coevaluationHead`, `Stendhal.ext_coevaluationHead_std`.
+`Stendhal.exists_stdResolution_coevaluationHead_of_rouquier`; Corollary 7.9:
+`Stendhal.ext_coevaluationHead`, `Stendhal.ext_coevaluationHead_of_rouquier`.
 
-**Roadmap.** No open item for the repair. The route hypothesis of Proposition 7.6 for general
-`Q` is tracked with Proposition 7.6 in the
-[tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md).
+**Roadmap.** No open item.

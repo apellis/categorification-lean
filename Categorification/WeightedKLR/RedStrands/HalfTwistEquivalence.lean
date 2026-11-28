@@ -179,7 +179,7 @@ theorem exists_hasFiltration_violCorner_halfTwist {t : Seq (stendhalWeight (ℓ 
           (ViolLoadingStandard (k := k) (Q := QL) (Λ := Λ) s.1 κw)) m
         (ModuleCat.of (CL κw)ᵐᵒᵖ (violCorner k QL Λ ν t κw)) := by
   have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective QL Λ' hQ.klrSymm :=
-    fun _ _ => allFiniteDeltaInjective_std hQ hQ.klrSymm
+    fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
   obtain ⟨f, hf, hcls⟩ := FirstWeight.hasCongruentBraidClass.{0} C hQ hR hall H w hw Λ wt hwt
   have h := exists_labelled_hasFiltration_of_cornerRelabel w
     (braidRightSequenceCutEquiv (Λ := Λ) (FirstWeight.isReducedChoice_canChoice ν)
@@ -298,7 +298,7 @@ theorem isEquivalence_braidingFunctor_halfTwist
       simp
     obtain ⟨m, hm⟩ := exists_hasFiltration_loadingProjective (Λ := Λ)
       (FirstWeight.isReducedChoice_canChoice ν) hQ.klrSymm w
-      (hasStandardFiltrations_std hQ hQ.klrSymm (Λ ∘ w)) hs
+      (hasStandardFiltrations_of_rouquier hQ hQ.klrSymm (Λ ∘ w)) hs
     have hmem := hm.mem_of_forall hP fun c _ =>
       mem_essImage_loadingStandard_halfTwist C hQ Λ ν w hR H wt hwt hw hκ _
         (redWord_relabel w c.2)

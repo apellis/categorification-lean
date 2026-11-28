@@ -38,7 +38,7 @@ the proof of Theorem 6.14, where the cokernel is tensored with a standardly filt
 
 * `shuffleAssign_mem`, `phiBottom_shuffleAssign`, `phiPerm_shuffleAssign`.
 * `phiElt_shuffleAssign`: `x_φ θ_s = x_{φ'}`.
-* `exists_hasFiltration_shuffleCokernel`, `exists_hasFiltration_shuffleCokernel_std`: the
+* `exists_hasFiltration_shuffleCokernel`, `exists_hasFiltration_shuffleCokernel_of_rouquier`: the
   cokernel of `θ_s` is filtered by standard modules.
 -/
 
@@ -556,8 +556,8 @@ cokernel has a filtration by the standard modules `S_{φ' • (τ_s • s)}` of 
 `Φ_s ⊂ Φ_{τ_s • s}` by `shuffleAssign`, and the identity on the layers it meets; the dimension
 identity of Lemma 5.19 for both loadings shows that the remaining layers of the cokernel are the
 standard modules. Route hypotheses: those of Lemma 5.19 (`AllFiniteDeltaInjective`) and of the
-injectivity of `θ_s` (`BaseCrossing`), both proved at the standard Khovanov–Lauda parameters
-(`exists_hasFiltration_shuffleCokernel_std`). -/
+injectivity of `θ_s` (`BaseCrossing`), both proved for Rouquier parameters
+(`exists_hasFiltration_shuffleCokernel_of_rouquier`). -/
 theorem exists_hasFiltration_shuffleCokernel (hR : IsRouquierQ C Q) (hQs : KLRSymm Q)
     (hbase : BaseCrossing Q)
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQs)
@@ -703,25 +703,25 @@ open scoped Classical
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I}
 
-/-- **Lemma 5.25, filtered form, at the standard Khovanov–Lauda parameters** (Webster,
+/-- **Lemma 5.25, filtered form, for Rouquier parameters** (Webster,
 arXiv:1309.3796v3, proof of Lemma 5.25): `T^λ e(s) θ_s ⊂ T^λ e(τ_s • s)`, with cokernel
 filtered by the standard modules of the block assignments of `τ_s • s` that do not come from
 `s`. -/
-theorem exists_hasFiltration_shuffleCokernel_std
-    (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-    (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+theorem exists_hasFiltration_shuffleCokernel_of_rouquier
+    {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+    (hQs : KLRSymm Q)
     {ℓ : ℕ} {ν : Multiset I} (Λ : Fin ℓ → I →₀ ℕ) (s : Seq (stendhalWeight ℓ ν))
     (hs : IsRedOrdered s) :
     ∃ l : List (PhiIndex (redShufflePerm s • s)),
       (∀ j ∈ l, j ∉ Set.range (PhiIndex.shuffle hs)) ∧
       HasFiltration (fun j : PhiIndex (redShufflePerm s • s) =>
-          ModuleCat.of (TensorProductAlgebra k (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ ν)
-            (leftStandard (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ (phiBottom _ j.1)
+          ModuleCat.of (TensorProductAlgebra k Q Λ ν)
+            (leftStandard Q Λ (phiBottom _ j.1)
               (j.isRedOrdered (isRedOrdered_redShuffle hs)))) l
-        (ModuleCat.of (TensorProductAlgebra k (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ ν)
-          (shuffleCokernel (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ s hs)) :=
-  exists_hasFiltration_shuffleCokernel hR hQs (baseCrossing_std hR hQs)
-    (fun _ _ => allFiniteDeltaInjective_std hR hQs) Λ s hs
+        (ModuleCat.of (TensorProductAlgebra k Q Λ ν)
+          (shuffleCokernel Q Λ s hs)) :=
+  exists_hasFiltration_shuffleCokernel hR hQs (baseCrossing_of_rouquier hR hQs)
+    (fun _ _ => allFiniteDeltaInjective_of_rouquier hR hQs) Λ s hs
 
 end Standard
 

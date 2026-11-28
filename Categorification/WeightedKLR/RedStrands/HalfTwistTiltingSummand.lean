@@ -142,7 +142,7 @@ theorem exists_leftInverse_violCorner_halfTwist
       ∃ (i : T →ₗ[𝒞ᵐᵒᵖ] violCorner k QL Λ ν b κ) (p : violCorner k QL Λ ν b κ →ₗ[𝒞ᵐᵒᵖ] T),
         p ∘ₗ i = LinearMap.id := by
   let D := orderedStandardCovers QL (Λ ∘ w)
-    (fun s => exists_hasFiltration_leftUpper_std hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
+    (fun s => exists_hasFiltration_leftUpper_of_rouquier hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
   have hρ := FirstWeight.isReducedChoice_canChoice (ℓ := ℓ + 1) ν
   -- `Ext¹` between standards, vanishing into a zero standard
   have hstd : ∀ s a : Lab, (¬ StendhalLT s.1 a.1 ∨ Subsingleton (𝕃 a)) →
@@ -218,7 +218,7 @@ theorem exists_leftInverse_violCorner_of_tilting
   have : IsArtinian 𝒞ᵐᵒᵖ T := isArtinian_of_tower k inferInstance
   have : IsNoetherian 𝒞ᵐᵒᵖ T := isNoetherian_of_tower k inferInstance
   let D := orderedStandardCovers QL (Λ ∘ w)
-    (fun s => exists_hasFiltration_leftUpper_std hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
+    (fun s => exists_hasFiltration_leftUpper_of_rouquier hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
   exact exists_leftInverse_violCorner_halfTwist C hQ Λ ν w hR H wt hwt hw hκ hT hm
     fun a u => hom_shift_eq_zero_of_flipDual (FirstWeight.isReducedChoice_canChoice ν)
       hQ.klrSymm w D hm' (HasFiltration.single (LinearEquiv.refl _ _)) 1 one_ne_zero u

@@ -260,7 +260,6 @@ theorem crossRules_base (c d : Fin m) (ν s : Wt m) (right : List (WCol m))
     · simp only [ite_eq_right hcd, BRing.zero_tmul, map_zero]
 
 set_option backward.isDefEq.respectTransparency false in
-set_option maxHeartbeats 1000000 in
 theorem crossRules_cons (c d : Fin m) (ν s : Wt m) (col : WCol m) (left right : List (WCol m))
     (hd : WOK N s (col :: left ++ gdom (.gen (.cross true c d ν)) ++ right))
     (hc : WOK N s (col :: left ++ gcod (.gen (.cross true c d ν)) ++ right)) {μ : Wt m}

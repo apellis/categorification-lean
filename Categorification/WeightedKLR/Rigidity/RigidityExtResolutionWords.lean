@@ -137,8 +137,7 @@ where `i_T` has word `t, (u_a)_{a ∈ T} in reversed order, λ_ℓ, (u_a)_{a ∉
 
 The module `cycWord Q Λ w` is `R^{λ_ℓ} e(u)` for `u = w.reverse`. The grading shifts `χ_T` of
 the printed statement are not recorded: the algebras here are ungraded. The route hypothesis
-`hall` (injectivity of `δ₁` of (7.25) on finite-dimensional modules) holds at the standard
-Khovanov–Lauda parameters (`exists_projectiveResolution_websterWords_std`). -/
+`hall` (injectivity of `δ₁` of (7.25) on finite-dimensional modules) holds for Rouquier parameters (`exists_projectiveResolution_websterWords_of_rouquier`). -/
 theorem exists_projectiveResolution_websterWords (hR : IsRouquierQ C Q)
     (hall : AllFiniteDeltaInjective Q Λ hQ) {θ : Multiset I}
     (t : Seq (stendhalWeight ℓ θ)) (ht : IsRedOrdered t) (w : List I) {ν : Multiset I}

@@ -421,8 +421,6 @@ def hwSocleToHW (U : Submodule (KLRAlgebra K Q μ) (hwSocle Q μ ν' M)) :
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
-set_option synthInstance.maxHeartbeats 400000 in
-set_option maxHeartbeats 1000000 in
 include hν' hPQ hP hnil in
 /-- **The highest weight vectors of the socle of `e_{i^n} M` lie in `S`.** -/
 theorem hwSocle_mem [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ + ν')) M]

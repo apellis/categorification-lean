@@ -149,7 +149,6 @@ theorem canon_rotCrossL (dnScal : Fin m → Fin m → K) (i j : Fin m) (q : Wt m
 
 /-! ### The relation -/
 
-set_option maxHeartbeats 2000000 in
 /-- **`Γ_N` respects `cycCrossL j i μ`** (Cautis–Lauda `eq_almost_cyclic`, `sl_n` scalars):
 `t_{ji}^{-1} · Γ(rotCrossL j i) = Γ(downCross j i)`, where `Γ(downCross j i) = t_{ji}^{-1} · (6.9)`. -/
 theorem evalB_cycCrossL (j i : Fin m) (μ s : Wt m) (hs : s = (ob RD μ [dn j, dn i]).start)

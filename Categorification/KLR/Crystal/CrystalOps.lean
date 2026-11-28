@@ -263,8 +263,6 @@ theorem smulNilpotent_crystalF (a : Fin (Multiset.card (μ + ν'))) :
     SmulNilpotent (x a : KLRAlgebra K Q (μ + ν')) (CrystalF Q μ hν' N) :=
   smulNilpotent_quotient _ (smulNilpotent_ind_extTensor hPQ hP hnilN (smulNilpotent_klrRep hν') a)
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hPQ hP hnilN in
 /-- **`f̃_i N` is the only simple quotient of `Ind (N ⊠ L(i^n))`**: a surjection onto a simple
 module `L` gives `f̃_i N ≅ L`. -/
@@ -305,8 +303,6 @@ variable {M : Type*} [AddCommGroup M] [Module K M] [Module (KLRAlgebra K Q μ) M
   [IsSimpleModule (KLRAlgebra K Q (μ + ν')) N]
   (hnilN : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q (μ + ν')) N)
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 omit [FiniteDimensional K M] in
 include hν' hν'1 hPQ hP hnilN in
 /-- **KL I, Lemma 3.15**, `⇒`: `f̃_i M ≅ N` implies `ẽ_i N ≅ M`. -/
@@ -365,8 +361,6 @@ theorem crystalE_equiv_of_crystalF_equiv
   have heq := crystalESub_eq_of_isAtom hν' hν'1 hPQ hP hnilN hat
   exact ⟨(LinearEquiv.ofEq _ _ heq).trans e₁.symm⟩
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hν'1 hPQ hP hnilM hnilN in
 /-- **KL I, Lemma 3.15**, `⇐`: `ẽ_i N ≅ M` implies `f̃_i M ≅ N`. -/
 theorem crystalF_equiv_of_crystalE_equiv
@@ -418,7 +412,6 @@ theorem crystalF_equiv_of_crystalE_equiv
   exact nonempty_crystalF_equiv_of_surjective hν' hPQ hP hnilM (indAdjBwd g)
     (indAdjBwd_surjective hg0)
 
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hν'1 hPQ hP hnilM hnilN in
 /-- **KL I, Lemma 3.15**: for irreducible `M ∈ R(ν)-mod` and `N ∈ R(ν + i)-mod`,
 `f̃_i M ≅ N ⟺ ẽ_i N ≅ M`. -/
@@ -437,8 +430,6 @@ variable {μ ν' : Multiset I} {i : I} (hν' : ∀ a ∈ ν', a = i) (hν'1 : Mu
   (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
   (hP : ∀ a b, a ≠ b → P a b ≠ 0)
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hν'1 hPQ hP in
 /-- **KL I, Corollary 3.16** (first part): for irreducible `M`, `M'`,
 `f̃_i M ≅ f̃_i M' ⟺ M ≅ M'`. -/
@@ -465,8 +456,6 @@ theorem cor_3_16_f
   · rintro ⟨φ⟩
     exact crystalF_equiv_of_crystalE_equiv hν' hν'1 hPQ hP hnilM hnilF (χ'.trans φ.symm)
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hν' hν'1 hPQ hP in
 /-- **KL I, Corollary 3.16** (second part): for irreducible `N`, `N'` with
 `ε_i(N), ε_i(N') > 0`, `ẽ_i N ≅ ẽ_i N' ⟺ N ≅ N'`. -/

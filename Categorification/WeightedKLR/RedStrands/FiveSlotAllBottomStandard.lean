@@ -24,14 +24,14 @@ local notation "top" => fixedTopFourExitCut 2
 column that needs a separate injectivity proof. -/
 theorem fiveSlot_blockKernelTensorInclusion_injective_standard_of_twoInterior {k : Type} [Field k]
     (C : CartanDatum Unit) (Λ : Fin 3 → Unit →₀ ℕ)
-    (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-    (hQ : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+    {Q : Unit → Unit → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+    (hQ : KLRSymm Q)
     (t : Seq (stendhalWeight 3 ({()} + {()} : Multiset Unit)))
     (ht : redWord t = [0,1,2])
     (both : Function.Injective (blockKernelColumnInclusion
-      (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ t 1 2 fixedTopFourExitBottom)) :
+      Q Λ t 1 2 fixedTopFourExitBottom)) :
     Function.Injective (blockKernelTensorInclusion
-      (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ t 1 2 [0,2,1]) := by
+      Q Λ t 1 2 [0,2,1]) := by
   refine fiveSlot_blockKernelTensorInclusion_injective_of_interleaved _ Λ t ht hQ ?_ ?_ both
   · exact interleaved_markedColumn_injective_standard C Λ hR hQ t
       fiveSlotOneBlackInteriorRight 1 2 1 (by decide) (i := ()) (Lr := [0]) (Mr := [])
@@ -46,10 +46,10 @@ theorem fiveSlot_blockKernelTensorInclusion_injective_standard_of_twoInterior {k
 opposite pair order contributes injectively to the fixed five-slot top. -/
 theorem fiveSlot_blockKernelTensorInclusion_injective_standard {k : Type} [Field k]
     (C : CartanDatum Unit) (Λ : Fin 3 → Unit →₀ ℕ)
-    (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-    (hQ : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k))) :
+    {Q : Unit → Unit → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+    (hQ : KLRSymm Q) :
     Function.Injective
-      (blockKernelTensorInclusion (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k))
+      (blockKernelTensorInclusion Q
         Λ top 1 2 [0,2,1]) :=
   fiveSlot_blockKernelTensorInclusion_injective_standard_of_twoInterior C Λ hR hQ top (by decide)
     (fiveSlot_blockKernelColumnInclusion_injective _ Λ hQ)

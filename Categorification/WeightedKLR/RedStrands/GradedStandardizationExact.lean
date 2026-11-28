@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.GradedStandardization
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardExact
+import Categorification.Algebra.Graded.UpResolutionTensor
+import Categorification.KLR.Simple
 
 /-!
 # Graded standardization is an exact functor
@@ -68,5 +70,35 @@ def standardizationSES {N'' : GFin (tensorGrading (tensorProductGrade (restrictR
   injective := parabolicStandardMap_injective Q Λ θ β hsym S.f S.injective
   surjective := parabolicStandardMap_surjective Q Λ θ β hsym S.g S.surjective
   exact := parabolicStandardMap_exact Q Λ θ β hsym S.f S.g S.exact
+
+local notation "α" => Multiset.map (addRedColor ℓ) (stendhalWeight ℓ θ)
+local notation "δ" => Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ))
+  (stendhalWeight 1 β)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- **Standardization lowers degrees by at most a constant**: if dots have nonnegative degree,
+there is `b` such that the standardization of a module vanishing in degrees `< m` vanishes in
+degrees `< m + b`. -/
+theorem exists_standardizationGFin_grading_eq_bot (hG : ∀ a, 0 ≤ G.degX a) :
+    ∃ b : ℤ, ∀ (N : GFin (tensorGrading (tensorProductGrade (restrictRedGrading Q Λ G) θ)
+        (CycKLR.grade (restrictBlackGrading Q Λ G) (Λ (Fin.last ℓ)) β))) (m : ℤ),
+      (∀ j < m, N.grading j = ⊥) →
+        ∀ d < m + b, (standardizationGFin Λ G θ β hsym N).grading d = ⊥ := by
+  obtain ⟨b, hb⟩ := KLRAlgebra.exists_grade_eq_bot G (ν := α + δ) hG
+  refine ⟨b, fun N m hN d hd => ?_⟩
+  have hbim : ∀ i < b, G.bimodGrading α δ i = ⊥ := fun i hi => by
+    rw [eq_bot_iff]
+    intro x hx
+    have hx' : (x : KLRAlgebra k (stendhalQ Q Λ) (α + δ)) ∈ G.grade (α + δ) i := hx
+    rw [hb i hi, Submodule.mem_bot] at hx'
+    exact (Submodule.mem_bot _).2 (Subtype.ext hx')
+  rw [eq_bot_iff]
+  intro z hz
+  obtain ⟨y, hy, rfl⟩ := Submodule.mem_map.1 hz
+  obtain ⟨t, ht, rfl⟩ := Submodule.mem_map.1 hy
+  rw [tensorGrading_eq_bot (𝒩 := (parabolicInputGFin Λ G θ β N).grading) hbim hN (by omega),
+    Submodule.mem_bot] at ht
+  subst ht
+  simp
 
 end Categorification.Stendhal

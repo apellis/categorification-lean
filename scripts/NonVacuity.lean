@@ -3079,6 +3079,29 @@ example
     (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
 
+attribute [local instance 1200] Ring.toIntAlgebra in
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Corollary 6.19, for three red `sl₂` strands of weight `ω` at the
+Khovanov–Lauda scalars and the reversed red order `(2, 1, 0)`: the corner at `(0, 1, 2)` is the
+endomorphism ring of `B((0, 1, 2), (2, 1, 0))`. The route hypothesis `RowFigureFiveHypotheses` is
+assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ) :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  Stendhal.BraidedStendhalAlgebra.bijective_toModuleEnd_braidingBimodule_halfTwist D klParams
+    levelThree ν (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide)))
+
 end KhovanovLaudaTilting
 
 section KhovanovLaudaHalfTwistExt
@@ -3139,6 +3162,34 @@ example
   Stendhal.BraidedStendhalAlgebra.halfTwist_hom_shift_eq_zero D klParams levelThree ν
     (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) ht ht' n hn f
+
+private theorem isReduced_zeroOneZero :
+    TypeA.IsReduced 3 (([0, 1, 0] : List (Fin 2)).map Fin.val) :=
+  (TypeA.isReduced_iff_length_le fun k hk => by simp at hk; omega).2
+    (by rw [TypeA.length_eq_invCount]; decide)
+
+/-- Webster, arXiv:1309.3796v3, Definition 6.16 and Corollary 6.17, for three red `sl₂` strands
+of weight `ω` at the Khovanov–Lauda scalars: the factorizations `τ` and `1 · ξ` of the positive
+lift `σ₀ σ₁ σ₀` of the longest element give isomorphic functors. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit) :=
+  Stendhal.BraidedStendhalAlgebra.braidPermUnit_factorization_eq D klParams regular H levelThree
+    ν (factors 3) levelThree_eq [0, 1, 0] isReduced_zeroOneZero (by decide) 1 0 [] [[0, 1, 0]]
+    (by simp) (by simpa using isReduced_zeroOneZero) (by simp)
+
+/-- Webster, arXiv:1309.3796v3, Corollary 6.17, for three red `sl₂` strands of weight `ω` at the
+Khovanov–Lauda scalars: the braid `σ₀ σ₁ σ₀` acts by the class of `𝔅_{w₀}`. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit) :=
+  Stendhal.BraidedStendhalAlgebra.braidActionHom_eq_factorization D klParams regular H levelThree
+    ν (factors 3) levelThree_eq [0, 1, 0] isReduced_zeroOneZero (by decide) 0 [[0, 1, 0]]
+    (by simpa using isReduced_zeroOneZero) _ rfl
 
 end KhovanovLaudaHalfTwistExt
 

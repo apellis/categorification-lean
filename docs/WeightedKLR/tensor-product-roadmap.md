@@ -1442,9 +1442,17 @@ are proved under the hypotheses of Lemma 6.11. For Thm 6.15 the generic inputs a
 coproduct-preserving triangulated functor which is bijective on the shifted Homs of a compact
 generating family and sends it to a compact generating family is an equivalence
 (`isEquivalence_of_compactlyGenerates`), and the vanishing form of Ext–Tor duality over a field
-(`hom_dualModule_shift_eq_zero`). Remaining, in Webster's order: self-duality of `𝔅_τ P` through
-the trace on `P⁰`, `ι`, `π` and Cor 6.8 (Thm 6.14), hence vanishing of the higher Ext between the
-`𝔅_τ P`; the dimension count from Cor 6.11 with injectivity from Lemma 5.25; generation.
+(`hom_dualModule_shift_eq_zero`). Thm 6.15 is proved under the injectivity hypothesis of Lemma 6.8
+(`isEquivalence_braidingFunctor`). Def 6.16 and Cor 6.17 are proved under the same hypothesis, up to
+isomorphism of functors: the braid group on `ℓ + 1` strands maps to the group of isomorphism
+classes of autoequivalences of the product of the derived categories of all red orders
+(`braidActionHom`, `BraidGroupAction.lean`), positive lifts along reduced words go to `𝔅_w`, and
+every factorization `τ^p ξ₁ ⋯ ξₙ` of a braid gives the class of `𝔅_{w₀}^p 𝔅_{w₁} ⋯ 𝔅_{wₙ}`
+(`braidActionHom_eq_factorization`). Cor 6.19 is proved under the same hypothesis: the
+endomorphism ring of the tilting generator `B(1, κ)` for the half twist is the corner at
+`(1, …, ℓ)` (`ringelDualEquiv`, `RingelDuality.lean`). Open in §6.1: the strong action of
+Cor 6.18 (Zamolodchikov coherence), Prop 6.20 (mutation of the semi-orthogonal decomposition,
+which needs the second part of Prop 5.26); §6.2: Prop 6.21 (Serre functor).
 
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric

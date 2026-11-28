@@ -57,7 +57,6 @@ local notation "bridge" => transportLoading k oldOrdered loading_ordered exterio
 private abbrev oldDotSum : Module.End (TensorProductAlgebra k (parameter k) rawW rawν) old :=
   labelTwoMiddleDotSumEnd (parameter k)
 
-set_option maxHeartbeats 700000 in
 private theorem oldDotSum_generator :
     oldDotSum k oldGen =
       tensorOfKLR (parameter k) rawW rawν
@@ -98,7 +97,6 @@ private theorem diagramPlus_generator :
   rw [dotEnd_zero_gen, dotEnd_one_gen]
   simp only [leftMiddleDot, rightMiddleDot, tensorOfKLR, map_add, add_smul]
 
-set_option maxHeartbeats 1000000 in
 theorem exterior_middle_dotSum_alignment : alignedDotSum k = diagramPlus k :=
   transportLoading_conj_by_gen k oldOrdered loading_ordered exterior_middle_loading_alignment _
     (oldDotSumAligned k) (diagramPlus k) (oldDotSum_generator k) (diagramPlus_generator k)
@@ -305,14 +303,12 @@ private theorem actual_incoming_translate_diagram : incomingRowC k • g = (v).v
   rw [incomingDiagram_translate_val k, oldMiddleCut_eq_loading]
   simp only [raw_map_mul, mul_smul, middleGen_fixed, ψw_cons, ψw_nil, mul_one]
 
-set_option maxHeartbeats 850000 in
 /-- The projected exterior generator gives the dotted incoming shuffle diagram in the common quotient. -/
 theorem exteriorMiddleQuotientEquiv_projected_generator :
     E (F v₀) = (U).mkQ (u).val := by
   refine (congrArg (fun w => E w) (labelTwoExteriorMiddle_map_projectedGen (parameter k))).trans ?_
   exact (compare_oldBar_smul_add k (incomingRowA k) (incomingRowB k)).trans (congrArg ((U).mkQ) (actual_incoming_diagram k))
 
-set_option maxHeartbeats 850000 in
 /-- The black-crossing translate gives the undotted second shuffle in the common quotient. -/
 theorem exteriorMiddleQuotientEquiv_projected_translate :
     E (F v₁) = (U).mkQ (v).val := by

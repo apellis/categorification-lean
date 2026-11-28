@@ -15,7 +15,6 @@ quotient with the standardization of the specialized factor module.
 -/
 
 noncomputable section
-set_option maxHeartbeats 2200000
 
 namespace Categorification.Stendhal.LabelTwo
 

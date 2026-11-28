@@ -359,8 +359,6 @@ omit [DecidableEq I] in
 theorem forall_mem_replicate (n : ℕ) : ∀ a ∈ Multiset.replicate n i, a = i := fun _ ha =>
   Multiset.eq_of_mem_replicate ha
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hPQ hP in
 /-- **`ẽ_i` preserves tops** (`top_crystalE`). -/
 theorem IsTop.eOne {μ₀ μ' : Multiset I} {M : KLRMod Q (μ₀ + {i})} (hM : M.Good)
@@ -390,8 +388,6 @@ theorem IsTop.eOne {μ₀ μ' : Multiset I} {M : KLRMod Q (μ₀ + {i})} (hM : M
         (CrystalE Q (μ' + Multiset.replicate (e - 1) i) {i} M.carrier))).trans
         (ψ.trans φ)⟩⟩
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hPQ hP in
 /-- **`hd Ind (- ⊠ L(i^n))` preserves tops** (`top_crystalF`). -/
 theorem IsTop.crystalF {μ₀ μ' ν' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {N : KLRMod Q μ₀}
@@ -409,8 +405,6 @@ theorem IsTop.crystalF {μ₀ μ' ν' : Multiset I} (hν' : ∀ a ∈ ν', a = i
     · exact hν' a ha
   · rw [Multiset.card_add, hc]; exact ((hN.crystalF hPQ hP hν').2).symm
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hPQ hP in
 /-- **Socles of `Δ_{i^n}`** (Proposition 3.10, `top_of_socle`): for `n ≤ ε_i(M)` and `S` the
 simple submodule of `Δ_{i^n} M`, `HW(S)` is simple with `ε_i(HW(S)) + n = ε_i(M)` and has the
@@ -628,8 +622,6 @@ theorem lemma_3_13_soc {μ ν' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {M : 
   have : FiniteDimensional K S := finiteDimensional_submodule' S
   exact ⟨(hwEquiv hν' hPQ hP hnilS).symm.trans (ExtTensor.congr e (LinearEquiv.refl _ _))⟩
 
-set_option maxHeartbeats 800000 in
-set_option synthInstance.maxHeartbeats 200000 in
 include hPQ hP in
 /-- **KL I, Lemma 3.13 (2)**: for `N` irreducible (finite-dimensional, nilpotent dots),
 `hd Ind (N ⊠ L(i^n)) ≅ f̃_i^n N` (`n = card ν'`). -/

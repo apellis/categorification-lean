@@ -40,7 +40,6 @@ local notation "RD" => slRootDatum m
 /-- The colour duality of `psig` (the duality of the pivotal extension). -/
 abbrev psigDual (m : ℕ) : (sig0 (slRootDatum m)).ColourDuality := (inv (slRootDatum m)).toColourDuality
 
-set_option maxHeartbeats 1000000 in
 /-- The canonical chain of the left zigzag of the colour `⟨(b, i), r⟩`. -/
 theorem canon_zigL (dnScal : Fin m → Fin m → K) (b : Bool) (i : Fin m) (r : Wt m)
     (v : List (psig RD).Colour)

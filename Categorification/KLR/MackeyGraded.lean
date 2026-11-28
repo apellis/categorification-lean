@@ -38,7 +38,6 @@ For KL I (`klGradingDatum`, `degΨ(y, x) = -y·x`) this is `-λ·(ν'+λ-ν''')`
 
 noncomputable section
 
-set_option synthInstance.maxHeartbeats 400000
 
 namespace Categorification.KLR
 

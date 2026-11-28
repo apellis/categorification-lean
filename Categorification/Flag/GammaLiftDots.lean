@@ -104,7 +104,6 @@ theorem evalB_cycDotR (dnScal : Fin m → Fin m → K) (i : Fin m) (μ : Wt m) (
       Shape.gen, List.nil_append, List.append_nil]
     rw [← e1]
 
-set_option maxHeartbeats 1000000 in
 /-- The canonical chain of `rotDotL` from the region `sh (dn i) + t`. -/
 theorem canon_rotDotL (dnScal : Fin m → Fin m → K) (i : Fin m) (t : Wt m)
     (v : List (psig RD).Colour)

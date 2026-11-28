@@ -196,7 +196,6 @@ theorem prod_factorial_split (lab : V → J) (v₀ : V) :
   refine Finset.prod_congr rfl fun j hj => ?_
   rw [ite_eq_right (Finset.ne_of_mem_erase hj), Nat.sub_zero]
 
-set_option synthInstance.maxHeartbeats 200000 in
 /-- **`dim_k H_{k^{+i}} = b · dim_k H_k`**, `b` the size of the block of `v₀`. -/
 theorem finrank_split (lab : V → J) (v₀ : V) :
     Module.finrank k (BorelRing k (splitLab lab v₀)) =
@@ -497,7 +496,6 @@ theorem split_span (lab : V → J) (v₀ : V) (m : BorelRing k (splitLab lab v�
 
 end Span
 
-set_option synthInstance.maxHeartbeats 200000 in
 theorem split_indep (lab : V → J) (v₀ : V) (c : Fin (blockCard lab v₀) → BorelRing k lab)
     (hc : ∑ a, pR k lab v₀ (c a) * xi k lab v₀ ^ (a : ℕ) = 0) : c = 0 := by
   let ψ : (Fin (blockCard lab v₀) → BorelRing k lab) →ₗ[k] BorelRing k (splitLab lab v₀) :=

@@ -308,7 +308,6 @@ theorem gammaZ_eq_zero_of_mem_span {x : PreF (LaurentPolynomial ℤ) I}
 abbrev serreIdealZ : Ideal (PreF (LaurentPolynomial ℤ) I) :=
   TwoSidedIdeal.asIdeal (TwoSidedIdeal.span (PreF.serreSet (KL.C Γ).dot qUnitLP))
 
-set_option synthInstance.maxHeartbeats 200000 in
 /-- `γ` on `'f_{ℤ[q,q⁻¹]}/⟨Serre⟩` (the algebra of KL I §1 given by generators and relations,
 over `ℤ[q, q⁻¹]`). -/
 def gammaSerreZ :
@@ -316,7 +315,6 @@ def gammaSerreZ :
   Ideal.Quotient.liftₐ (serreIdealZ Γ) (gammaZ k Γ)
     (fun _ ha => gammaZ_eq_zero_of_mem_span k Γ (TwoSidedIdeal.mem_asIdeal.1 ha))
 
-set_option synthInstance.maxHeartbeats 200000 in
 theorem gammaSerreZ_mk (x : PreF (LaurentPolynomial ℤ) I) :
     gammaSerreZ k Γ (Ideal.Quotient.mk (serreIdealZ Γ) x) = gammaZ k Γ x := rfl
 

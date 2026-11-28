@@ -30,7 +30,6 @@ where `F = mackeyBimodFilt` is the Mackey filtration of `_{ν,ν'}R_{ν'',ν'''}
 
 noncomputable section
 
-set_option synthInstance.maxHeartbeats 400000
 
 namespace Categorification.KLR
 
@@ -678,7 +677,6 @@ theorem mackeyMap_tmul {c : ℕ} (hc : Multiset.card q.β = c) (t : MackeyTop Q 
     mackeyMap h q hc (BalancedTensor.tmul t b) = subquotOf h
       (concat Q ν ν' t * ψD * botConcat Q h b) (concat_mul_ψD_mul_mem h q hc _ _) := rfl
 
-set_option maxHeartbeats 1000000 in
 /-- `mackeyMap` is a map of left `R(ν) ⊗ R(ν')`-modules. -/
 theorem mackeyMap_left {c : ℕ} (hc : Multiset.card q.β = c) (a : TensorKLR Q ν ν')
     (x : MackeyX Q q) : mackeyMap h q hc (a • x) = subquotLeft h c a (mackeyMap h q hc x) := by
@@ -693,7 +691,6 @@ theorem mackeyMap_left {c : ℕ} (hc : Multiset.card q.β = c) (a : TensorKLR Q 
     rw [smul_add, map_add (mackeyMap h q hc), hx, hy, map_add (mackeyMap h q hc),
       map_add (subquotLeft h c a)]
 
-set_option maxHeartbeats 1000000 in
 /-- `mackeyMap` is a map of right `R(ν'') ⊗ R(ν''')`-modules. -/
 theorem mackeyMap_right {c : ℕ} (hc : Multiset.card q.β = c) (a : TensorKLR Q ν'' ν''')
     (x : MackeyX Q q) :

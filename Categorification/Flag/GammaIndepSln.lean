@@ -406,7 +406,6 @@ theorem bubVal_eq (c : Fin m₀) (n : ℕ) :
   unfold bubVal
   rw [nH_compOf μ L B]
 
-set_option maxHeartbeats 1000000 in
 /-- **The generators of `Π_λ` act on the rightmost region by their `Γ_N`-values**, up to the
 units `ωsl` of `Σ`. -/
 theorem hbub_sln {ν : Multiset (Fin m₀)}

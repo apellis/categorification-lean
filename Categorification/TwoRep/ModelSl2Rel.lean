@@ -314,7 +314,6 @@ theorem gAdjL_counit_congr (a b b' : ℤ) (h : b = b') (p : a + 1 = b) (p' : a +
     eqToHom e ≫ (gAdjL S a b p).counit = (gAdjL S a b' p').counit := by
   subst h; simp
 
-set_option maxHeartbeats 2000000 in
 /-- **Cyclicity of the dot, right rotation** (KL III (3.3), left-hand picture): the upward dot
 rotated by a cup on the right and a cap on the left is the downward dot. -/
 theorem cycDotR (μ : ℤ) :
@@ -391,7 +390,6 @@ theorem cycDotR (μ : ℤ) :
       congr 1
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, hx, sig0_dom_dot', sig0_cod_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- **Cyclicity of the dot, left rotation** (KL III (3.3), right-hand picture): the upward dot
 rotated by a cup on the left and a cap on the right is the downward dot. This is CL Lemma 4.1
 for the normalized left adjunctions, which holds (`cyclic_dot_leftAdjN`). -/
@@ -685,7 +683,6 @@ theorem gCross_sq (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
     S.gCross a b c h₁ h₂ ≫ S.gCross a b c h₁ h₂ = 0 := by
   subst h₁ h₂; exact S.grCross_sq a
 
-set_option maxHeartbeats 2000000 in
 /-- `τ² = 0` on two upward strands. -/
 theorem klr_sqEq (μ : ℤ) :
     (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map

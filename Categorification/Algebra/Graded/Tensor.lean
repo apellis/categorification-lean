@@ -299,7 +299,6 @@ theorem tensorDecompose_tmul {i j : ι} {m : M} {n : N} (hm : m ∈ ℳ i) (hn :
 
 -- The default instance search for `Zero (⨁ d, tensorGrading ℳ 𝒩 d)` first explores (and
 -- rejects) graded-ring structures, which is slow.
-set_option synthInstance.maxHeartbeats 200000 in
 instance tensorDecomposition : Decomposition (tensorGrading ℳ 𝒩) where
   decompose' := tensorDecompose ℳ 𝒩
   left_inv x := by

@@ -359,7 +359,6 @@ theorem finrank_fixSub_concatIdem_le (hεN : epsI Q (μ' + ν'') i N ≤ Multise
   · rw [concatIdem_of_not_mem hmem, fixSub_zero, finrank_bot]
     exact Nat.zero_le _
 
-set_option maxHeartbeats 400000 in
 include hν'' hν' hPQ hP in
 /-- **The dimension bound**: `dim E Ind (N ⊠ L(i^n)) ≤ binom(ε + n, n) · dim Δ_{i^ε} N · n!`
 for `ε_i(N) ≤ ε = card ν''`. -/
@@ -488,7 +487,6 @@ theorem topMap_smul (a : KLRAlgebra K Q μ') (w : HWSpace Q μ' ν'' (ResSub Q �
     ← one_smul (KLRAlgebra K Q ν') (lMk hν' Q 1), ← ExtTensor.smul_tmul, map_smul, coe_resSub_smul,
     one_smul]
 
-set_option maxHeartbeats 400000 in
 include hν'' hPQ hP in
 /-- **Top identification**: let `L` be simple with `ε_i(L) = ε + n` (`ε = card ν''`,
 `n = card ν'`) and `N` simple with `ε_i(N) = ε` (finite-dimensional, nilpotent dots), and let
@@ -731,7 +729,6 @@ theorem finrank_fixSub_topIdem_ind_le' :
     (Multiset.card ν'')), Nat.add_sub_cancel]
   ring
 
-set_option maxHeartbeats 1000000 in
 include hν'' hν' hPQ hP hnilN hεN in
 /-- A simple quotient `M / P'` of `M = Ind (N ⊠ L(i^n))` has `ε_i(M / P') = ε + n` and
 `dim E (M / P') = dim N' · (ε + n)!`. -/

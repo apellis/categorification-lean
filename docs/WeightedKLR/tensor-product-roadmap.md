@@ -927,6 +927,13 @@ projective resolutions); self-dual projectives and double centralizer
 (Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30). Open except as listed above. Thm 5.31 (v3:
 Thm 5.34, for `sl_n`, blocks of cyclotomic `q`-Schur algebras) is optional: see Phase G.
 
+Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is
+proved for Rouquier parameters (`StandardExtVanishing.lean`): `Extⁿ(S_t, S_s) = 0` when `t` is
+not below `s`, and `Ext^{n+1}(S_t, S_s) = 0` when `s ≤ t`. Open: `End(S_α) ≅ R_{α(0)} ⊗ T^{μ_1}
+⊗ ⋯ ⊗ T^{μ_ℓ}` (the block action `blockAction` of Prop 5.3 is bijective), full faithfulness of
+standardization, and the generation statement of the semi-orthogonal decomposition. Prop 6.20
+needs the last.
+
 ### Phase D: §6, braiding functors
 
 Defs 6.1–6.3 and Prop 6.4 are proved (`RedStrands/BraidedStendhal.lean`):

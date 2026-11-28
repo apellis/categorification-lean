@@ -3229,6 +3229,34 @@ the Rouquier parameters `params`, which are not the standard Khovanov–Lauda on
 example := Categorification.Stendhal.hasStandardFiltrations_of_rouquier admissible
   admissible.klrSymm (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1)
 
+section StandardExt
+
+/- The results are stated with classical decidable equality on the colours. -/
+noncomputable local instance (priority := high) finTwoDecEqClassical : DecidableEq (Fin 2) :=
+  Classical.decEq _
+
+noncomputable local instance (ν : Multiset (Fin 2)) :
+    CategoryTheory.HasExt.{0} (ModuleCat.{0} (Stendhal.TensorProductAlgebra ℚ params
+      (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) ν)) :=
+  CategoryTheory.hasExt_of_enoughProjectives _
+
+/-- Webster, arXiv:1309.3796v3, proof of Proposition 5.26 (semi-orthogonality), at the
+Rouquier parameters `params`, for two red strands of weight `ϖ₀`. -/
+example (ν : Multiset (Fin 2))
+    (s t : {t : KLR.Seq (Stendhal.stendhalWeight 2 ν) // Stendhal.IsRedOrdered t})
+    (h : ¬ Stendhal.StendhalLE t.1 s.1) (m : ℕ) :=
+  Categorification.Stendhal.subsingleton_ext_stdModule_of_not_stendhalLE admissible admissible.klrSymm
+    (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) ν s t h m
+
+/-- Webster, arXiv:1309.3796v3, proof of Proposition 5.26 (higher Ext), same data. -/
+example (ν : Multiset (Fin 2))
+    (s t : {t : KLR.Seq (Stendhal.stendhalWeight 2 ν) // Stendhal.IsRedOrdered t})
+    (h : Stendhal.StendhalLE s.1 t.1) (m : ℕ) :=
+  Categorification.Stendhal.subsingleton_ext_succ_stdModule admissible admissible.klrSymm
+    (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) ν s t h m
+
+end StandardExt
+
 end CyclotomicDividedWords
 
 section RedCornerEquivalence

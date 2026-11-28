@@ -552,6 +552,7 @@ import Categorification.KLR.Crystal.StringParametrization
 import Categorification.KLR.BaseChange
 import Categorification.KLR.ExtendScalars
 import Categorification.KLR.Cyclotomic
+import Categorification.KLR.CyclotomicLargeLevel
 import Categorification.KLR.CyclotomicMultFree
 import Categorification.KLR.CyclotomicFinite
 import Categorification.KLR.CyclotomicNilpotent
@@ -3119,6 +3120,7 @@ import Categorification.WeightedKLR.RedStrands.NegTensorPrepend
 import Categorification.WeightedKLR.RedStrands.TildeLeftRedInduction
 import Categorification.WeightedKLR.RedStrands.PrependRedBlocks
 import Categorification.WeightedKLR.RedStrands.PrependRedBlockHom
+import Categorification.WeightedKLR.RedStrands.PrependRedRootUpper
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
 import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition

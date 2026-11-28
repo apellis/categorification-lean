@@ -944,7 +944,8 @@ done: up-resolutions with their shift, horseshoe (Lemma 5.29 for `C↑`) and con
 (`Algebra/Graded/UpResolution.lean`), and the positivity step: for a degree-zero idempotent `e`
 with `A e A = A` and `e A e` nonnegatively graded with `(e A e)_0 = k e`, every finite-dimensional
 graded module has a resolution in `C↑` (`GFin.exists_upResolution_of_corner`,
-`Algebra/Graded/CornerResolution.lean`). Open: the cyclotomic nilHecke corner as such an `e`,
+`Algebra/Graded/CornerResolution.lean`), and the gluing of resolutions of composition factors
+(`GFin.exists_upResolution_of_isSubquotient`, `Algebra/Graded/UpResolutionSimple.lean`). Open: the cyclotomic nilHecke corner as such an `e`,
 one red strand, and general `λ` by standardization.
 
 Prop 5.26 (v3; v2 Prop 5.24): the `Ext` vanishing behind the semi-orthogonal decomposition is

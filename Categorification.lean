@@ -2632,6 +2632,7 @@ import Categorification.Algebra.Graded.ExtensionK0
 import Categorification.Algebra.Graded.FiniteResolution
 import Categorification.Algebra.Graded.UpResolution
 import Categorification.Algebra.Graded.CornerResolution
+import Categorification.Algebra.Graded.UpResolutionSimple
 import Categorification.Algebra.Graded.HomFormEquiv
 import Categorification.Algebra.Graded.HomFormPolynomial
 import Categorification.Algebra.Graded.IdealTensor

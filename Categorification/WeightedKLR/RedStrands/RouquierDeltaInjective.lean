@@ -3,15 +3,17 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionCountQ
+import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 
 /-!
-# The route hypothesis of Proposition 5.5 for Rouquier parameters
+# The route hypotheses of Proposition 5.5 and Lemma 5.25 for Rouquier parameters
 
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
 Proposition 5.5: for Rouquier parameters `Q`, the map `δ₁` is injective on every
 finite-dimensional module (`allFiniteDeltaInjective_of_rouquier`). This file restates it for an
 arbitrary decidable equality on the colours, so that statements made with `[DecidableEq I]` can
-discharge `AllFiniteDeltaInjective` instead of assuming it.
+discharge `AllFiniteDeltaInjective` instead of assuming it. The same is done for the base
+crossing of Lemma 5.23 (`BaseCrossing`, input of Lemma 5.25; `baseCrossing_of_rouquier`).
 -/
 
 namespace Categorification.Stendhal
@@ -25,5 +27,13 @@ theorem allFiniteDeltaInjective_of_isRouquierQ {I : Type} [inst : DecidableEq I]
     (hQs : KLRSymm Q) {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) : AllFiniteDeltaInjective Q Λ hQs := by
   obtain rfl : inst = fun a b => Classical.propDecidable (a = b) := Subsingleton.elim _ _
   exact allFiniteDeltaInjective_of_rouquier hQ hQs
+
+/-- **`BaseCrossing` holds for Rouquier parameters** (Webster, arXiv:1309.3796v3, Lemma 5.23,
+one red and one black strand), for any decidable equality on the colours. -/
+theorem baseCrossing_of_isRouquierQ {I : Type} [inst : DecidableEq I] {k : Type} [Field k]
+    {C : CartanDatum I} {Q : I → I → MvPolynomial (Fin 2) k} (hQ : IsRouquierQ C Q)
+    (hQs : KLRSymm Q) : BaseCrossing Q := by
+  obtain rfl : inst = fun a b => Classical.propDecidable (a = b) := Subsingleton.elim _ _
+  exact baseCrossing_of_rouquier hQ hQs
 
 end Categorification.Stendhal

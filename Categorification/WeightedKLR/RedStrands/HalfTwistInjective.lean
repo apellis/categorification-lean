@@ -567,10 +567,10 @@ theorem exists_hasFiltration_braidingBimodule_one
 include hR in
 /-- **`ι` is injective** (Webster, arXiv:1309.3796v3, proof of Theorem 6.14): for a red-ordered
 loading `t` and the bottom red order `w (1, …, ℓ)` with `w ≠ 1`, left multiplication by `θ̇_t` is
-injective on `e(t) V e_{w(1, …, ℓ)}`. Route hypotheses: that of Corollary 6.10
-(`RowFigureFiveHypotheses`, through Lemma 6.11) and `BaseCrossing` (Lemma 5.25; proved at the
-standard Khovanov–Lauda scalars). -/
-theorem violShuffleDual_mul_eq_zero (hbase : BaseCrossing Q)
+injective on `e(t) V e_{w(1, …, ℓ)}`. Route hypothesis: that of Corollary 6.10
+(`RowFigureFiveHypotheses`, through Lemma 6.11); the inputs `BaseCrossing` and
+`AllFiniteDeltaInjective` of Lemma 5.25 hold for Rouquier parameters. -/
+theorem violShuffleDual_mul_eq_zero
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
@@ -581,6 +581,7 @@ theorem violShuffleDual_mul_eq_zero (hbase : BaseCrossing Q)
     (h0 : violShuffleDual (k := k) (Q := Q) (Λ := Λ) t * v = 0) : v = 0 := by
   have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm :=
     fun _ _ => allFiniteDeltaInjective_of_isRouquierQ hQ hQ.klrSymm _
+  have hbase : BaseCrossing Q := baseCrossing_of_isRouquierQ hQ hQ.klrSymm
   obtain ⟨m, hf⟩ := exists_hasFiltration_braidingBimodule_one C hQ hR H Λ wt hwt ν w hw
   exact BraidedStendhalAlgebra.violShuffleDual_mul_eq_zero.{0} (isReducedChoice_canChoice ν)
     hQ.klrSymm hQ hbase hall hf ht hv h0
@@ -590,7 +591,7 @@ include hR in
 Theorem 6.14): when `w (1, …, ℓ)` reverses every pair of red strands (`w ≠ 1`),
 `e(t) V e_{w(1, …, ℓ)} ≅ y · e(t⁰) V e_{w(1, …, ℓ)}`. Route hypotheses: as for
 `violShuffleDual_mul_eq_zero`. -/
-def halfTwistInclusionEquiv (hbase : BaseCrossing Q)
+def halfTwistInclusionEquiv
     (H : ∀ (n m : ℕ), n + 2 + m = ℓ → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
       (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses C hQ Ω u hu)
@@ -602,7 +603,7 @@ def halfTwistInclusionEquiv (hbase : BaseCrossing Q)
       (violCorner k Q Λ ν (redShufflePerm t • t) ((List.finRange ℓ).map w)).map
         (LinearMap.mulLeft k (halfTwistY (k := k) (Q := Q) (Λ := Λ) t)) :=
   BraidedStendhalAlgebra.halfTwistInclusionEquiv hQ.klrSymm t ht _ hκ fun _ hv h0 =>
-    violShuffleDual_mul_eq_zero C hQ hR hbase H Λ wt hwt ν w hw ht hv h0
+    violShuffleDual_mul_eq_zero C hQ hR H Λ wt hwt ν w hw ht hv h0
 
 end FirstWeight
 

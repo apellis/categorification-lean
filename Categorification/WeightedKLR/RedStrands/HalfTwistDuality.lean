@@ -165,7 +165,7 @@ variable {Y : Type*} [AddCommGroup Y] [Finite I]
 /-- The chain `𝔅_τ P^κ = e(t) V e_κ ≅ y · e(t⁰) V e_κ = g(x) e⁰_{(1,…,ℓ),b} · P⁰_{(1,…,ℓ),b}
 ≅ g(x) e⁰_{κ,b} · P⁰_{κ,b}` of left multiplications. -/
 def halfTwistCutEquiv : M ≃ₗ[k] dotCut QL Λ κ κ b (halfTwistPol C Λ b (t := t)) :=
-  (FirstWeight.halfTwistInclusionEquiv C hQ hR (baseCrossing_of_rouquier hQ hQ.klrSymm)
+  (FirstWeight.halfTwistInclusionEquiv C hQ hR
       H Λ wt hwt (blackWeight b) w hw hκ
       t ht).trans
     ((LinearEquiv.ofEq _ _ (map_halfTwistY_eq_dotCut hs₁ ht₀ κ

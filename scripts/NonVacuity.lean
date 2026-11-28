@@ -3911,6 +3911,31 @@ example := bijective_leftBlockActionOf q w blocks hα qsymm rfl
 
 end StandardizationEndExamples
 
+namespace StandardGenerationExamples
+
+open KLR QuantumGroup Stendhal
+open scoped DG.DegreeZero
+
+private theorem params :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem qsymm : KLRSymm (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)) :=
+  fun _ _ hab => (hab (Subsingleton.elim _ _)).elim
+
+private noncomputable abbrev w : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := @thickClosure_stdModule_eq_isCompact _ _ _ _ _ params qsymm _ w {()}
+  (DG.HasDerivedCategory.small _)
+
+example := @isCompact_stdModule _ _ _ _ _ params qsymm _ w {()}
+  (DG.HasDerivedCategory.small _)
+
+end StandardGenerationExamples
+
 namespace GradedParabolicShuffle
 
 open Categorification KLR KLRAlgebra Graded TypeA KLR.Unfurling

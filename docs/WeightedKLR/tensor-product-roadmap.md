@@ -937,8 +937,11 @@ module (`StandardizationFullyFaithful.lean`, `standardizationEndEquiv`), by indu
 through `splitStandardEquiv` (natural in `M`) and the two-piece result; hence the block action
 of Prop 5.3 identifies `B = T^{μ_1} ⊗ ⋯ ⊗ T^{μ_ℓ}` with `End(S^L_α)`
 (`bijective_leftBlockActionOf`). Open: `Hom` between different modules for the Def 5.4
-standardization (the same induction, with `InitRestrict` on maps), `α(0) ≠ 0`, and the
-generation statement of the semi-orthogonal decomposition. Prop 6.20 needs the last.
+standardization (the same induction, with `InitRestrict` on maps) and `α(0) ≠ 0`.
+Generation (`StandardGeneration.lean`): in the ungraded `D(T^λ)`, every standard module is
+perfect (`isCompact_stdModule`) and the standards generate the perfect complexes as a thick
+subcategory (`thickClosure_stdModule_eq_isCompact`). Webster's statement is in the graded
+`Ṽ^λ` of Def 4.8; the ungraded thick-closure reading follows Lemma 6.13. Prop 6.20 uses it.
 
 ### Phase D: §6, braiding functors
 
@@ -1464,8 +1467,8 @@ every factorization `τ^p ξ₁ ⋯ ξₙ` of a braid gives the class of `𝔅_{
 (`braidActionHom_eq_factorization`). Cor 6.19 is proved under the same hypothesis: the
 endomorphism ring of the tilting generator `B(1, κ)` for the half twist is the corner at
 `(1, …, ℓ)` (`ringelDualEquiv`, `RingelDuality.lean`). Open in §6.1: the strong action of
-Cor 6.18 (Zamolodchikov coherence), Prop 6.20 (mutation of the semi-orthogonal decomposition,
-which needs the second part of Prop 5.26); §6.2: Prop 6.21 (Serre functor).
+Cor 6.18 (Zamolodchikov coherence), Prop 6.20 (mutation of the semi-orthogonal decomposition;
+both parts of Prop 5.26 are now proved, generation in the ungraded perfect reading); §6.2: Prop 6.21 (Serre functor).
 
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
 between fixed exterior loading idempotents. The map is injective for symmetric

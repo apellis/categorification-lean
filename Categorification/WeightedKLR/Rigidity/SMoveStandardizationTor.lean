@@ -138,10 +138,10 @@ def stdLayerIso {M M' : FactorModule Q Λ θ β}
 
 section Tor
 
-variable [HasDerivedCategory.{w, 0} k]
+variable {R : Type} [CommRing R] [HasDerivedCategory.{w, 0} R]
   [HasDerivedCategory.{w, 0} (TensorProductAlgebra k Q Λ ν)]
-  (N : Type) [AddCommGroup N] [Module k N] [Module (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ N]
-  [SMulCommClass k (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ N]
+  (N : Type) [AddCommGroup N] [Module R N] [Module (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ N]
+  [SMulCommClass R (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ N]
 
 /-- The standardization `S(X)` of a module over the factor algebra. -/
 abbrev stdOf (X : Type) [AddCommGroup X] [Module k X] [Module D X] [IsScalarTower k D X] :
@@ -151,8 +151,8 @@ abbrev stdOf (X : Type) [AddCommGroup X] [Module k X] [Module D X] [IsScalarTowe
 include hQ in
 /-- **Standardizations of free factor modules**: if `S(D)` is Tor-acyclic, so is
 `S(D^{n+1})`. -/
-theorem torAcyclic_stdLayer_free (hD : TorAcyclic.{w} (k := k) N (stdOf Q Λ hQ h D)) :
-    ∀ n : ℕ, TorAcyclic.{w} (k := k) N (stdOf Q Λ hQ h (Fin (n + 1) → D)) := by
+theorem torAcyclic_stdLayer_free (hD : TorAcyclic.{w} (k := R) N (stdOf Q Λ hQ h D)) :
+    ∀ n : ℕ, TorAcyclic.{w} (k := R) N (stdOf Q Λ hQ h (Fin (n + 1) → D)) := by
   intro n
   induction n with
   | zero =>
@@ -175,11 +175,12 @@ include hQ in
 /-- **Tor against standardizations of finite-dimensional modules** (Webster,
 arXiv:1309.3796v3, §7.3, proof of Proposition 7.22, the `E²` terms for resolutions by
 standardizations): for Rouquier parameters, if `S(D_{θ,β})` is Tor-acyclic against `N`, so is
-`S(M)` for every finite-dimensional module `M` over `D_{θ,β}`. -/
+`S(M)` for every finite-dimensional module `M` over `D_{θ,β}`. The cohomology is taken over any
+commutative coefficient ring `R` (for instance `k` or `ℤ`). -/
 theorem torAcyclic_stdLayer_of_finiteDimensional {C : QuantumGroup.CartanDatum I}
-    (hR : IsRouquierQ C Q) (hD : TorAcyclic.{w} (k := k) N (stdOf Q Λ hQ h D))
+    (hR : IsRouquierQ C Q) (hD : TorAcyclic.{w} (k := R) N (stdOf Q Λ hQ h D))
     (M : FactorModule Q Λ θ β) [FiniteDimensional k M.carrier] :
-    TorAcyclic.{w} (k := k) N (stdLayerModule Q Λ hQ ⟨θ, β, h, M⟩) := by
+    TorAcyclic.{w} (k := R) N (stdLayerModule Q Λ hQ ⟨θ, β, h, M⟩) := by
   have hDf : Module.Finite k D :=
     Subsingleton.elim (fun a b => Classical.propDecidable (a = b)) ‹DecidableEq I› ▸
       module_finite_parabolicFactorAlgebra_of_rouquier (Λ := Λ) hR θ β

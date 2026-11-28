@@ -24,10 +24,10 @@ inductions of right `T^λ`-modules through `Fᵢ ⊣ Eᵢ` is invertible
 (`blackRouqFamily_mixedInversion_of`). With Brundan's upward KLR relations as a further
 hypothesis, `blackPresCLPseudofunctorOf` is the resulting action of Cautis–Lauda's `U_Q(g)`.
 
-`BlackModuleMixedInversion` is an explicit hypothesis here. It is the module form of the
-relation `E_i F_j ≅ F_j E_i` (`i ≠ j`) of Webster's Theorem 4.31; the library has the abstract
-isomorphism (`clBlackModuleCrossEquivQ`) and the spanning half of the Mackey corner
-(`mixedBlackMap`, Lemma 4.35), but not yet its identification with this mate.
+`BlackModuleMixedInversion` is an explicit hypothesis of the reductions here. It is the module
+form of the relation `E_i F_j ≅ F_j E_i` (`i ≠ j`) of Webster's Theorem 4.31, and it is proved
+in `BlackModuleMixedInversion.lean` (`blackModuleMixedInversion`), which also gives the
+hypothesis-free `blackRouqFamily_mixedInversion`.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -166,7 +166,7 @@ variable {Λ hQ RD Λ₀} {P : Presentation.{u, u}
 
 /-- **Brundan's mixed inversion for Webster's derived action** (Brundan, arXiv:1501.00350v1,
 (1.7); Webster, arXiv:1309.3796v3, Theorem 4.31), from the module statement
-`BlackModuleMixedInversion` (an explicit hypothesis of this reduction). The family carries the
+`BlackModuleMixedInversion` (proved as `blackModuleMixedInversion`). The family carries the
 hypotheses of `blackRouqFamily`: Theorem 4.30 (`CoverRelsNegligible`, `WFDom`), exactness
 (`hQ`), `KLRSymm Q` and the route hypothesis `hΛ₀`. -/
 theorem blackRouqFamily_mixedInversion_of (hM : BlackModuleMixedInversion Λ hsym) :

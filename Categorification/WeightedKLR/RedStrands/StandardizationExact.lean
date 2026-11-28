@@ -207,7 +207,7 @@ theorem standardizationHom_exact_step
 end Step
 
 /-- The black weight and root function of the first `ℓ + 1` blocks, for `b_0 = 0`. -/
-theorem rootNonViolated_initBlocks {ℓ : ℕ} (b : Fin (ℓ + 2) → Multiset I) (hb0 : b 0 = 0) :
+theorem initBlocks_zero_and_rootNonViolated {ℓ : ℕ} (b : Fin (ℓ + 2) → Multiset I) (hb0 : b 0 = 0) :
     initBlocks b 0 = 0 ∧ RootNonViolated (ν := initWeight b) (blockRoot (initBlocks b)) := by
   have hb0' : initBlocks b 0 = 0 := by
     change b (Fin.castSucc 0) = 0
@@ -222,7 +222,7 @@ theorem standardizationPreservesInjective_succ (hQ : KLRSymm Q) {ℓ : ℕ}
     StandardizationPreservesInjective Q (ℓ + 1) := by
   intro Λ b ν hb hα hb0 M M' _ _ _ _ _ _ _ _ g hg
   obtain rfl : ν = initWeight b + lastBlock b := hb.symm.trans (blockPrefix_last b)
-  obtain ⟨hb0', hα'⟩ := rootNonViolated_initBlocks b hb0
+  obtain ⟨hb0', hα'⟩ := initBlocks_zero_and_rootNonViolated b hb0
   exact standardizationHom_injective_step Q hQ Λ b hα' hα M M'
     (fun g hg => ih (Λ ∘ Fin.castSucc) _ _ rfl hα' hb0' (InitRestrict Q Λ b M)
       (InitRestrict Q Λ b M') g hg) g hg
@@ -232,7 +232,7 @@ theorem standardizationPreservesExact_succ (hQ : KLRSymm Q) {ℓ : ℕ}
     StandardizationPreservesExact Q (ℓ + 1) := by
   intro Λ b ν hb hα hb0 M M' M'' _ _ _ _ _ _ _ _ _ _ _ _ f g h
   obtain rfl : ν = initWeight b + lastBlock b := hb.symm.trans (blockPrefix_last b)
-  obtain ⟨hb0', hα'⟩ := rootNonViolated_initBlocks b hb0
+  obtain ⟨hb0', hα'⟩ := initBlocks_zero_and_rootNonViolated b hb0
   exact standardizationHom_exact_step Q hQ Λ b hα' hα M M' M''
     (fun f g h => ih (Λ ∘ Fin.castSucc) _ _ rfl hα' hb0' (InitRestrict Q Λ b M)
       (InitRestrict Q Λ b M') (InitRestrict Q Λ b M'') f g h) f g h

@@ -72,9 +72,10 @@ def cornerContract : Ind N φ →+ N :=
       rw [← mul_smul]
       congr 1
       refine cornerPre_eq φ hφ hs ?_
+      have h1 : φ 1 * φ a = φ a := by rw [← map_mul, one_mul]
       have h2 : φ a * φ 1 = φ a := by rw [← map_mul, mul_one]
-      change φ (cornerPre φ hs (z.1 * φ a)) = φ 1 * (z.1 * φ a) * φ 1
-      rw [map_cornerPre, mul_assoc (z.1) (φ a) (φ 1), h2])
+      rw [op_smul_val, map_mul, map_cornerPre]
+      simp only [mul_assoc, h1, h2])
 
 @[simp] theorem cornerContract_tmul (z : Corner φ) (n : N) :
     cornerContract φ hφ hs N (Ind.tmul z n) = cornerPre φ hs z.1 • n := rfl

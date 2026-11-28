@@ -26,6 +26,12 @@ idempotent-complete Hom categories, which are not yet established for that bicat
 
 open Categorification CategoryTheory QuantumGroup UDot
 
+/- Two global instances give the corner `e A e` an algebra structure: `KLR.cornerAlgebra` and
+`IsIdempotentElem.instAlgebraCorner_categorification`. They agree but not definitionally, and
+the library statements used below are elaborated with the second; which one wins a priority tie
+depends on module order, so fix it here. -/
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
 noncomputable section
 
 namespace NonVacuity

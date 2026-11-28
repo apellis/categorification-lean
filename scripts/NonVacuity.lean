@@ -13856,13 +13856,6 @@ example := tensorQuantumTrace_tprod (k := 0) (m := 1) (R := LieLean.QuantumGroup
 end
 
 
-open Categorification.Stendhal.QuantumDual in
-open Categorification.Stendhal.QuantumDual in
-open Categorification.Stendhal.QuantumDual in
-open Categorification.Stendhal.QuantumDual in
-open Categorification.Stendhal.QuantumDual in
-open Categorification.Stendhal.QuantumDual in
-open Categorification.Stendhal.QuantumDual in
 
 end NonVacuity.QuantumCoevaluationForm
 

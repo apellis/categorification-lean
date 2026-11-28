@@ -2244,6 +2244,7 @@ import Categorification.WeightedKLR.RedStrands.BlockInsideCrossing
 import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockQuotientCoordinates
 import Categorification.WeightedKLR.RedStrands.RowQuotientCoordinates
+import Categorification.WeightedKLR.RedStrands.RowShuffleBlocks
 import Categorification.WeightedKLR.RedStrands.RowShuffleQuotientCrossing
 import Categorification.WeightedKLR.RedStrands.RowBlockAction
 import Categorification.WeightedKLR.RedStrands.RowRightAscentInjective

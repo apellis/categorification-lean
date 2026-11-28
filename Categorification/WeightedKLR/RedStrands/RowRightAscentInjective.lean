@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.RowBlockAction
 import Categorification.WeightedKLR.RedStrands.RowShuffleQuotientCrossing
+import Categorification.WeightedKLR.RedStrands.RowShuffleBlocks
 
 /-!
 # Right multiplication by an external ascent is injective on a standard column
@@ -14,6 +15,10 @@ nonzero at the bottom loading `s_j • s`, the crossing `ψ_j` is an ascent betw
 different input blocks, then right multiplication by `ψ_j e(s)` is injective on the part of `N`
 with bottom `s_j • s`: the coordinate of maximal shuffle length is carried to the extended
 shuffle with the same coefficient (`rowColumn_mul_right_ascent_eq_zero`).
+
+For a row of single red strands (a full standard module when `a = b`), a crossing in which a
+black strand at the bottom moves left past a red strand going up is such an ascent at every
+coordinate, so right multiplication by it is injective (`rowColumn_mul_black_red_eq_zero`).
 -/
 
 noncomputable section
@@ -173,5 +178,42 @@ theorem rowColumn_mul_right_ascent_eq_zero (hQ : KLRSymm Q) (s : Seq μ) (j : �
     rw [hbot, ← hsupp]
   rw [h0, map_zero] at hval
   exact hi₀ hval.symm
+
+omit [DecidableEq I] in
+private theorem cast_lbl_mk {w w' : Multiset (I ⊕ Fin ℓ)} (e : w = w') (t : Seq w) (j : ℕ)
+    (h₁ : j < w'.card) (h₂ : j < w.card) : (Seq.cast e t).lbl ⟨j, h₁⟩ = t.lbl ⟨j, h₂⟩ := by
+  subst e; rfl
+
+omit [DecidableEq I] in
+private theorem cast_cast_symm {w w' : Multiset (I ⊕ Fin ℓ)} (e : w = w') (t : Seq w') :
+    Seq.cast e (Seq.cast e.symm t) = t := by
+  subst e; rfl
+
+include hal hκ in
+/-- **A black strand moving left past a red strand gives an injective right multiplication on
+a full standard column** (Webster, arXiv:1309.3796v3, proof of Lemma 6.9). For a row of single
+red strands, if the bottom `s_j • s` has red order `κ`, a black strand at position `j` and a red
+strand at position `j + 1`, then `z ψ_j e(s) = 0` forces `z = 0` for `z` in the column with
+bottom `s_j • s`. -/
+theorem rowColumn_mul_black_red_eq_zero (hQ : KLRSymm Q) (hsize : ∀ B ∈ Bs, B.size = 1)
+    (s : Seq μ) (j : ℕ) (hj : j + 1 < (weightSum Bs).card)
+    (hord : redWord (sadj (Multiset.card μ) j • s) = κ) {i : I} {r : Fin ℓ}
+    (hb : (sadj (Multiset.card μ) j • s).lbl ⟨j, by have := congrArg Multiset.card h; omega⟩ =
+      .inl i)
+    (hr : (sadj (Multiset.card μ) j • s).lbl ⟨j + 1, by have := congrArg Multiset.card h; omega⟩ =
+      .inr r)
+    (z : rowColumn Q Λ Bs a b κ h)
+    (hz : z.1 * π (e (sadj (Multiset.card μ) j • s)) = z.1)
+    (h0 : z.1 * π (ψ j * e s) = 0) : z = 0 := by
+  refine rowColumn_mul_right_ascent_eq_zero Q Λ Bs a b κ h hal hκ hQ s j hj ?_ z hz h0
+  intro u x hx hPx
+  rcases hx.support with rfl | ⟨v, _, hp, rfl⟩
+  · exact (hPx (map_zero _)).elim
+  have hv : ¬ Violated Bs v := fun hviol => hPx (projection_loadingIdem_eq_zero Q Λ Bs v hviol)
+  apply ascent_of_inputBlock_lt
+  refine inputBlock_lt_of_black_red Bs hsize h u _ v hv hp ?_ j hj (i := i) (r := r) ?_ ?_
+  · rw [cast_cast_symm, hord, hκ v]
+  · rw [cast_lbl_mk]; exact hb
+  · rw [cast_lbl_mk]; exact hr
 
 end Categorification.Stendhal.RedBlock

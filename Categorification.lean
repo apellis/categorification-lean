@@ -2646,6 +2646,7 @@ import Categorification.Algebra.Graded.UpResolution
 import Categorification.Algebra.Graded.CornerResolution
 import Categorification.Algebra.Graded.UpResolutionSimple
 import Categorification.Algebra.Graded.UpResolutionBootstrap
+import Categorification.Algebra.Graded.UpResolutionTotal
 import Categorification.Algebra.Graded.HomFormEquiv
 import Categorification.Algebra.Graded.HomFormPolynomial
 import Categorification.Algebra.Graded.IdealTensor

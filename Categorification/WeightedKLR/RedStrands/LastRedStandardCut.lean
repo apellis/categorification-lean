@@ -69,7 +69,7 @@ local notation "q" => cutProjection (Q := Q) Λ ν
 local notation "A" => lastRedCutKLR (Q := Q) Λ ν
 local notation "cutConcat" => lastRedCutConcat
 
-private theorem standardCut_of_shuffle (u : cut) (b : IndecClass (lastRedFactorGrading Λ ν G u))
+private def standardCut_of_shuffle (u : cut) (b : IndecClass (lastRedFactorGrading Λ ν G u))
     (V : Type w) [AddCommGroup V] [Module k V] (ρ : ((J) u).ringCon.Quotient →ₐ[k] Module.End k V)
     (unit : b.top →ₗ[k] V) (hinj : Function.Injective unit)
     (hunit : ∀ (t : (A) u) (n : b.top), ρ ((q) u (cutConcat Λ ν u t)) (unit n) =
@@ -77,19 +77,33 @@ private theorem standardCut_of_shuffle (u : cut) (b : IndecClass (lastRedFactorG
         (parabolicLastCyclotomic Q Λ u.1.2) t • n))
     (himage : ∀ (t : (A) u) (z : V), ρ ((q) u (cutConcat Λ ν u t)) z ∈ LinearMap.range unit)
     (hzero : ∀ (v : cut), ¬ v.1.1 ≤ u.1.1 → ∀ (t : (A) v) (z : V),
-      ρ ((q) u (cutConcat Λ ν v t)) z = 0) : Nonempty (LastRedInducedCut Λ ν G u b) := by
-  let := Module.compHom V ρ.toRingHom
-  let := cutActionTower ρ
-  refine ⟨{ carrier := V, recover := ⟨fixedEquivOfRange ((ψ) u) ρ unit hinj ?_ ?_⟩, support := ?_ }⟩
-  · intro t n
-    exact lastRedLayerAction_identityShuffle Q Λ ((p) u) (LastRedWeightSplit.content ν u ℓ)
-      (LastRedWeightSplit.length ν u ℓ) ((H) u) ρ (Algebra.lsmul k k _) unit hunit t n
-  · obtain ⟨t, _, ht⟩ := lastRedLayerAction_exists_parabolicLift Q Λ ((p) u)
-      (LastRedWeightSplit.content ν u ℓ) (LastRedWeightSplit.length ν u ℓ) ((H) u) 1
-    intro z
-    rw [← ht]
-    exact himage t z
-  · exact hzero
+      ρ ((q) u (cutConcat Λ ν v t)) z = 0) : LastRedInducedCut Λ ν G u b :=
+  letI := Module.compHom V ρ.toRingHom
+  letI := cutActionTower ρ
+  { carrier := V
+    recover := ⟨fixedEquivOfRange ((ψ) u) ρ unit hinj (fun t n =>
+      lastRedLayerAction_identityShuffle Q Λ ((p) u) (LastRedWeightSplit.content ν u ℓ)
+        (LastRedWeightSplit.length ν u ℓ) ((H) u) ρ (Algebra.lsmul k k _) unit hunit t n) (by
+      obtain ⟨t, _, ht⟩ := lastRedLayerAction_exists_parabolicLift Q Λ ((p) u)
+        (LastRedWeightSplit.content ν u ℓ) (LastRedWeightSplit.length ν u ℓ) ((H) u) 1
+      intro z
+      rw [← ht]
+      exact himage t z)⟩
+    support := hzero }
+
+/-- The standardization `S(b)` of the top of a factor class `b`, as an induced representation at
+its cut: the smaller-suffix layer acts through the last-red layer action. -/
+def lastRedStandardInducedCut (hQ : KLRSymm Q) (θ β : Multiset I)
+    (b : IndecClass (lastRedFactorGrading Λ (θ+β) G ⟨(θ,β),rfl⟩)) :
+    LastRedInducedCut Λ (θ+β) G ⟨(θ,β),rfl⟩ b :=
+  standardCut_of_shuffle Λ (θ+β) G ⟨(θ,β),rfl⟩ b (ParabolicStandard Q Λ θ β b.top)
+    (parabolicStandardLayerAction Q Λ θ β b.top hQ _ (by
+      simp [LastRedWeightSplit.position, stendhalWeight]))
+    (parabolicStandardUnit Q Λ θ β b.top) (parabolicStandardUnit_injective Q Λ θ β b.top hQ)
+    (parabolicStandardAction_concat_unit Q Λ θ β b.top hQ)
+    (parabolicStandardAction_concat_mem_range Q Λ θ β b.top hQ)
+    (fun v hv t z => LinearMap.congr_fun (parabolicStandardAction_other_concat_eq_zero Q Λ θ β
+      b.top hQ v.1.1 v.1.2 v.2 hv t) z)
 
 /-- Standardization recovers each factor simple on its maximal cut and kills the
 sector outside its black-prefix support (Webster, arXiv:1309.3796v2,
@@ -98,20 +112,7 @@ theorem nonempty_lastRedInducedCut (hQ : KLRSymm Q) (u : cut)
     (b : IndecClass (lastRedFactorGrading Λ ν G u)) :
     Nonempty (LastRedInducedCut Λ ν G u b) := by
   rcases u with ⟨⟨θ,β⟩,rfl⟩
-  let u : LastRedWeightSplit (θ+β) := ⟨(θ,β),rfl⟩
-  let P := LastRedWeightSplit.position (θ+β) u ℓ
-  have hp : P.val = ((stendhalWeight ℓ θ).map (addRedColor ℓ)).card := by
-    simp [P, u, LastRedWeightSplit.position, stendhalWeight]
-  let V := ParabolicStandard Q Λ θ β b.top
-  let ρ := parabolicStandardLayerAction Q Λ θ β b.top hQ P hp
-  apply standardCut_of_shuffle Λ (θ+β) G u b V ρ (parabolicStandardUnit Q Λ θ β b.top)
-    (parabolicStandardUnit_injective Q Λ θ β b.top hQ)
-  · exact parabolicStandardAction_concat_unit Q Λ θ β b.top hQ
-  · exact parabolicStandardAction_concat_mem_range Q Λ θ β b.top hQ
-  · intro v hv t z
-    have hz := parabolicStandardAction_other_concat_eq_zero Q Λ θ β b.top hQ
-      v.1.1 v.1.2 v.2 hv t
-    exact LinearMap.congr_fun hz z
+  exact ⟨lastRedStandardInducedCut Λ G hQ θ β b⟩
 
 variable (hQ : IsRouquierQ D Q)
 

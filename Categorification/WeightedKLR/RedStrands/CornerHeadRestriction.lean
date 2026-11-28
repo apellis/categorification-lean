@@ -75,13 +75,16 @@ private theorem spanFixed_generates : Submodule.span C {x : P | φ 1 • x = x} 
 
 /-- From any representation whose cut is the specified simple, take the
 submodule generated on the cut and its unique head. It retains the whole
-factor simple and inherits every annihilator of the representation. The
-induced representation itself can be supplied ungraded. -/
+factor simple and inherits every annihilator of the representation, and it is
+a subquotient of the representation. The induced representation itself can be
+supplied ungraded. -/
 theorem exists_cornerHeadRestriction [GradedAlgebra 𝒜] [HasGdim 𝒜] [Module.Finite k A]
     (hq : Function.Surjective q) (b : IndecClass ℬ) [IsSimpleModule B b.top]
     (f : b.top ≃ₗ[B] F) :
     ∃ s : IndecClass 𝒜, Nonempty (CornerTopRestriction q φ b s) ∧
-      ∀ a : A, (∀ x : M, q a • x = 0) → ∀ y : s.top, a • y = 0 := by
+      (∀ a : A, (∀ x : M, q a • x = 0) → ∀ y : s.top, a • y = 0) ∧
+      ∃ (X : Submodule C M) (g : X →ₗ[k] s.top), Function.Surjective g ∧
+        ∀ (a : A) (x : X), g (q a • x) = a • g x := by
   let g := f.trans (spanFixedEquiv φ M)
   let := IsSimpleModule.congr g.symm
   let K := cornerKernel (φ 1) (P)
@@ -101,7 +104,9 @@ theorem exists_cornerHeadRestriction [GradedAlgebra 𝒜] [HasGdim 𝒜] [Module
   let ι : b.top →ₗ[k] s.top := (h.toLinearMap.restrictScalars k).comp
     ((idemSubspace k H (φ 1)).subtype.comp (j.toLinearMap.restrictScalars k))
   have hι (x : b.top) : ι x = h (j x).1 := rfl
-  refine ⟨s,⟨⟨ι,fun x y he => j.injective (Subtype.ext (h.injective he)),?_,?_⟩⟩,?_⟩
+  refine ⟨s,⟨⟨ι,fun x y he => j.injective (Subtype.ext (h.injective he)),?_,?_⟩⟩,?_,P,
+    (h.toLinearMap.restrictScalars k) ∘ₗ (K.mkQ.restrictScalars k),
+    h.surjective.comp K.mkQ_surjective,fun a x => ?_⟩
   · intro a t ht x
     rw [hι,hι,← h.map_smul a,act a,ht,j.map_smul]
     rfl
@@ -116,5 +121,7 @@ theorem exists_cornerHeadRestriction [GradedAlgebra 𝒜] [HasGdim 𝒜] [Module
     obtain ⟨w,rfl⟩ := K.mkQ_surjective v
     rw [← h.map_smul,act,← K.mkQ.map_smul,
       show q a • w = 0 from Subtype.ext (ha w.1),map_zero,map_zero]
+  · change h (K.mkQ (q a • x)) = a • h (K.mkQ x)
+    rw [K.mkQ.map_smul,← act,h.map_smul]
 
 end Categorification.Stendhal

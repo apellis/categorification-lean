@@ -785,6 +785,7 @@ import Categorification.KLR.MackeyResRightGraded
 import Categorification.KLR.MackeySubquot
 import Categorification.KLR.NilHeckeBlockSplitting
 import Categorification.KLR.NilHeckeFullSplitting
+import Categorification.KLR.NilHeckeCornerPositivity
 import Categorification.KLR.Pairing
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs

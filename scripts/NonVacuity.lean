@@ -13385,3 +13385,73 @@ example : IsIdempotentComplete (DerivedCategory (ModuleCat.{0} (ZMod 2))) :=
 end NonVacuityBlackVacuumTwelfth
 
 end NonVacuityBlackVacuumTwelfthSection
+
+/-! Prop 7.21 isomorphisms on Mathlib's derived categories (Webster arXiv:1309.3796v3). -/
+section NonVacuityModuleCoevaluationThirteenthSection
+open Categorification CategoryTheory QuantumGroup KLR Stendhal Stendhal.CupCap MulOpposite
+open scoped DG.DegreeZero
+
+namespace NonVacuityModuleCoevaluationThirteenth
+
+/-- Derived categories of dg modules with small morphisms. -/
+@[instance_reducible] noncomputable def smallDG (R : Type) [Ring R] :
+    DG.HasDerivedCategory.{0, 0} R :=
+  DG.HasDerivedCategory.small.{0, 0} R
+
+/-- Derived categories of module categories with small morphisms. -/
+@[instance_reducible] noncomputable def smallDerived (R : Type) [Ring R] :
+    HasDerivedCategory.{0} (ModuleCat.{0} R) :=
+  DerivedCategory.smallModuleCat R
+
+attribute [local instance] smallDG smallDerived
+
+/-- One colour, `Q = 0`: Rouquier polynomials for the Cartan datum of one vertex. -/
+private theorem params :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- One red strand `λ = 2ϖ` and a cap with labels `(ϖ, ϖ)` at the top of the window. -/
+noncomputable abbrev lab : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+noncomputable abbrev capLab : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+/-- The coevaluation functor, its right adjoint, the quantum trace and the adjunction on
+Mathlib's derived categories, at the coefficient module `ℚ`-module `PUnit`. -/
+noncomputable example := moduleCoevaluationFunctor ℚ (fun _ _ => 0) lab capLab 1 le_rfl
+  {()} PUnit {()}
+noncomputable example := moduleQuantumTraceFunctor ℚ (fun _ _ => 0) lab capLab 1 le_rfl
+  {()} PUnit {()} (-2)
+noncomputable example := moduleCoevaluationAdjunction ℚ (fun _ _ => 0) lab capLab 1 le_rfl
+  {()} PUnit 0
+
+/-- Proposition 7.21 against the blocks of `blackRouqData`: all hypotheses but the pull-off
+identities and the finiteness of the pieces of `L` (stated about `L`) are discharged; the
+cup scalar is `(-1)^1`, a unit. -/
+noncomputable example (hP : PullOff ℚ (fun _ _ => 0) capLab {()} PUnit)
+    (hPL : PullOffLeft ℚ (fun _ _ => 0) capLab {()} PUnit)
+    (hfin : ∀ (t : Seq (stendhalWeight 2 {()})) (ht : IsRedOrdered t), Module.Finite ℚ
+      (BalancedTensor.idemPart ℚ PUnit
+        (op (StendhalAlgebra.e (k := ℚ) (Q := fun _ _ => 0) (Λ := capLab) t ht))))
+    (hproj : ∀ (t : Seq (stendhalWeight 2 {()})) (ht : IsRedOrdered t), Module.Projective ℚ
+      (BalancedTensor.idemPart ℚ PUnit
+        (op (StendhalAlgebra.e (k := ℚ) (Q := fun _ _ => 0) (Λ := capLab) t ht)))) :=
+  let hL : ∀ (w : Seq (stendhalWeight 2 ({()} : Multiset Unit))) (v : PUnit),
+      ¬ IsCapGood {()} w → op (cupMap ℚ (fun _ _ => 0) capLab {()} (KLRAlgebra.e w)) • v = 0 :=
+    fun _ _ _ => Subsingleton.elim _ _
+  let hκ : ∀ i', IsUnit (cupScalar (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) {()} i') :=
+    fun i => by
+      rw [cupScalar, Finset.prod_eq_one fun x hx =>
+        absurd (Subsingleton.elim x i) (Finset.mem_erase.1 hx).1, mul_one]
+      exact isUnit_neg_one.pow _
+  (moduleCapEIso (Λ := lab) (j := 1) (hj := le_rfl) hL (fun _ _ h => (h rfl).elim) hκ hP hPL
+      hfin hproj (ν := 0) (i := ()) rfl (by simp),
+    moduleCapFIso (Λ := lab) (j := 1) (hj := le_rfl) hL (fun _ _ h => (h rfl).elim) hκ hP hPL
+      hfin hproj params (ν := 0) (i := ()) rfl (by simp),
+    moduleCapFQuantumTraceIso (Λ := lab) (j := 1) (hj := le_rfl) hL (fun _ _ h => (h rfl).elim)
+      hκ hP hPL hfin hproj params (-2) (ν := 0) (i := ()) rfl (by simp))
+
+end NonVacuityModuleCoevaluationThirteenth
+
+end NonVacuityModuleCoevaluationThirteenthSection

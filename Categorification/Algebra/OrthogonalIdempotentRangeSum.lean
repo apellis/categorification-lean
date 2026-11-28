@@ -24,7 +24,8 @@ arXiv:1309.3796v3, Lemma 7.19 (trace half).
 
 ## Main results
 
-* `Categorification.orthRangeSumEquiv_apply`, `Categorification.orthRangeSumEquiv_proj`.
+* `Categorification.apply_sum_of_additive`, `Categorification.orthRangeSumEquiv_apply`,
+  `Categorification.orthRangeSumEquiv_proj`.
 -/
 
 namespace Categorification
@@ -33,6 +34,13 @@ open LinearMap
 
 variable {R M M' : Type*} [CommRing R] [AddCommGroup M] [Module R M]
   [AddCommGroup M'] [Module R M'] {ι : Type*} [DecidableEq ι] (s : Finset ι)
+
+omit [DecidableEq ι] in
+/-- An additive function commutes with finite sums. -/
+theorem apply_sum_of_additive {A B : Type*} [AddCommMonoid A] [AddCommMonoid B] (F : A → B)
+    (h0 : F 0 = 0) (hadd : ∀ a b, F (a + b) = F a + F b) (f : ι → A) :
+    F (∑ i ∈ s, f i) = ∑ i ∈ s, F (f i) :=
+  map_sum (⟨⟨F, h0⟩, hadd⟩ : A →+ B) f s
 
 /-- A finite family of orthogonal idempotents. -/
 def OrthIdem (P : ι → M →ₗ[R] M) : Prop :=
